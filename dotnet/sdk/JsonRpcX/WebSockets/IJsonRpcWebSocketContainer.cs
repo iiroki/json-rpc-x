@@ -1,8 +1,8 @@
 using System.Net.WebSockets;
 
-namespace JsonRpcX.Ws;
+namespace JsonRpcX.WebSockets;
 
-public interface IWebSocketContainer
+public interface IJsonRpcWebSocketContainer
 {
     int Count { get; }
 

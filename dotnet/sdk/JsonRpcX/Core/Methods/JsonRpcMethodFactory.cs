@@ -1,19 +1,18 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Handlers;
+using JsonRpcX.Methods;
 using JsonRpcX.Models;
 using JsonRpcX.Options;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.Core.Methods;
 
-internal class JsonRpcInternalMethodFactory(IEnumerable<JsonRpcInternalMethodOptions> opt)
-    : IJsonRpcInternalMethodFactory
+internal class JsonRpcMethodFactory(IEnumerable<JsonRpcInternalMethodOptions> opt) : IJsonRpcMethodFactory
 {
     public ImmutableDictionary<string, MethodInfo> Methods { get; } =
         opt.SelectMany(o => o.Methods).ToImmutableDictionary();
 
-    public IJsonRpcInternalMethodHandler CreateHandler(IServiceScope scope, string method, JsonRpcContext ctx)
+    public IJsonRpcMethodHandler2 CreateHandler(IServiceScope scope, string method, JsonRpcContext ctx)
     {
         // 1. Find method handler for the method
         var key = JsonRpcConstants.DiKeyPrefix + method;
@@ -46,6 +45,6 @@ internal class JsonRpcInternalMethodFactory(IEnumerable<JsonRpcInternalMethodOpt
         }
 
         // 4. Create the internal method handler
-        return new JsonRpcInternalMethodHandler(handler, methodMetadata);
+        return new JsonRpcMethodHandler2(handler, methodMetadata);
     }
 }

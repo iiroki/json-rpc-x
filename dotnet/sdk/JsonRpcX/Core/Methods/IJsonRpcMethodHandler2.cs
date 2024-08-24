@@ -1,12 +1,13 @@
-using System.Collections.Immutable;
 using System.Reflection;
+using JsonRpcX.Methods;
 
-namespace JsonRpcX.Handlers;
+namespace JsonRpcX.Core.Methods;
 
 /// <summary>
 /// Internal interface for coupling JSON RPC method handlers and their method invocation metadata.
 /// </summary>
-internal interface IJsonRpcInternalMethodHandler
+// TODO: A better name :D
+internal interface IJsonRpcMethodHandler2
 {
     /// <summary>
     /// JSON RPC method handler to invoke the methods against.

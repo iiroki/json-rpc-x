@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 
-namespace JsonRpcX.Ws;
+namespace JsonRpcX.WebSockets;
 
-internal class WebSocketContainer : IWebSocketContainer
+internal class WebSocketContainer : IJsonRpcWebSocketContainer
 {
     private readonly ConcurrentDictionary<string, WebSocket> _sockets = new();
 

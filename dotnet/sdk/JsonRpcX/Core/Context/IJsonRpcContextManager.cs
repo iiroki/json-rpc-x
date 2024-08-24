@@ -1,6 +1,6 @@
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.Core.Context;
 
 internal interface IJsonRpcContextManager : IJsonRpcContextProvider
 {

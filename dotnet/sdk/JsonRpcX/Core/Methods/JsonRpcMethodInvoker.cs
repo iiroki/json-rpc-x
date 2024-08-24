@@ -3,9 +3,10 @@ using System.Text;
 using System.Text.Json;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
+using JsonRpcX.Methods;
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Handlers;
+namespace JsonRpcX.Core.Methods;
 
 internal class JsonRpcMethodInvoker
 {
@@ -15,7 +16,7 @@ internal class JsonRpcMethodInvoker
     private readonly JsonSerializerOptions? _jsonOptions;
 
     public JsonRpcMethodInvoker(
-        IJsonRpcInternalMethodHandler @internal,
+        IJsonRpcMethodHandler2 @internal,
         JsonRpcContext ctx,
         JsonSerializerOptions? jsonOptions
     )

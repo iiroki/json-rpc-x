@@ -31,7 +31,7 @@ builder.Services.AddJsonRpcMethodsFromAssebly(jsonRpcOptions);
 
 var app = builder.Build();
 app.UseWebSockets();
-app.MapJsonRpc("/ws");
+app.MapJsonRpcWebSocket("/ws");
 app.MapJsonRpcSchema("/");
 
 await app.RunAsync();

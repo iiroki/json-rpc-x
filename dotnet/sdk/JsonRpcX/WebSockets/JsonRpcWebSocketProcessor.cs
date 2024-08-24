@@ -1,17 +1,17 @@
 using System.Net.WebSockets;
-using JsonRpcX.Handlers;
-using JsonRpcX.Ws;
+using JsonRpcX.Core.Messages;
+using JsonRpcX.WebSockets;
 
 namespace JsonRpcX.Services;
 
-internal class WebSocketProcessor(
-    IMessageHandler<byte[], byte[]?> handler,
-    IWebSocketContainer container,
-    ILogger<WebSocketProcessor> logger
+internal class JsonRpcWebSocketProcessor(
+    IJsonRpcMessageHandler<byte[], byte[]?> handler,
+    IJsonRpcWebSocketContainer container,
+    ILogger<JsonRpcWebSocketProcessor> logger
 ) : IWebSocketProcessor
 {
-    private readonly IMessageHandler<byte[], byte[]?> _handler = handler;
-    private readonly IWebSocketContainer _container = container;
+    private readonly IJsonRpcMessageHandler<byte[], byte[]?> _handler = handler;
+    private readonly IJsonRpcWebSocketContainer _container = container;
     private readonly ILogger _logger = logger;
 
     // See "Echo":

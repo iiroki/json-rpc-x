@@ -1,5 +1,5 @@
 using JsonRpcX.Attributes;
-using JsonRpcX.Handlers;
+using JsonRpcX.Methods;
 
 namespace JsonRpcX.Api.Methods;
 

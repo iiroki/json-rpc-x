@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace JsonRpcX.Models;
 
-public abstract class JsonRpcBase
+public abstract class JsonRpcBase : IJsonRpcMessage
 {
     /// <summary>
     /// MUST be <c>"2.0"</c>.

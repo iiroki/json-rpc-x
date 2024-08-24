@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.Core.Methods;
 
-internal interface IJsonRpcInternalMethodContainer
+internal interface IJsonRpcMethodContainer
 {
     ImmutableDictionary<string, MethodInfo> Methods { get; }
 }

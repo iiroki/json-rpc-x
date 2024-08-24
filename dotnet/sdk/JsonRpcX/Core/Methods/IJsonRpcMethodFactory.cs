@@ -1,15 +1,14 @@
-using JsonRpcX.Handlers;
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.Core.Methods;
 
 /// <summary>
 /// Factory for creating internal JSON RPC method handlers.
 /// </summary>
-internal interface IJsonRpcInternalMethodFactory : IJsonRpcInternalMethodContainer
+internal interface IJsonRpcMethodFactory : IJsonRpcMethodContainer
 {
     /// <summary>
     /// Creates an internal JSON RPC method handler for the method in the given context.
     /// </summary>
-    IJsonRpcInternalMethodHandler CreateHandler(IServiceScope scope, string method, JsonRpcContext ctx);
+    IJsonRpcMethodHandler2 CreateHandler(IServiceScope scope, string method, JsonRpcContext ctx);
 }

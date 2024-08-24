@@ -1,11 +1,11 @@
-using JsonRpcX.Ws;
+using JsonRpcX.WebSockets;
 
 namespace JsonRpcX.Api.Services;
 
-public class JsonRpcStatusWorker(IWebSocketContainer wsContainer, ILogger<JsonRpcStatusWorker> logger)
+public class JsonRpcStatusWorker(IJsonRpcWebSocketContainer wsContainer, ILogger<JsonRpcStatusWorker> logger)
     : BackgroundService
 {
-    private readonly IWebSocketContainer _wsContainer = wsContainer;
+    private readonly IJsonRpcWebSocketContainer _wsContainer = wsContainer;
     private readonly ILogger _logger = logger;
 
     protected override async Task ExecuteAsync(CancellationToken ct)

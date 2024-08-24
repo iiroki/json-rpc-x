@@ -1,25 +1,26 @@
 using System.Text.Json;
+using JsonRpcX.Core.Context;
+using JsonRpcX.Core.Methods;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Models;
-using JsonRpcX.Services;
 
-namespace JsonRpcX.Handlers;
+namespace JsonRpcX.Core.Messages;
 
-using IJsonRpcMessageHandler = MessageHandlerBase<byte[], byte[]?>;
+using IJsonRpcMessageHandler = JsonRpcMessageHandlerBase<byte[], byte[]?>;
 
 internal class JsonRpcMessageHandler(
     IServiceProvider services,
-    IJsonRpcInternalMethodFactory factory,
+    IJsonRpcMethodFactory factory,
     ILogger<JsonRpcMessageHandler> logger,
-    IMessageExceptionHandler? exceptionHandler = null
+    IJsonRpcExceptionHandler? exceptionHandler = null
 ) : IJsonRpcMessageHandler(services, exceptionHandler)
 {
-    private readonly IJsonRpcInternalMethodFactory _factory = factory;
+    private readonly IJsonRpcMethodFactory _factory = factory;
     private readonly JsonSerializerOptions? _jsonOptions = services.GetService<JsonSerializerOptions>();
     private readonly ILogger _logger = logger;
 
-    protected override async Task<object?> HandleInternalAsync(
+    protected override async Task<IJsonRpcMessage?> HandleInternalAsync(
         byte[] message,
         IServiceScope scope,
         HttpContext httpCtx,
@@ -76,7 +77,7 @@ internal class JsonRpcMessageHandler(
         }
     }
 
-    protected override byte[]? ConvertToOutputType(object? response) =>
+    protected override byte[]? ConvertToOutputType(IJsonRpcMessage? response) =>
         response != null ? JsonSerializer.Serialize(response, _jsonOptions).GetUtf8Bytes() : null;
 
     private JsonRpcMethodInvoker GetMethodInvoker(IServiceScope scope, string method, JsonRpcContext ctx)

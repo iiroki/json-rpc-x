@@ -1,15 +1,20 @@
 using System.Net;
 using System.Net.WebSockets;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using JsonRpcX.Attributes;
+using JsonRpcX.Core.Context;
+using JsonRpcX.Core.Messages;
+using JsonRpcX.Core.Methods;
+using JsonRpcX.Core.Schema;
+using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
-using JsonRpcX.Handlers;
+using JsonRpcX.Methods;
 using JsonRpcX.Models;
 using JsonRpcX.Options;
 using JsonRpcX.Services;
-using JsonRpcX.Ws;
+using JsonRpcX.WebSockets;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace JsonRpcX;
 
@@ -25,9 +30,10 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcContextProvider>(sp => sp.GetRequiredService<IJsonRpcContextManager>())
             .AddScoped(sp => sp.GetRequiredService<IJsonRpcContextProvider>().Context)
             // Singleton:
-            .AddSingleton<IJsonRpcInternalMethodFactory, JsonRpcInternalMethodFactory>()
-            .AddSingleton<IJsonRpcInternalMethodContainer>(sp => sp.GetRequiredService<IJsonRpcInternalMethodFactory>())
-            .AddSingleton<IMessageHandler<byte[], byte[]?>, JsonRpcMessageHandler>();
+            .AddSingleton<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
+            .AddSingleton<IJsonRpcMethodContainer>(sp => sp.GetRequiredService<IJsonRpcMethodFactory>())
+            .AddSingleton<IJsonRpcMessageHandler<byte[], byte[]?>, JsonRpcMessageHandler>()
+            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcDefaultExceptionHandler>();
 
     /// <summary>
     /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
@@ -94,69 +100,44 @@ public static class DependencyExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
+    /// <br/>
+    /// NOTE:<br/>
+    /// Using this method REPLACES the exception handler,
+    /// since there can only be one!
+    /// </summary>
+    public static IServiceCollection AddJsonRpcExceptionHandler<T>(this IServiceCollection services)
+        where T : IJsonRpcExceptionHandler =>
+        services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcExceptionHandler), typeof(T)));
+
+    /// <summary>
+    /// Adds JSON RPC WebSocket services to the services.
+    /// </summary>
     public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
         services
-            .AddSingleton<IWebSocketProcessor, WebSocketProcessor>()
-            .AddSingleton<IWebSocketContainer, WebSocketContainer>();
+            .AddSingleton<IWebSocketProcessor, JsonRpcWebSocketProcessor>()
+            .AddSingleton<IJsonRpcWebSocketContainer, WebSocketContainer>();
 
-    public static WebApplication MapJsonRpc(
+    /// <summary>
+    /// Maps the JSON RPC API to the WebSocket in the given route.
+    /// </summary>
+    public static WebApplication MapJsonRpcWebSocket(
         this WebApplication app,
-        string path,
+        string route,
         bool shouldSendInitNotification = true
     )
     {
-        app.Map(
-            path,
-            async (ctx) =>
-            {
-                if (ctx.WebSockets.IsWebSocketRequest)
-                {
-                    var container = app.Services.GetRequiredService<IWebSocketContainer>();
-                    var processor = app.Services.GetRequiredService<IWebSocketProcessor>();
-                    var jsonOptions = app.Services.GetService<JsonSerializerOptions>();
-
-                    using var ws = await ctx.WebSockets.AcceptWebSocketAsync();
-
-                    var task = processor.AttachAsync(ws, ctx);
-
-                    // Send the initial notification
-                    if (shouldSendInitNotification)
-                    {
-                        var notification = new JsonRpcRequest { Method = "init" };
-                        var content = JsonSerializer.Serialize(notification, jsonOptions).GetUtf8Bytes();
-                        await ws.SendAsync(content, WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
-
-                    // Wait for the WebSocket processor to complete
-                    await task;
-                }
-                else
-                {
-                    ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                }
-            }
-        );
-
+        app.Map(route, new JsonRpcWebSocketEndpointFactory(shouldSendInitNotification).Create());
         return app;
     }
 
-    public static WebApplication MapJsonRpcSchema(this WebApplication app, string path)
+    /// <summary>
+    /// Maps the JSON RPC API schema endpoint to the given route.
+    /// </summary>
+    public static WebApplication MapJsonRpcSchema(this WebApplication app, string route)
     {
-        app.MapGet(
-            path,
-            async (ctx) =>
-            {
-                var container = app.Services.GetRequiredService<IJsonRpcInternalMethodContainer>();
-                var jsonOptions = app.Services.GetService<JsonSerializerOptions>();
-
-                // TODO: Think about what's needed in the schema?
-                var schema = new { Methods = container.Methods.Keys.Order() };
-
-                var bytes = JsonSerializer.Serialize(schema, jsonOptions).GetUtf8Bytes();
-                await ctx.Response.BodyWriter.WriteAsync(bytes);
-            }
-        );
-
+        app.MapGet(route, new JsonRpcSchemaEndpointFactory().Create());
         return app;
     }
 
