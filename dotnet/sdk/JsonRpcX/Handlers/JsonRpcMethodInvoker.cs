@@ -1,0 +1,141 @@
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using JsonRpcX.Exceptions;
+using JsonRpcX.Extensions;
+using JsonRpcX.Models;
+
+namespace JsonRpcX.Handlers;
+
+internal class JsonRpcMethodInvoker
+{
+    private readonly IJsonRpcMethodHandler _handler;
+    private readonly MethodInfo _method;
+    private readonly JsonRpcContext _ctx;
+    private readonly JsonSerializerOptions? _jsonOptions;
+
+    public JsonRpcMethodInvoker(
+        IJsonRpcInternalMethodHandler @internal,
+        JsonRpcContext ctx,
+        JsonSerializerOptions? jsonOptions
+    )
+    {
+        _handler = @internal.Handler;
+        _method = @internal.Method;
+        _ctx = ctx;
+        _jsonOptions = jsonOptions;
+    }
+
+    public JsonRpcMethodInvoker(
+        IJsonRpcMethodHandler handler,
+        MethodInfo method,
+        JsonRpcContext ctx,
+        JsonSerializerOptions? jsonOptions
+    )
+    {
+        _handler = handler;
+        _method = method;
+        _ctx = ctx;
+        _jsonOptions = jsonOptions;
+    }
+
+    public async Task<object?> InvokeAsync(JsonElement? @params, CancellationToken ct = default)
+    {
+        var methodParams = GetParameters(@params, ct);
+        var result = _method.Invoke(_handler, methodParams);
+
+        // If the result is a task -> Wait for the completion.
+        if (result is Task task)
+        {
+            await task;
+            if (task.GetType().GenericTypeArguments.Length > 0)
+            {
+                if (task.IsCompletedSuccessfully)
+                {
+                    result = GetTaskResult(task);
+                }
+                else if (task.Exception != null)
+                {
+                    throw task.Exception;
+                }
+                else
+                {
+                    throw new JsonRpcException(_ctx, "Could not extract result from a task");
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
+    {
+        var methodParams = _method.GetParameters();
+        var hasCt = methodParams.LastOrDefault()?.ParameterType == typeof(CancellationToken);
+        if (hasCt)
+        {
+            methodParams = methodParams[0..(methodParams.Length - 1)];
+        }
+
+        object?[]? parsedParams =
+            json.HasValue && json.Value.IsArray()
+                ? ParseMultipleParams(json, methodParams)
+                : [ParseSingleParam(json, methodParams.First())];
+
+        return hasCt ? [.. parsedParams, ct] : parsedParams;
+    }
+
+    private object? ParseSingleParam(JsonElement? json, ParameterInfo info)
+    {
+        if (!json.HasValue || json.Value.IsNull())
+        {
+            return info.HasDefaultValue ? info.DefaultValue : null;
+        }
+
+        return json.Value.Deserialize(info.ParameterType, _jsonOptions);
+    }
+
+    private object?[]? ParseMultipleParams(JsonElement? json, ParameterInfo[] info)
+    {
+        var paramDefaultCount = 0;
+        for (var i = info.Length - 1; i >= 0; --i)
+        {
+            if (info[i].HasDefaultValue)
+            {
+                ++paramDefaultCount;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        var paramRequiredCount = info.Length - paramDefaultCount;
+        if (paramRequiredCount == 0 && json?.ValueKind == JsonValueKind.Undefined)
+        {
+            return null;
+        }
+
+        if (!json.HasValue || json.Value.ValueKind != JsonValueKind.Array)
+        {
+            var msgBuilder = new StringBuilder($"Expected \"params\" array with length: {paramRequiredCount}");
+            if (paramDefaultCount != 0)
+            {
+                msgBuilder.Append($" - {paramRequiredCount + paramDefaultCount}");
+            }
+
+            throw new JsonRpcErrorException(_ctx, (int)JsonRpcConstants.ErrorCode.InvalidParams, msgBuilder.ToString());
+        }
+
+        List<object?> @params = [];
+        foreach (var (el, i) in json.Value.EnumerateWithIndex())
+        {
+            @params.Add(ParseSingleParam(el, info[i]));
+        }
+
+        return [.. @params];
+    }
+
+    private static object? GetTaskResult(Task task) =>
+        task.GetType().GetProperty(nameof(Task<object>.Result))?.GetValue(task);
+}
