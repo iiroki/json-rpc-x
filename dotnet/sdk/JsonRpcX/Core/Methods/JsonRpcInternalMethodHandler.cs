@@ -3,7 +3,8 @@ using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
 
-internal class JsonRpcMethodHandler2(IJsonRpcMethodHandler handler, MethodInfo method) : IJsonRpcMethodHandler2
+internal class JsonRpcMethodHandlerInvocation(IJsonRpcMethodHandler handler, MethodInfo method)
+    : IJsonRpcMethodInvocation
 {
     public IJsonRpcMethodHandler Handler { get; } = handler;
 

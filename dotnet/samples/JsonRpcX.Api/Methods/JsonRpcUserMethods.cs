@@ -1,4 +1,5 @@
 using JsonRpcX.Attributes;
+using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
 
 namespace JsonRpcX.Api.Methods;
@@ -39,6 +40,12 @@ public class JsonRpcUserMethods(ILogger<JsonRpcUserMethods> logger) : IJsonRpcMe
     public void Dummy()
     {
         // NOP
+    }
+
+    [JsonRpcMethod]
+    public void ThrowException()
+    {
+        throw new JsonRpcAuthException("No permission");
     }
 
     public record ExampleUser(long Id, string Name);

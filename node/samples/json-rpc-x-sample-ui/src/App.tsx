@@ -52,6 +52,17 @@ setInterval(() => {
   }
 }, 5000)
 
+setInterval(() => {
+  if (ws.readyState == ws.OPEN) {
+    const request = {
+      jsonrpc: '2.0',
+      method: 'throwException'
+    }
+  
+    ws.send(JSON.stringify(request))
+  }
+}, 10000)
+
 const App = () => {
   const [count, setCount] = useState(0)
 

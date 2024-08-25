@@ -1,11 +1,11 @@
 using System.Reflection;
 
-namespace JsonRpcX.Options;
+namespace JsonRpcX.Core.Methods;
 
 /// <summary>
 /// Internal options for initializing JSON RPC functionality.
 /// </summary>
-internal class JsonRpcInternalMethodOptions
+internal class JsonRpcMethodMetadataOptions
 {
     public required Type Type { get; init; }
 

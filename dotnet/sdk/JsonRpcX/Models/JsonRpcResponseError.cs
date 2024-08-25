@@ -9,4 +9,6 @@ public class JsonRpcResponseError : JsonRpcBase
 {
     [JsonPropertyName("error")]
     public required JsonRpcError Error { get; init; }
+
+    public JsonRpcResponse ToResponse() => new(this);
 }

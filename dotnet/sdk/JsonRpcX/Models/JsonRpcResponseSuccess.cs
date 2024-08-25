@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace JsonRpcX.Models;
@@ -10,4 +9,6 @@ public class JsonRpcResponseSuccess : JsonRpcBase
 {
     [JsonPropertyName("result")]
     public object? Result { get; init; }
+
+    public JsonRpcResponse ToResponse() => new(this);
 }

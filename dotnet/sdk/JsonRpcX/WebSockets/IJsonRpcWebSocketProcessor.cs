@@ -1,8 +1,8 @@
 using System.Net.WebSockets;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.WebSockets;
 
-internal interface IWebSocketProcessor
+internal interface IJsonRpcWebSocketProcessor
 {
     Task AttachAsync(WebSocket ws, HttpContext ctx, CancellationToken ct = default);
 }

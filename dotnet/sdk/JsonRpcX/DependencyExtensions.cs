@@ -1,18 +1,12 @@
-using System.Net;
-using System.Net.WebSockets;
 using System.Reflection;
-using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Messages;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Schema;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
-using JsonRpcX.Models;
 using JsonRpcX.Options;
-using JsonRpcX.Services;
 using JsonRpcX.WebSockets;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -25,15 +19,16 @@ public static class DependencyExtensions
     /// </summary>
     public static IServiceCollection AddJsonRpc(this IServiceCollection services) =>
         services
-            // Scoped (per request):
+            // Request services:
             .AddScoped<IJsonRpcContextManager, JsonRpcContextManager>()
             .AddScoped<IJsonRpcContextProvider>(sp => sp.GetRequiredService<IJsonRpcContextManager>())
             .AddScoped(sp => sp.GetRequiredService<IJsonRpcContextProvider>().Context)
-            // Singleton:
-            .AddSingleton<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
-            .AddSingleton<IJsonRpcMethodContainer>(sp => sp.GetRequiredService<IJsonRpcMethodFactory>())
-            .AddSingleton<IJsonRpcMessageHandler<byte[], byte[]?>, JsonRpcMessageHandler>()
-            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcDefaultExceptionHandler>();
+            .AddScoped<IJsonRpcMessageHandler<byte[]>, JsonRpcMessageHandler>()
+            .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
+            // Global services:
+            .AddSingleton<IJsonRpcMessageProcessor<byte[], byte[]?>, JsonRpcMessageProcessor>()
+            .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
+            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>();
 
     /// <summary>
     /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
@@ -65,7 +60,7 @@ public static class DependencyExtensions
 
             if (methodMetadata.Count > 0)
             {
-                services.AddSingleton(new JsonRpcInternalMethodOptions { Type = type, Methods = methodMetadata });
+                services.AddSingleton(new JsonRpcMethodMetadataOptions { Type = type, Methods = methodMetadata });
             }
         }
 
@@ -116,8 +111,9 @@ public static class DependencyExtensions
     /// </summary>
     public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
         services
-            .AddSingleton<IWebSocketProcessor, JsonRpcWebSocketProcessor>()
-            .AddSingleton<IJsonRpcWebSocketContainer, WebSocketContainer>();
+            .AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>()
+            .AddSingleton<IJsonRpcWebSocketContainer, JsonRpcWebSocketContainer>()
+            .AddSingleton<IJsonRpcWebSocketIdGenerator, JsonRpcWebSocketIdGenerator>();
 
     /// <summary>
     /// Maps the JSON RPC API to the WebSocket in the given route.

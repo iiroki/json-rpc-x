@@ -4,7 +4,6 @@ using System.Text.Json;
 using JsonRpcX.Core.Endpoints;
 using JsonRpcX.Extensions;
 using JsonRpcX.Models;
-using JsonRpcX.Services;
 
 namespace JsonRpcX.WebSockets;
 
@@ -17,7 +16,7 @@ internal class JsonRpcWebSocketEndpointFactory(bool shouldSendInitNotification) 
         {
             var services = ctx.RequestServices;
             var container = services.GetRequiredService<IJsonRpcWebSocketContainer>();
-            var processor = services.GetRequiredService<IWebSocketProcessor>();
+            var processor = services.GetRequiredService<IJsonRpcWebSocketProcessor>();
             var jsonOptions = services.GetService<JsonSerializerOptions>();
 
             if (ctx.WebSockets.IsWebSocketRequest)

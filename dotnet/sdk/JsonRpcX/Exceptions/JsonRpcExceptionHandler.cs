@@ -7,11 +7,15 @@ namespace JsonRpcX.Exceptions;
 /// <br />
 /// This class can be inherited to further extend JSON RPC exception handling.
 /// </summary>
-public class JsonRpcDefaultExceptionHandler : IJsonRpcExceptionHandler
+public class JsonRpcExceptionHandler : IJsonRpcExceptionHandler
 {
-    public Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default)
+    public Task<JsonRpcError?> HandleAsync(Exception ex, JsonRpcContext ctx, CancellationToken ct = default)
     {
-        if (ex.GetType() == typeof(JsonRpcErrorException))
+        if (ex is JsonRpcErrorException errorEx)
+        {
+            // TODO
+        }
+        else if (ex is JsonRpcAuthException authEx)
         {
             // TODO
         }

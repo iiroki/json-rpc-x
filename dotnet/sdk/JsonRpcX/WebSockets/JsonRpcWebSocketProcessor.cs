@@ -1,24 +1,26 @@
 using System.Net.WebSockets;
 using JsonRpcX.Core.Messages;
-using JsonRpcX.WebSockets;
+using JsonRpcX.Models;
 
-namespace JsonRpcX.Services;
+namespace JsonRpcX.WebSockets;
 
 internal class JsonRpcWebSocketProcessor(
-    IJsonRpcMessageHandler<byte[], byte[]?> handler,
+    IJsonRpcMessageProcessor<byte[], byte[]?> messageProcessor,
     IJsonRpcWebSocketContainer container,
+    IJsonRpcWebSocketIdGenerator idGenerator,
     ILogger<JsonRpcWebSocketProcessor> logger
-) : IWebSocketProcessor
+) : IJsonRpcWebSocketProcessor
 {
-    private readonly IJsonRpcMessageHandler<byte[], byte[]?> _handler = handler;
+    private readonly IJsonRpcMessageProcessor<byte[], byte[]?> _messageProcessor = messageProcessor;
     private readonly IJsonRpcWebSocketContainer _container = container;
+    private readonly IJsonRpcWebSocketIdGenerator _idGenerator = idGenerator;
     private readonly ILogger _logger = logger;
 
     // See "Echo":
     // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/websockets?view=aspnetcore-8.0#send-and-receive-messages
     public async Task AttachAsync(WebSocket ws, HttpContext ctx, CancellationToken ct = default)
     {
-        const string id = "TODO";
+        var id = _idGenerator.Generate(ctx);
         _container.Add(id, ws);
 
         var buffer = new byte[1024 * 4];
@@ -41,9 +43,10 @@ internal class JsonRpcWebSocketProcessor(
         await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, ct);
     }
 
-    private async Task HandleAsync(WebSocket ws, byte[] buffer, HttpContext ctx, CancellationToken ct)
+    private async Task HandleAsync(WebSocket ws, byte[] buffer, HttpContext http, CancellationToken ct)
     {
-        var response = await _handler.HandleAsync(buffer, ctx, ct);
+        var ctx = new JsonRpcContext { Transport = JsonRpcTransport.WebSocket, Http = http };
+        var response = await _messageProcessor.ProcessAsync(buffer, ctx, ct);
         if (response != null)
         {
             if (ws.CloseStatus.HasValue)

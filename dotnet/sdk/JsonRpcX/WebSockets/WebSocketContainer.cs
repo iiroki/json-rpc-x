@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 
 namespace JsonRpcX.WebSockets;
 
-internal class WebSocketContainer : IJsonRpcWebSocketContainer
+internal class JsonRpcWebSocketContainer : IJsonRpcWebSocketContainer
 {
     private readonly ConcurrentDictionary<string, WebSocket> _sockets = new();
 

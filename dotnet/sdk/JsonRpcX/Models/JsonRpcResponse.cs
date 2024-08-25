@@ -1,5 +1,9 @@
+using System.Text.Json.Serialization;
+using JsonRpcX.Serialization;
+
 namespace JsonRpcX.Models;
 
+[JsonConverter(typeof(JsonRpcResponseConverter))]
 public class JsonRpcResponse
 {
     private readonly JsonRpcResponseSuccess? _success;

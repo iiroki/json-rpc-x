@@ -7,7 +7,7 @@ namespace JsonRpcX.Core.Methods;
 /// Internal interface for coupling JSON RPC method handlers and their method invocation metadata.
 /// </summary>
 // TODO: A better name :D
-internal interface IJsonRpcMethodHandler2
+internal interface IJsonRpcMethodInvocation
 {
     /// <summary>
     /// JSON RPC method handler to invoke the methods against.

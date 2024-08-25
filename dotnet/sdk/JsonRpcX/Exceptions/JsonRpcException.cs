@@ -1,8 +1,3 @@
-using JsonRpcX.Models;
-
 namespace JsonRpcX.Exceptions;
 
-public class JsonRpcException(JsonRpcContext? ctx, string msg) : Exception(msg)
-{
-    public JsonRpcContext? Context = ctx;
-}
+public class JsonRpcException(string msg, Exception? cause = null) : Exception(msg, cause);

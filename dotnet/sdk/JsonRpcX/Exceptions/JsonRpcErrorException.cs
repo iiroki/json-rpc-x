@@ -6,14 +6,14 @@ public class JsonRpcErrorException : JsonRpcException
 {
     public JsonRpcError Error { get; }
 
-    public JsonRpcErrorException(JsonRpcContext? ctx, JsonRpcError error)
-        : base(ctx, error.Message)
+    public JsonRpcErrorException(JsonRpcError error)
+        : base(error.Message)
     {
         Error = error;
     }
 
-    public JsonRpcErrorException(JsonRpcContext? ctx, int code, string message, object? data = null)
-        : base(ctx, message)
+    public JsonRpcErrorException(int code, string message, object? data = null)
+        : base(message)
     {
         Error = new JsonRpcError
         {
@@ -23,8 +23,8 @@ public class JsonRpcErrorException : JsonRpcException
         };
     }
 
-    public JsonRpcErrorException(JsonRpcContext? ctx, int code, string message)
-        : base(ctx, message)
+    public JsonRpcErrorException(int code, string message)
+        : base(message)
     {
         Error = new JsonRpcError { Code = code, Message = message };
     }

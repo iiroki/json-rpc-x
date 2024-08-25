@@ -1,34 +1,30 @@
-using System.Collections.Immutable;
-using System.Reflection;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
-using JsonRpcX.Models;
-using JsonRpcX.Options;
 
 namespace JsonRpcX.Core.Methods;
 
-internal class JsonRpcMethodFactory(IEnumerable<JsonRpcInternalMethodOptions> opt) : IJsonRpcMethodFactory
+internal class JsonRpcMethodFactory(IServiceProvider services, IJsonRpcMethodContainer container)
+    : IJsonRpcMethodFactory
 {
-    public ImmutableDictionary<string, MethodInfo> Methods { get; } =
-        opt.SelectMany(o => o.Methods).ToImmutableDictionary();
+    private readonly IServiceProvider _services = services;
+    private readonly IJsonRpcMethodContainer _container = container;
 
-    public IJsonRpcMethodHandler2 CreateHandler(IServiceScope scope, string method, JsonRpcContext ctx)
+    public IJsonRpcMethodInvocation CreateInvocation(string method)
     {
         // 1. Find method handler for the method
         var key = JsonRpcConstants.DiKeyPrefix + method;
+
         var handler =
-            scope.ServiceProvider.GetKeyedService<IJsonRpcMethodHandler>(key)
+            _services.GetKeyedService<IJsonRpcMethodHandler>(key)
             ?? throw new JsonRpcErrorException(
-                ctx,
                 (int)JsonRpcConstants.ErrorCode.MethodNotFound,
                 $"Method not found: {method}"
             );
 
         // 2. Find method invocation metadata for the method
-        if (!Methods.TryGetValue(method, out var methodMetadata))
+        if (!_container.Methods.TryGetValue(method, out var methodMetadata))
         {
             throw new JsonRpcErrorException(
-                ctx,
                 (int)JsonRpcConstants.ErrorCode.InternalError,
                 $"Method invocation metadata not found for method: {method}"
             );
@@ -38,13 +34,12 @@ internal class JsonRpcMethodFactory(IEnumerable<JsonRpcInternalMethodOptions> op
         if (handler.GetType() != methodMetadata.DeclaringType)
         {
             throw new JsonRpcErrorException(
-                ctx,
                 (int)JsonRpcConstants.ErrorCode.InternalError,
                 $"Handler <-> Method type mismatch: {handler.GetType().FullName} != {methodMetadata.DeclaringType}"
             );
         }
 
         // 4. Create the internal method handler
-        return new JsonRpcMethodHandler2(handler, methodMetadata);
+        return new JsonRpcMethodHandlerInvocation(handler, methodMetadata);
     }
 }
