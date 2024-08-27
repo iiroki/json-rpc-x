@@ -28,7 +28,8 @@ public static class DependencyExtensions
             // Global services:
             .AddSingleton<IJsonRpcMessageProcessor<byte[], byte[]?>, JsonRpcMessageProcessor>()
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
-            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>();
+            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>()
+            .AddSingleton<JsonRpcExceptionOptions>();
 
     /// <summary>
     /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
@@ -96,15 +97,34 @@ public static class DependencyExtensions
     }
 
     /// <summary>
-    /// Adds the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
+    /// Set the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
     /// <br/>
     /// NOTE:<br/>
     /// Using this method REPLACES the exception handler,
     /// since there can only be one!
     /// </summary>
-    public static IServiceCollection AddJsonRpcExceptionHandler<T>(this IServiceCollection services)
-        where T : IJsonRpcExceptionHandler =>
+    public static IServiceCollection SetJsonRpcExceptionHandler<T>(
+        this IServiceCollection services,
+        JsonRpcExceptionOptions? opt = null
+    )
+        where T : IJsonRpcExceptionHandler
+    {
         services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcExceptionHandler), typeof(T)));
+        if (opt != null)
+        {
+            services.SetJsonRpcExceptionOptions(opt);
+        }
+
+        return services;
+    }
+
+    /// <summary>
+    /// Sets the <c>JsonRpcExceptionOptions</c>.
+    /// </summary>
+    public static IServiceCollection SetJsonRpcExceptionOptions(
+        this IServiceCollection services,
+        JsonRpcExceptionOptions opt
+    ) => services.Replace(ServiceDescriptor.Singleton(typeof(JsonRpcExceptionOptions), opt));
 
     /// <summary>
     /// Adds JSON RPC WebSocket services to the services.

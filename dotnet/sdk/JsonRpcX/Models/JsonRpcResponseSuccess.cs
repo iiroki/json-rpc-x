@@ -8,6 +8,7 @@ namespace JsonRpcX.Models;
 public class JsonRpcResponseSuccess : JsonRpcBase
 {
     [JsonPropertyName("result")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public object? Result { get; init; }
 
     public JsonRpcResponse ToResponse() => new(this);

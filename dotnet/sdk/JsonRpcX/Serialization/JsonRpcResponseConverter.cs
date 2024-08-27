@@ -7,6 +7,7 @@ namespace JsonRpcX.Serialization;
 public class JsonRpcResponseConverter : JsonConverter<JsonRpcResponse>
 {
     public override JsonRpcResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions opt) =>
+        // TODO: Implement when receiving responses
         throw new NotSupportedException($"\"{nameof(JsonRpcResponse)}\" JSON deserialization is not supported");
 
     public override void Write(Utf8JsonWriter writer, JsonRpcResponse value, JsonSerializerOptions opt)

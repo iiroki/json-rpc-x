@@ -6,7 +6,6 @@ namespace JsonRpcX.Core.Messages;
 
 internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
     IServiceProvider services,
-    // IJsonRpcMessageHandler<TIn> handler,
     IJsonRpcExceptionHandler? exceptionHandler = null
 ) : IJsonRpcMessageProcessor<TIn, TOut>
 {
@@ -51,13 +50,14 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
                 if (error != null)
                 {
                     // The exception was handled successfully
-                    errorResponse = new JsonRpcResponseError { Error = error };
+                    errorResponse = new JsonRpcResponseError { Id = ctx.Request?.Id, Error = error };
                 }
             }
 
             // Fallback to the default internal error
             errorResponse ??= new JsonRpcResponseError
             {
+                Id = ctx.Request?.Id,
                 Error = new JsonRpcError
                 {
                     Code = (int)JsonRpcConstants.ErrorCode.InternalError,

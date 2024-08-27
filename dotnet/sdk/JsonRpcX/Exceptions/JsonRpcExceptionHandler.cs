@@ -1,4 +1,5 @@
 using JsonRpcX.Models;
+using JsonRpcX.Options;
 
 namespace JsonRpcX.Exceptions;
 
@@ -7,19 +8,28 @@ namespace JsonRpcX.Exceptions;
 /// <br />
 /// This class can be inherited to further extend JSON RPC exception handling.
 /// </summary>
-public class JsonRpcExceptionHandler : IJsonRpcExceptionHandler
+public class JsonRpcExceptionHandler(JsonRpcExceptionOptions opt) : IJsonRpcExceptionHandler
 {
+    private readonly JsonRpcExceptionOptions _opt = opt;
+
     public Task<JsonRpcError?> HandleAsync(Exception ex, JsonRpcContext ctx, CancellationToken ct = default)
     {
+        JsonRpcError? error = null;
         if (ex is JsonRpcErrorException errorEx)
         {
-            // TODO
+            error = errorEx.Error;
         }
         else if (ex is JsonRpcAuthException authEx)
         {
-            // TODO
+            var hasUser = ctx.Http.User.Identity?.IsAuthenticated ?? false;
+            error = new JsonRpcError
+            {
+                Code = hasUser ? _opt.AuthorizationErrorCode : _opt.AuthenticationErrorCode,
+                Message = hasUser ? "Authorization error" : "Authentication error",
+                Data = new { Detail = authEx.Message },
+            };
         }
 
-        return Task.FromResult<JsonRpcError?>(null);
+        return Task.FromResult(error);
     }
 }
