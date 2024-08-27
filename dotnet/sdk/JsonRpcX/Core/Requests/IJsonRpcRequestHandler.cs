@@ -1,8 +1,11 @@
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Core.Messages;
+namespace JsonRpcX.Core.Requests;
 
-internal interface IJsonRpcMessageHandler<TIn>
+/// <summary>
+/// Handles JSON RPC requests.
+/// </summary>
+internal interface IJsonRpcRequestHandler
 {
     /// <summary>
     /// Handles the JSON RPC request in the given context.

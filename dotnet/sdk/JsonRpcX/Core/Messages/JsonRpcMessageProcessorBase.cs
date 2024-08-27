@@ -1,5 +1,5 @@
 using JsonRpcX.Core.Context;
-using JsonRpcX.Core.Parsers;
+using JsonRpcX.Core.Requests;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Models;
 
@@ -22,7 +22,7 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
         try
         {
             // 2. Get the handler
-            var handler = scope.ServiceProvider.GetRequiredService<IJsonRpcMessageHandler<TIn>>();
+            var handler = scope.ServiceProvider.GetRequiredService<IJsonRpcRequestHandler>();
 
             // 3. Set the request context to the scope
             var ctxManager = scope.ServiceProvider.GetRequiredService<IJsonRpcContextManager>();

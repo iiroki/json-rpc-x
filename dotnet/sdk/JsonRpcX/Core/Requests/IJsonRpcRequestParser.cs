@@ -1,9 +1,9 @@
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Core.Parsers;
+namespace JsonRpcX.Core.Requests;
 
 /// <summary>
-/// Parser for JSON RPC requests.
+/// Parses JSON RPC requests.
 /// </summary>
 public interface IJsonRpcRequestParser<T>
 {

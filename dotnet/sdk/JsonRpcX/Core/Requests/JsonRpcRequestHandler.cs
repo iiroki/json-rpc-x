@@ -4,21 +4,13 @@ using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Core.Messages;
+namespace JsonRpcX.Core.Requests;
 
-internal class JsonRpcMessageHandler(
-    IJsonRpcMethodFactory factory,
-    ILogger<JsonRpcMessageHandler> logger,
-    JsonSerializerOptions jsonOptions
-) : IJsonRpcMessageHandler<byte[]>, IJsonRpcMessageHandler<string>
+internal class JsonRpcRequestHandler(IJsonRpcMethodFactory factory, ILogger<JsonRpcRequestHandler> logger)
+    : IJsonRpcRequestHandler
 {
     private readonly IJsonRpcMethodFactory _factory = factory;
-    private readonly JsonSerializerOptions? _jsonOptions = jsonOptions;
     private readonly ILogger _logger = logger;
-
-    public JsonRpcRequest? Parse(byte[] message) => JsonSerializer.Deserialize<JsonRpcRequest>(message, _jsonOptions);
-
-    public JsonRpcRequest? Parse(string message) => Parse(message.GetUtf8Bytes());
 
     public async Task<JsonRpcResponse?> HandleAsync(
         JsonRpcRequest request,
@@ -47,7 +39,7 @@ internal class JsonRpcMessageHandler(
                 );
             }
 
-            var invoker = _factory.CreateInvocation(request.Method);
+            var invoker = _factory.Create(request.Method);
             var result = await invoker.InvokeAsync(request.Params, ct);
             return new JsonRpcResponseSuccess { Id = request.Id, Result = result }.ToResponse();
         }

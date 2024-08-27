@@ -2,7 +2,7 @@ using System.Text.Json;
 using JsonRpcX.Extensions;
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Core.Parsers;
+namespace JsonRpcX.Core.Requests;
 
 internal class JsonRpcRequestParser(JsonSerializerOptions opt)
     : IJsonRpcRequestParser<byte[]>,

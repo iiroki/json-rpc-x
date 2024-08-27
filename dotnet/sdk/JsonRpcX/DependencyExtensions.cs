@@ -3,7 +3,7 @@ using JsonRpcX.Attributes;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Messages;
 using JsonRpcX.Core.Methods;
-using JsonRpcX.Core.Parsers;
+using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
@@ -25,7 +25,7 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcContextManager, JsonRpcContextManager>()
             .AddScoped<IJsonRpcContextProvider>(sp => sp.GetRequiredService<IJsonRpcContextManager>())
             .AddScoped(sp => sp.GetRequiredService<IJsonRpcContextProvider>().Context)
-            .AddScoped<IJsonRpcMessageHandler<byte[]>, JsonRpcMessageHandler>()
+            .AddScoped<IJsonRpcRequestHandler, JsonRpcRequestHandler>()
             .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
             // Global services:
             .AddSingletonInterfaces<JsonRpcRequestParser>()

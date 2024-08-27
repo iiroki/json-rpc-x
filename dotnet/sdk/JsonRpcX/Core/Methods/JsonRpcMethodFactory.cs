@@ -14,7 +14,7 @@ internal class JsonRpcMethodFactory(
     private readonly IJsonRpcMethodContainer _container = container;
     private readonly JsonSerializerOptions? _jsonOptions = jsonOptions;
 
-    public IJsonRpcMethodInvoker CreateInvocation(string method)
+    public IJsonRpcMethodInvoker Create(string method)
     {
         // 1. Find method handler for the method
         var key = JsonRpcConstants.DiKeyPrefix + method;
