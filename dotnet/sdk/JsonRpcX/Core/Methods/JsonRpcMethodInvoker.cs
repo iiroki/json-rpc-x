@@ -7,10 +7,16 @@ using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
 
-internal class JsonRpcMethodInvoker(IJsonRpcMethodInvocation invocation, JsonSerializerOptions? jsonOptions)
+internal class JsonRpcMethodInvoker(
+    IJsonRpcMethodHandler handler,
+    MethodInfo method,
+    JsonSerializerOptions? jsonOptions = null
+) : IJsonRpcMethodInvoker
 {
-    private readonly IJsonRpcMethodHandler _handler = invocation.Handler;
-    private readonly MethodInfo _method = invocation.Method;
+    public IJsonRpcMethodHandler Handler { get; } = handler;
+
+    public MethodInfo Method { get; } = method;
+
     private readonly JsonSerializerOptions? _jsonOptions = jsonOptions;
 
     public async Task<object?> InvokeAsync(JsonElement? @params, CancellationToken ct = default)
@@ -45,7 +51,7 @@ internal class JsonRpcMethodInvoker(IJsonRpcMethodInvocation invocation, JsonSer
     {
         try
         {
-            return _method.Invoke(_handler, @params);
+            return Method.Invoke(Handler, @params);
         }
         catch (TargetInvocationException ex)
         {
@@ -55,7 +61,7 @@ internal class JsonRpcMethodInvoker(IJsonRpcMethodInvocation invocation, JsonSer
 
     private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
     {
-        var methodParams = _method.GetParameters();
+        var methodParams = Method.GetParameters();
         var hasCt = methodParams.LastOrDefault()?.ParameterType == typeof(CancellationToken);
         if (hasCt)
         {

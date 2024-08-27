@@ -10,5 +10,5 @@ internal interface IJsonRpcMethodFactory
     /// <summary>
     /// Creates an internal JSON RPC method handler for the method.
     /// </summary>
-    IJsonRpcMethodInvocation CreateInvocation(string method);
+    IJsonRpcMethodInvoker CreateInvocation(string method);
 }

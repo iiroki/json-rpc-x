@@ -1,15 +1,20 @@
+using System.Text.Json;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
 
-internal class JsonRpcMethodFactory(IServiceProvider services, IJsonRpcMethodContainer container)
-    : IJsonRpcMethodFactory
+internal class JsonRpcMethodFactory(
+    IServiceProvider services,
+    IJsonRpcMethodContainer container,
+    JsonSerializerOptions? jsonOptions = null
+) : IJsonRpcMethodFactory
 {
     private readonly IServiceProvider _services = services;
     private readonly IJsonRpcMethodContainer _container = container;
+    private readonly JsonSerializerOptions? _jsonOptions = jsonOptions;
 
-    public IJsonRpcMethodInvocation CreateInvocation(string method)
+    public IJsonRpcMethodInvoker CreateInvocation(string method)
     {
         // 1. Find method handler for the method
         var key = JsonRpcConstants.DiKeyPrefix + method;
@@ -39,7 +44,7 @@ internal class JsonRpcMethodFactory(IServiceProvider services, IJsonRpcMethodCon
             );
         }
 
-        // 4. Create the internal method handler
-        return new JsonRpcMethodHandlerInvocation(handler, methodMetadata);
+        // 4. Create the method invoker
+        return new JsonRpcMethodInvoker(handler, methodMetadata, _jsonOptions);
     }
 }

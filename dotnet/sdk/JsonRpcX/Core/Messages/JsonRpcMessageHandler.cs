@@ -47,7 +47,7 @@ internal class JsonRpcMessageHandler(
                 );
             }
 
-            var invoker = GetMethodInvoker(request.Method);
+            var invoker = _factory.CreateInvocation(request.Method);
             var result = await invoker.InvokeAsync(request.Params, ct);
             return new JsonRpcResponseSuccess { Id = request.Id, Result = result }.ToResponse();
         }
@@ -56,11 +56,5 @@ internal class JsonRpcMessageHandler(
             _logger.LogError(jsonEx, "JSON error");
             throw new JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.ParseError, "JSON parse error");
         }
-    }
-
-    private JsonRpcMethodInvoker GetMethodInvoker(string method)
-    {
-        var invocation = _factory.CreateInvocation(method);
-        return new JsonRpcMethodInvoker(invocation, _jsonOptions);
     }
 }

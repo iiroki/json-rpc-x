@@ -1,13 +1,13 @@
 using System.Reflection;
+using System.Text.Json;
 using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
 
 /// <summary>
-/// Internal interface for coupling JSON RPC method handlers and their method invocation metadata.
+/// Interface for invoking a JSON RPC method against a JSON RPC method handler.
 /// </summary>
-// TODO: A better name :D
-internal interface IJsonRpcMethodInvocation
+internal interface IJsonRpcMethodInvoker
 {
     /// <summary>
     /// JSON RPC method handler to invoke the methods against.
@@ -18,4 +18,9 @@ internal interface IJsonRpcMethodInvocation
     /// JSON RPC method invocation metadata.
     /// </summary>
     public MethodInfo Method { get; }
+
+    /// <summary>
+    /// Invokes the JSON RPC method against the method handler.
+    /// </summary>
+    public Task<object?> InvokeAsync(JsonElement? @params, CancellationToken ct = default);
 }
