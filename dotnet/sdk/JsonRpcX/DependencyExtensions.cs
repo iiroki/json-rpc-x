@@ -3,8 +3,10 @@ using JsonRpcX.Attributes;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Messages;
 using JsonRpcX.Core.Methods;
+using JsonRpcX.Core.Parsers;
 using JsonRpcX.Core.Schema;
 using JsonRpcX.Exceptions;
+using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Options;
 using JsonRpcX.WebSockets;
@@ -26,6 +28,7 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcMessageHandler<byte[]>, JsonRpcMessageHandler>()
             .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
             // Global services:
+            .AddSingletonInterfaces<JsonRpcRequestParser>()
             .AddSingleton<IJsonRpcMessageProcessor<byte[], byte[]?>, JsonRpcMessageProcessor>()
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
             .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>()

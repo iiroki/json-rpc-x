@@ -1,4 +1,5 @@
 using JsonRpcX.Core.Context;
+using JsonRpcX.Core.Parsers;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Models;
 
@@ -28,12 +29,15 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
             ctxManager.SetContext(ctx);
 
             // 4. Parse the request
-            var request =
-                handler.Parse(message)
-                ?? throw new JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.ParseError, "JSON parse error");
+            var parser =
+                scope.ServiceProvider.GetService<IJsonRpcRequestParser<TIn>>()
+                ?? throw new JsonRpcParseException($"No parser found for type: {typeof(TIn).Name}");
 
+            var request = parser.Parse(message) ?? throw new JsonRpcParseException("Received null");
+
+            // Update the context with the request
             ctx = ctx.WithRequest(request);
-            ctxManager.SetContext(ctx); // Update context
+            ctxManager.SetContext(ctx);
 
             // 3. Handle the request
             var response = await handler.HandleAsync(request, ctx, ct);

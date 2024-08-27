@@ -1,14 +1,12 @@
-using JsonRpcX.Models;
-
 namespace JsonRpcX.Core.Methods;
 
 /// <summary>
-/// Factory for creating internal JSON RPC method handlers.
+/// Factory for creating JSON RPC method invokers.
 /// </summary>
 internal interface IJsonRpcMethodFactory
 {
     /// <summary>
-    /// Creates an internal JSON RPC method handler for the method.
+    /// Creates a JSON RPC method invoker for the method.
     /// </summary>
     IJsonRpcMethodInvoker CreateInvocation(string method);
 }

@@ -14,5 +14,6 @@ public class JsonRpcError
     public required string Message { get; init; }
 
     [JsonPropertyName("data")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public object? Data { get; init; }
 }
