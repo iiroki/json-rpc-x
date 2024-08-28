@@ -23,16 +23,14 @@ internal class JsonRpcMethodFactory(
             _services.GetKeyedService<IJsonRpcMethodHandler>(key)
             ?? throw new JsonRpcErrorException(
                 (int)JsonRpcConstants.ErrorCode.MethodNotFound,
-                $"Method not found: {method}"
+                "Method not found",
+                new { Method = method }
             );
 
         // 2. Find method invocation metadata for the method
         if (!_container.Methods.TryGetValue(method, out var methodMetadata))
         {
-            throw new JsonRpcErrorException(
-                (int)JsonRpcConstants.ErrorCode.InternalError,
-                $"Method invocation metadata not found for method: {method}"
-            );
+            throw new JsonRpcException($"Method invocation metadata not found for method: {method}");
         }
 
         // 3. Validate that the handler and method invocation metadata types match

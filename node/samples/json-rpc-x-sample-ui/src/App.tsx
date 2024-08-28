@@ -45,6 +45,7 @@ setInterval(() => {
       jsonrpc: '2.0',
       method: 'getUser',
       id: requestId.toString(),
+      // params: [requestId % 10]
       params: [requestId % 10]
     }
   
@@ -57,6 +58,17 @@ setInterval(() => {
     const request = {
       jsonrpc: '2.0',
       method: 'throwException'
+    }
+  
+    ws.send(JSON.stringify(request))
+  }
+}, 10000)
+
+setInterval(() => {
+  if (ws.readyState == ws.OPEN) {
+    const request = {
+      jsonrpc: '2.0',
+      method: 'unknown'
     }
   
     ws.send(JSON.stringify(request))

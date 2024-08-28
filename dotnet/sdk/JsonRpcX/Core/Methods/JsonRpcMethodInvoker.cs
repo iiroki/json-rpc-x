@@ -57,6 +57,10 @@ internal class JsonRpcMethodInvoker(
         {
             throw ex.InnerException ?? ex;
         }
+        catch (ArgumentException ex)
+        {
+            throw new JsonRpcParamException($"Invalid param type - {ex.Message}");
+        }
     }
 
     private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
@@ -74,24 +78,34 @@ internal class JsonRpcMethodInvoker(
             parsedParams =
                 json.HasValue && json.Value.IsArray()
                     ? ParseMultipleParams(json, methodParams)
-                    : [ParseSingleParam(json, methodParams.First())];
+                    : [ParseSingleParam(json, methodParams.First(), 0)];
         }
         else
         {
             parsedParams = [];
         }
 
-        return hasCt ? [.. parsedParams, ct] : parsedParams;
+        return @hasCt ? [.. parsedParams, ct] : parsedParams;
     }
 
-    private object? ParseSingleParam(JsonElement? json, ParameterInfo info)
+    private object? ParseSingleParam(JsonElement? json, ParameterInfo info, int index)
     {
         if (!json.HasValue || json.Value.IsNull())
         {
             return info.HasDefaultValue ? info.DefaultValue : null;
         }
 
-        return json.Value.Deserialize(info.ParameterType, _jsonOptions);
+        try
+        {
+            return json.Value.Deserialize(info.ParameterType, _jsonOptions);
+        }
+        catch (JsonException)
+        {
+            throw new JsonRpcParamException(
+                $"Invalid param type - Index: {index}, "
+                    + $"Expected: {info.ParameterType.Name}, Received: {json.Value.ValueKind}"
+            );
+        }
     }
 
     private object?[]? ParseMultipleParams(JsonElement? json, ParameterInfo[] info)
@@ -126,13 +140,23 @@ internal class JsonRpcMethodInvoker(
             throw new JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.InvalidParams, msgBuilder.ToString());
         }
 
-        List<object?> @params = [];
+        var @params = new object?[info.Length];
         foreach (var (el, i) in json.Value.EnumerateWithIndex())
         {
-            @params.Add(ParseSingleParam(el, info[i]));
+            if (i >= info.Length)
+            {
+                throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
+            }
+
+            @params[i] = ParseSingleParam(el, info[i], i);
         }
 
-        return [.. @params];
+        if (@params.Length != info.Length)
+        {
+            throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
+        }
+
+        return @params;
     }
 
     private static object? GetTaskResult(Task task) =>
