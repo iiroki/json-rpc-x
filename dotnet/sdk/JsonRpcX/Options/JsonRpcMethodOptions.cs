@@ -3,9 +3,9 @@ using System.Text.Json;
 namespace JsonRpcX.Options;
 
 /// <summary>
-/// Options for configuring JSON RPC functionality.
+/// Options for configuring JSON RPC method functionality.
 /// </summary>
-public class JsonRpcOptions
+public class JsonRpcMethodOptions
 {
     public JsonNamingPolicy? MethodNamingPolicy { get; set; }
 

@@ -1,13 +1,102 @@
 # JSON RPC X
 
-**_JSON RPC X_** is a JSON-RPC 2.0 implementation for multiple languages and frameworks with bidirectional communication support.
+**_JSON RPC X_** is a JSON-RPC 2.0 implementation for with a .NET server and .NET & Node.js clients.
 
 ## Features
 
+### General
+
 - JSON-RPC 2.0 support (see ["Specification](#specification)).
-- Both server and client libraries for multiple languages and frameworks (see ["Support"](#support)).
-- Multiple transports (see ["Transports"](#transports)).
+- Multiple transports: HTTP & WebSockets.
     - **Bidirectional communication over WebSockets!**
+
+### Server
+
+(TODO)
+
+- Zero external dependencies!
+- Built on top of .NET's dependency injection
+- JSON serialization with `System.Text.Json`.
+
+### Client
+
+TODO
+
+## Installation
+
+TODO
+
+## Usage
+
+This chapter only contains quickstarts for quickly setting up _JSON RPC X_.
+
+See the full documentation for detailed information: **[DOCS](./docs/index.md)**
+
+### Server
+
+**Quickstart:**
+
+1. Create a JSON RPC method handler class by tagging it with `IJsonRpcMethodHandler` interface:
+    ```cs
+    public class JsonRpcExample(ILogger<JsonRpcExample> logger) : IJsonRpcMethodHandler
+    {
+        private readonly ILogger _logger = logger;
+
+        // ...
+    }
+    ```
+
+2. Implement JSON RPC methods by marking the with `JsonRpcMethod` attribute:
+    ```cs
+    public class JsonRpcExample(ILogger<JsonRpcExample> logger) : IJsonRpcMethodHandler
+    {
+        private readonly ILogger _logger = logger;
+
+        private static readonly List<string> Data =
+        [
+            "first",
+            "second",
+            "third"
+        ];
+
+        [JsonRpcMethod] // Uses the method name "GetMany"
+        public async Task<List<string>> GetMany(CancellationToken ct)
+        {
+            await Task.Delay(100, ct)
+            return Data;
+        }
+
+        [JsonRpcMethod("getOne")] // Overrides the method name
+        public async Task<string?> Get(string id, CancellationToken ct)
+        {
+            await Task.Delay(100, ct)
+            return Data.FirstOrDefault(d => d == id);
+        }
+
+        public void Ping()
+        {
+            _logger.LogInformation("Ping");
+        }
+    }
+    ```
+
+3. Register the method handler in `Program.cs` (the example uses WebSocket transport):
+    ```cs
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.AddJsonRpc();
+    builder.Services.AddJsonRpcMethodsFromAssebly();
+    builder.Services.AddJsonRpcWebSocket();
+
+    var app = builder.Build();
+
+    app.UseWebSockets();
+    app.MapJsonRpcWebSocket("/ws");
+
+    await app.RunAsync();
+    ```
+
+4. Success!
 
 ## Specification
 
@@ -59,6 +148,7 @@ _Example - Error:_
         "data": {}
     }
 }
+```
 
 ### Notifications
 
@@ -73,22 +163,6 @@ _Example:_
     }
 }
 ```
-
-## Support
-
-**TODO:** Fill these when the libraries are implemented!
-
-| **Language** | **Server** | **Client** |
-| ----- | :-----: | :-----: |
-| .NET | | |
-| Node.js | | |
-
-## Transports
-
-| **Transport** | **Description** |
-| ----- | ----- |
-| HTTP | _(Not yet implemented)_
-| WebSocket | Bidirectional communication over a single WebSocket connection. |
 
 ## License
 

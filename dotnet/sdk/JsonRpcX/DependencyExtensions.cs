@@ -40,7 +40,7 @@ public static class DependencyExtensions
     public static IServiceCollection AddJsonRpcMethodHandler(
         this IServiceCollection services,
         Type type,
-        JsonRpcOptions? opt = null
+        JsonRpcMethodOptions? opt = null
     )
     {
         if (!IsValidJsonRpcMethodHandlerType(type))
@@ -76,7 +76,7 @@ public static class DependencyExtensions
     /// </summary>
     public static IServiceCollection AddJsonRpcMethodHandler<T>(
         this IServiceCollection services,
-        JsonRpcOptions? opt = null
+        JsonRpcMethodOptions? opt = null
     )
         where T : IJsonRpcMethodHandler => services.AddJsonRpcMethodHandler(typeof(T), opt);
 
@@ -86,7 +86,7 @@ public static class DependencyExtensions
     /// </summary>
     public static IServiceCollection AddJsonRpcMethodsFromAssebly(
         this IServiceCollection services,
-        JsonRpcOptions? opt = null
+        JsonRpcMethodOptions? opt = null
     )
     {
         var handlerTypes = AppDomain
@@ -166,7 +166,7 @@ public static class DependencyExtensions
     private static string GetJsonRpcMethodName(
         MethodInfo method,
         JsonRpcMethodAttribute attr,
-        JsonRpcOptions? opt = null
+        JsonRpcMethodOptions? opt = null
     )
     {
         var original = method.Name;
