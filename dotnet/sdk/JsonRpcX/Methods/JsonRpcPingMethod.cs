@@ -14,6 +14,6 @@ public class JsonRpcPing(JsonRpcContext ctx, ILogger<JsonRpcPing> logger) : IJso
     [JsonRpcMethod("ping")]
     public void HandleAsync(string? test = null)
     {
-        _logger.LogDebug("!!! PING");
+        _logger.LogDebug("Ping - Transport: {T}", _ctx.Transport);
     }
 }

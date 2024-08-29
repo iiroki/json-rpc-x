@@ -1,6 +1,6 @@
 # JSON RPC X
 
-**_JSON RPC X_** is a JSON-RPC 2.0 implementation for with a .NET server and .NET & Node.js clients.
+**_JSON RPC X_** is a JSON-RPC 2.0 .NET server with clients for .NET & TypeScript.
 
 ## Features
 

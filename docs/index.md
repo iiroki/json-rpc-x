@@ -1,4 +1,5 @@
 # JSON RPC X - Documentation
 
-- [Server](./server/server.md)
-- Client (TODO)
+- [Server (.NET)](./server-dotnet.md)
+- [Client (.NET)](./client-dotnet.md)
+- [Client (TypeScript)](./client-typescript.md)
