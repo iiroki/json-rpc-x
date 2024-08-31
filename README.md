@@ -38,7 +38,7 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
 
 1. Create a JSON RPC method handler class by tagging it with `IJsonRpcMethodHandler` interface:
     ```cs
-    public class JsonRpcExample(ILogger<JsonRpcExample> logger) : IJsonRpcMethodHandler
+    public class JsonRpcExampleMethodHandler(ILogger<JsonRpcExampleMethodHandler> logger) : IJsonRpcMethodHandler
     {
         private readonly ILogger _logger = logger;
 
@@ -48,7 +48,7 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
 
 2. Implement JSON RPC methods by marking the with `JsonRpcMethod` attribute:
     ```cs
-    public class JsonRpcExample(ILogger<JsonRpcExample> logger) : IJsonRpcMethodHandler
+    public class JsonRpcExampleMethodHandler(ILogger<JsonRpcExampleMethodHandler> logger) : IJsonRpcMethodHandler
     {
         private readonly ILogger _logger = logger;
 
@@ -59,16 +59,18 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
             "third"
         ];
 
-        [JsonRpcMethod] // Uses the method name "GetMany"
-        public async Task<List<string>> GetMany(CancellationToken ct)
+        // By default, "Async" suffix is dropped from the method names.
+
+        [JsonRpcMethod] // Method name -> "GetMany"
+        public async Task<List<string>> GetManyAsync(CancellationToken ct)
         {
             _logger.LogInformation("Get many");
             await Task.Delay(100, ct)
             return Data;
         }
 
-        [JsonRpcMethod("getOne")] // Overrides the method name
-        public async Task<string?> Get(string id, CancellationToken ct)
+        [JsonRpcMethod] // Method name -> "Get"
+        public async Task<string?> GetAsync(string id, CancellationToken ct)
         {
             _logger.LogInformation("Get: {Id}", id);
             await Task.Delay(100, ct)
