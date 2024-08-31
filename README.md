@@ -16,6 +16,7 @@
 - **Lightweight:** Zero external dependencies!
 - **Dependency injection capabilities:** Built on top of .NET's dependency injection.
 - **Performant JSON serialization:** JSON serialization with `System.Text.Json`.
+- **Middleware:** Enrich JSON RPC request pipelines with custom middleware.
 
 ### Client
 
