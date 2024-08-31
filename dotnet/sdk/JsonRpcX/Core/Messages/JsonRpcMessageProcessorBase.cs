@@ -21,12 +21,12 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
         var scope = _services.CreateScope();
         try
         {
-            // 2. Get the handler
-            var handler = scope.ServiceProvider.GetRequiredService<IJsonRpcRequestHandler>();
-
-            // 3. Set the request context to the scope
+            // 2. Set the request context to the scope
             var ctxManager = scope.ServiceProvider.GetRequiredService<IJsonRpcContextManager>();
             ctxManager.SetContext(ctx);
+
+            // 3. Get the handler
+            var handler = scope.ServiceProvider.GetRequiredService<IJsonRpcRequestHandler>();
 
             // 4. Parse the request
             var parser =
@@ -66,7 +66,7 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
                 {
                     Code = (int)JsonRpcConstants.ErrorCode.InternalError,
                     Message = "Unknown error",
-                    Data = new { DetailedMessage = ex.Message },
+                    Data = new { Detail = ex.Message },
                 },
             };
 

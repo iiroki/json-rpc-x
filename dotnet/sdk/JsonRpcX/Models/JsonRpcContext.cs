@@ -20,6 +20,11 @@ public class JsonRpcContext
     // TODO: Is this needed for all transports?
     public required HttpContext Http { get; init; }
 
+    /// <summary>
+    /// Context data, which can be used to pass simple data within the JSON RPC method pipeline.
+    /// </summary>
+    public Dictionary<string, object> Data { get; } = [];
+
     public JsonRpcContext WithRequest(JsonRpcRequest request)
     {
         if (Request != null)
