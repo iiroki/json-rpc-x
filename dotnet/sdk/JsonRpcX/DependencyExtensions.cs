@@ -171,6 +171,13 @@ public static class DependencyExtensions
     {
         var original = method.Name;
 
+        // Drop the async suffix from the method name, if one exists.
+        const string asyncSuffix = "Async";
+        if (original.EndsWith(asyncSuffix, StringComparison.OrdinalIgnoreCase))
+        {
+            original = original.Substring(0, original.Length - asyncSuffix.Length);
+        }
+
         // 1. Name from the attribute
         if (!string.IsNullOrEmpty(attr.Name))
         {
@@ -178,15 +185,15 @@ public static class DependencyExtensions
         }
 
         // 2. Name from the transformer
-        if (opt?.MethodNameTransformer != null)
+        if (opt?.NameTransformer != null)
         {
-            return opt.MethodNameTransformer(original);
+            return opt.NameTransformer(original);
         }
 
         // 3. Name with the naming policy
-        if (opt?.MethodNamingPolicy != null)
+        if (opt?.NamingPolicy != null)
         {
-            return opt.MethodNamingPolicy.ConvertName(original);
+            return opt.NamingPolicy.ConvertName(original);
         }
 
         // 4. Fallback to the original method name

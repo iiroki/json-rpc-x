@@ -2,13 +2,52 @@
 
 This page contains the _JSON RPC X_ .NET server documentation.
 
-## Using JSON RPC transports
+## Use JSON RPC transports
 
 TODO: HTTP transport not implemented.
 
+## Implement JSON RPC method handlers
+
+_JSON RPC X_ implements JSON RPC methods with "method handlers".
+
+JSON RPC method handlers are implemented in two parts:
+1. Create a class that extends `IJsonRpcMethodHandler`
+1. Create `public` methods and mark them with `JsonRpcMethod` attribute.
+
+Example:
+
+```cs
+public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
+{
+    // Gets the JSON RPC method name from the actual method -> "Hello"
+    [JsonRpcMethod]
+    public string Hello(string name) => $"Hello, {name}!";
+
+    // By default, "async" suffix is dropped -> "DoWork"
+    [JsonRpcMethod]
+    public async Task<string> DoWorkAsync(CancellationToken ct = default)
+    {
+        const int workMs = 1000;
+        await Task.Delay(workMs, ct);
+        return $"Work done in {workMs} ms";
+    }
+
+    // The method name can also be overridden -> "increment"
+    [JsonRpcMethod("increment")]
+    public int OverrideName(int i) => i + 1;
+}
+```
+
+**NOTES:**
+- See ["Configure JSON RPC methods with options"](#configure-json-rpc-methods-with-options) below for top-level JSON RPC method configuration.
+- JSON RPC methods support "async/await" programming model.
+    - `CancellationToken` can be injected into the method by specifying it as **the last parameter**.
+- JSON RPC method request and response schemas are automatically inferred from the method definition.
+    - Under the hood, `System.Text.Json`'s `JsonElement.Deserialize` is used to parse the request params into the desired data types.
+
 ## Register JSON RPC methods
 
-JSON RPC methods can be registered collectively from the current app domain's assembly or separately one-by-one:
+JSON RPC methods from the method handlers can be registered collectively from the current app domain's assembly or separately one-by-one:
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);
@@ -20,15 +59,15 @@ builder.Services.AddJsonRpcMethodsFromAssebly();
 builder.Services.AddJsonRpcMethodHandler<JsonRpcExampleMethodHandler>();
 ```
 
-### Configuring JSON RPC methods
+## Configure JSON RPC methods with options
 
-JSON RPC methods can be further configured by using `JsonRpcMethodOptions` and
-passing it as a parameter when registering methods:
+JSON RPC methods can be further configured during registration
+by using `JsonRpcMethodOptions` and passing it as a parameter:
 
 ```cs
 var options = new JsonRpcMethodOptions
 {
-    MethodNamingPolicy = JsonNamingPolicy.CamelCase
+    NamingPolicy = JsonNamingPolicy.CamelCase
 };
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,10 +90,10 @@ builder.Services.AddScoped<IScopedService, ScopedService>();
 builder.Services.AddTransient<ITransientService, TransientService>();
 ```
 
-**`JsonRpcExample.cs`**
+**`JsonRpcExampleMethodHandler.cs`**
 
 ```cs
-public class JsonRpcExample(
+public class JsonRpcExampleMethodHandler(
     ISingletonService singletonService,
     IScopedService scopedService,
     ITransientService transientService
@@ -69,15 +108,15 @@ public class JsonRpcExample(
 **NOTES:**
 - JSON RPC method handlers use service scopes, which enables using scoped services.
 
-## Accessing JSON RPC context
+## Access JSON RPC context
 
 JSON RPC context is served to JSON RPC method handlers via dependency injection
 by injecting `JsonRpcContext`:
 
 ```cs
-public class JsonRpcExample(
+public class JsonRpcExampleMethodHandler(
     JsonRpcContext ctx,
-    ILogger<JsonRpcExample> logger
+    ILogger<JsonRpcExampleMethodHandler> logger
 ) : IJsonRpcMethodHandler
 {
     private readonly JsonRpcContext _ctx = ctx;
@@ -92,9 +131,13 @@ public class JsonRpcExample(
 }
 ```
 
-## Using custom JSON RPC middlewares
+## Use custom JSON RPC middlewares
 
 TODO: Feature not implemented.
+
+## Handle JSON RPC errors
+
+TODO
 
 ## Configure JSON serialization
 

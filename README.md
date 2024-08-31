@@ -6,17 +6,16 @@
 
 ### General
 
-- JSON-RPC 2.0 support (see ["Specification](#specification)).
-- Multiple transports: HTTP & WebSockets.
-    - **Bidirectional communication over WebSockets!**
+- **JSON-RPC 2.0 support** (see ["Specification](#specification)).
+- **Multiple transports:** HTTP & WebSockets.
+    - Bidirectional communication over WebSockets!
 
 ### Server
 
-(TODO)
-
-- Zero external dependencies!
-- Built on top of .NET's dependency injection
-- JSON serialization with `System.Text.Json`.
+- **Modern:** Built with .NET 8.
+- **Lightweight:** Zero external dependencies!
+- **Dependency injection capabilities:** Built on top of .NET's dependency injection.
+- **Performant JSON serialization:** JSON serialization with `System.Text.Json`.
 
 ### Client
 
@@ -62,6 +61,7 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
         [JsonRpcMethod] // Uses the method name "GetMany"
         public async Task<List<string>> GetMany(CancellationToken ct)
         {
+            _logger.LogInformation("Get many");
             await Task.Delay(100, ct)
             return Data;
         }
@@ -69,13 +69,9 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
         [JsonRpcMethod("getOne")] // Overrides the method name
         public async Task<string?> Get(string id, CancellationToken ct)
         {
+            _logger.LogInformation("Get: {Id}", id);
             await Task.Delay(100, ct)
             return Data.FirstOrDefault(d => d == id);
-        }
-
-        public void Ping()
-        {
-            _logger.LogInformation("Ping");
         }
     }
     ```

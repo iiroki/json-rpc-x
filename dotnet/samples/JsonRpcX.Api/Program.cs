@@ -9,7 +9,7 @@ var jsonOptions = new JsonSerializerOptions
     DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
 };
 
-var jsonRpcOptions = new JsonRpcMethodOptions { MethodNamingPolicy = JsonNamingPolicy.CamelCase };
+var jsonRpcOptions = new JsonRpcMethodOptions { NamingPolicy = JsonNamingPolicy.CamelCase };
 
 //
 // Builder

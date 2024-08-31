@@ -13,16 +13,16 @@ public class JsonRpcUserMethods(ILogger<JsonRpcUserMethods> logger) : IJsonRpcMe
 
     private readonly ILogger _logger = logger;
 
-    [JsonRpcMethod("getUsers")]
-    public async Task<List<ExampleUser>> GetUsers(CancellationToken ct = default)
+    [JsonRpcMethod]
+    public async Task<List<ExampleUser>> GetUsersAsync(CancellationToken ct = default)
     {
         _logger.LogInformation("JSON RPC - Get users");
         await Task.Delay(500, ct);
         return Users;
     }
 
-    [JsonRpcMethod("getUser")]
-    public async Task<ExampleUser?> GetUser(long id, CancellationToken ct = default)
+    [JsonRpcMethod]
+    public async Task<ExampleUser?> GetUserAsync(long id, CancellationToken ct = default)
     {
         _logger.LogInformation("JSON RPC - Get user");
         await Task.Delay(500, ct);
@@ -30,22 +30,22 @@ public class JsonRpcUserMethods(ILogger<JsonRpcUserMethods> logger) : IJsonRpcMe
     }
 
     [JsonRpcMethod]
-    public async Task RegisterUser(ExampleUser user, CancellationToken ct = default)
+    public async Task RegisterUserAsync(ExampleUser user, CancellationToken ct = default)
     {
         _logger.LogInformation("JSON RPC - Register user: {U}", user);
         await Task.Delay(500, ct);
-    }
-
-    [JsonRpcMethod("AAAAAA")] // :D
-    public void Dummy()
-    {
-        // NOP
     }
 
     [JsonRpcMethod]
     public void ThrowException()
     {
         throw new JsonRpcAuthException("No permission");
+    }
+
+    [JsonRpcMethod("AAAAAA")] // :D
+    public void Dummy()
+    {
+        // NOP
     }
 
     public record ExampleUser(long Id, string Name);

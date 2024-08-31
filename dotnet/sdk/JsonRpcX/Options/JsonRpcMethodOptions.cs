@@ -7,7 +7,7 @@ namespace JsonRpcX.Options;
 /// </summary>
 public class JsonRpcMethodOptions
 {
-    public JsonNamingPolicy? MethodNamingPolicy { get; set; }
+    public JsonNamingPolicy? NamingPolicy { get; set; }
 
-    public Func<string, string>? MethodNameTransformer { get; set; }
+    public Func<string, string>? NameTransformer { get; set; }
 }
