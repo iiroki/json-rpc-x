@@ -1,5 +1,6 @@
 using System.Text.Json;
 using JsonRpcX;
+using JsonRpcX.Api.Middleware;
 using JsonRpcX.Api.Services;
 using JsonRpcX.Options;
 
@@ -21,9 +22,11 @@ builder.Services.AddSingleton(jsonOptions);
 builder.Services.AddHostedService<JsonRpcStatusWorker>();
 
 // JSON RPC X methods:
-builder.Services.AddJsonRpc();
-builder.Services.AddJsonRpcWebSocket(); // Requires "app.UseWebSockets()"
-builder.Services.AddJsonRpcMethodsFromAssebly(jsonRpcOptions);
+builder
+    .Services.AddJsonRpc()
+    .AddJsonRpcWebSocket() // Requires "app.UseWebSockets()"
+    .AddJsonRpcMethodsFromAssebly(jsonRpcOptions)
+    .AddJsonRpcMiddleware<JsonRpcExampleMiddleware>();
 
 //
 // App

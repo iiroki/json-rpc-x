@@ -8,6 +8,7 @@ using JsonRpcX.Core.Schema;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
+using JsonRpcX.Middleware;
 using JsonRpcX.Options;
 using JsonRpcX.WebSockets;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -98,6 +99,18 @@ public static class DependencyExtensions
         handlerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
         return services;
     }
+
+    /// <summary>
+    /// Adds <c>IJsonRpcMiddleware</c> implementation to the services as a scoped service.
+    /// </summary>
+    public static IServiceCollection AddJsonRpcMiddleware(this IServiceCollection services, Type type) =>
+        services.AddScoped(typeof(IJsonRpcMiddleware), type);
+
+    /// <summary>
+    /// Adds <c>IJsonRpcMiddleware</c> implementation to the services as a scoped service.
+    /// </summary>
+    public static IServiceCollection AddJsonRpcMiddleware<T>(this IServiceCollection services)
+        where T : IJsonRpcMiddleware => services.AddJsonRpcMiddleware(typeof(T));
 
     /// <summary>
     /// Set the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />

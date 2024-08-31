@@ -14,8 +14,6 @@ JSON RPC method handlers are implemented in two parts:
 1. Create a class that extends `IJsonRpcMethodHandler`
 1. Create `public` methods and mark them with `JsonRpcMethod` attribute.
 
-Example:
-
 ```cs
 public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
 {
@@ -47,7 +45,7 @@ public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
 
 ## Register JSON RPC methods
 
-JSON RPC methods from the method handlers can be registered collectively from the current app domain's assembly or separately one-by-one:
+JSON RPC methods from the method handlers can be registered collectively from the current app domain's assembly or separately one-by-one.
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);
@@ -62,7 +60,7 @@ builder.Services.AddJsonRpcMethodHandler<JsonRpcExampleMethodHandler>();
 ## Configure JSON RPC methods with options
 
 JSON RPC methods can be further configured during registration
-by using `JsonRpcMethodOptions` and passing it as a parameter:
+by using `JsonRpcMethodOptions` and passing it as a parameter.
 
 ```cs
 var options = new JsonRpcMethodOptions
@@ -78,7 +76,7 @@ builder.Services.AddJsonRpcMethodHandler<JsonRpcExampleMethodHandler>(options);
 
 ## Dependency injection
 
-_JSON RPC X_ is built on top of .NET's dependency injection, so the dependencies can be injected in the traditional way:
+_JSON RPC X_ is built on top of .NET's dependency injection, so the dependencies can be injected in the traditional way.
 
 **`Program.cs`:**
 
@@ -111,7 +109,7 @@ public class JsonRpcExampleMethodHandler(
 ## Access JSON RPC context
 
 JSON RPC context is served to JSON RPC method handlers via dependency injection
-by injecting `JsonRpcContext`:
+by injecting `JsonRpcContext`.
 
 ```cs
 public class JsonRpcExampleMethodHandler(
@@ -131,9 +129,51 @@ public class JsonRpcExampleMethodHandler(
 }
 ```
 
-## Use custom JSON RPC middlewares
+## Use custom JSON RPC middleware
 
-TODO: Feature not implemented.
+_JSON RPC X_ supports implementing custom middleware and
+running them as part of the JSON RPC method pipeline.
+
+Custom JSON RPC middleware can be implemented by implementing `IJsonRpcMiddleware` interface
+and adding the middleware to the services.
+
+**`JsonRpcExampleMiddleware.cs`:**
+
+```cs
+public class JsonRpcExampleMiddleware(JsonRpcContext ctx) : IJsonRpcMiddleware
+{
+    private readonly JsonRpcContext _ctx = ctx;
+
+    public Task HandleAsync(CancellationToken ct = default)
+    {
+        _ctx.Data.Add("message", "Middleware was here!");
+        return Task.CompletedTask;
+    }
+}
+```
+
+**`Program.cs`:**
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddJsonRpcMiddleware<JsonRpcExampleMiddleware>();
+```
+
+**`JsonRpcExampleMethodHandler.cs`:**
+```cs
+public class JsonRpcExampleMethodHandler(JsonRpcContext ctx) : IJsonRpcMethodHandler
+{
+    private readonly JsonRpcContext _ctx = ctx;
+
+    [JsonRpcMethod]
+    public string? Message() => _ctx.Data.GetValueOrDefault("message");
+}
+```
+
+**NOTES:**
+- As JSON RPC requests are processed within a service scope,
+  the middleware's effects are available to the method handlers.
 
 ## Handle JSON RPC errors
 
@@ -142,7 +182,7 @@ TODO
 ## Configure JSON serialization
 
 As _JSON RPC X_ uses `System.Text.Json`,
-the JSON serialization options can be configured using `JsonSerializerOptions`:
+the JSON serialization options can be configured using `JsonSerializerOptions`.
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);
