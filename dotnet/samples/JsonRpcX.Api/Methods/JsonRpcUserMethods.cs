@@ -1,16 +1,18 @@
 using JsonRpcX.Attributes;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
+using JsonRpcX.Models;
 
 namespace JsonRpcX.Api.Methods;
 
-public class JsonRpcUserMethods(ILogger<JsonRpcUserMethods> logger) : IJsonRpcMethodHandler
+public class JsonRpcUserMethods(JsonRpcContext ctx, ILogger<JsonRpcUserMethods> logger) : IJsonRpcMethodHandler
 {
     private static readonly List<ExampleUser> Users = Enumerable
         .Range(1, 10)
         .Select(i => new ExampleUser(i, $"Example User {i}"))
         .ToList();
 
+    private readonly JsonRpcContext _ctx = ctx;
     private readonly ILogger _logger = logger;
 
     [JsonRpcMethod]
@@ -37,10 +39,10 @@ public class JsonRpcUserMethods(ILogger<JsonRpcUserMethods> logger) : IJsonRpcMe
     }
 
     [JsonRpcMethod]
-    public void ThrowException()
-    {
-        throw new JsonRpcAuthException("No permission");
-    }
+    public string? Middleware() => _ctx.Data.TryGetValue("middleware", out var value) ? value.ToString() : null;
+
+    [JsonRpcMethod]
+    public void ThrowException() => throw new JsonRpcAuthException("No permission");
 
     [JsonRpcMethod("AAAAAA")] // :D
     public void Dummy()

@@ -23,7 +23,7 @@ public class JsonRpcContext
     /// <summary>
     /// Context data, which can be used to pass simple data within the JSON RPC method pipeline.
     /// </summary>
-    public Dictionary<string, object> Data { get; } = [];
+    public Dictionary<string, object> Data { get; init; } = [];
 
     public JsonRpcContext WithRequest(JsonRpcRequest request)
     {
@@ -37,6 +37,7 @@ public class JsonRpcContext
             Transport = Transport,
             Request = request,
             Http = Http,
+            Data = Data
         };
     }
 }

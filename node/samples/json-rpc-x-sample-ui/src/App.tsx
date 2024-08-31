@@ -12,14 +12,13 @@ ws.addEventListener('open', () => {
 ws.addEventListener('close', () => console.log('WebSocket - Close'))
 
 ws.addEventListener('message', msg => {
-  console.log('WebSocket - Message:', msg.data)
+  console.log('WebSocket - Received:', msg.data)
   const data = JSON.parse(msg.data)
   if (data.method === 'init') {
-    console.log('!!! here')
     const request = {
       jsonrpc: '2.0',
       method: 'getUsers',
-      id: 'test-id'
+      id: crypto.randomUUID()
     }
   
     ws.send(JSON.stringify(request))
@@ -40,13 +39,11 @@ setInterval(() => {
 
 setInterval(() => {
   if (ws.readyState == ws.OPEN) {
-    const requestId = Date.now()
     const request = {
       jsonrpc: '2.0',
       method: 'getUser',
-      id: requestId.toString(),
-      // params: [requestId % 10]
-      params: [requestId % 10]
+      id: crypto.randomUUID(),
+      params: [Date.now() % 10]
     }
   
     ws.send(JSON.stringify(request))
@@ -57,7 +54,8 @@ setInterval(() => {
   if (ws.readyState == ws.OPEN) {
     const request = {
       jsonrpc: '2.0',
-      method: 'throwException'
+      method: 'middleware',
+      id: crypto.randomUUID()
     }
   
     ws.send(JSON.stringify(request))
