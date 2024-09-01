@@ -66,7 +66,7 @@ internal abstract class JsonRpcMessageProcessorBase<TIn, TOut>(
                 {
                     Code = (int)JsonRpcConstants.ErrorCode.InternalError,
                     Message = "Unknown error",
-                    Data = new { Detail = ex.Message },
+                    Data = new { ex.Message },
                 },
             };
 

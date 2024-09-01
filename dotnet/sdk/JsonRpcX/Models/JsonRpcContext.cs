@@ -37,7 +37,7 @@ public class JsonRpcContext
             Transport = Transport,
             Request = request,
             Http = Http,
-            Data = Data
+            Data = Data,
         };
     }
 }

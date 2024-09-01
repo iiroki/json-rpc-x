@@ -26,7 +26,7 @@ public class JsonRpcExceptionHandler(JsonRpcExceptionOptions opt) : IJsonRpcExce
             {
                 Code = hasUser ? _opt.AuthorizationErrorCode : _opt.AuthenticationErrorCode,
                 Message = hasUser ? "Authorization error" : "Authentication error",
-                Data = new { Detail = authEx.Message },
+                Data = new { authEx.Message },
             };
         }
 
