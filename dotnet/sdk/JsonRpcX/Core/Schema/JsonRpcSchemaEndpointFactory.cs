@@ -2,6 +2,8 @@ using System.Text.Json;
 using JsonRpcX.Core.Endpoints;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Core.Schema;
 

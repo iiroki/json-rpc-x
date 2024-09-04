@@ -4,6 +4,8 @@ using System.Text.Json;
 using JsonRpcX.Core.Endpoints;
 using JsonRpcX.Extensions;
 using JsonRpcX.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.WebSockets;
 

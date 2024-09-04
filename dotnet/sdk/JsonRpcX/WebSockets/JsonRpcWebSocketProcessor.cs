@@ -1,17 +1,19 @@
 using System.Net.WebSockets;
 using JsonRpcX.Core.Messages;
 using JsonRpcX.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.WebSockets;
 
 internal class JsonRpcWebSocketProcessor(
-    IJsonRpcMessageProcessor<byte[], byte[]?> messageProcessor,
+    IJsonRpcMessageProcessor<byte[], byte[]> messageProcessor,
     IJsonRpcWebSocketContainer container,
     IJsonRpcWebSocketIdGenerator idGenerator,
     ILogger<JsonRpcWebSocketProcessor> logger
 ) : IJsonRpcWebSocketProcessor
 {
-    private readonly IJsonRpcMessageProcessor<byte[], byte[]?> _messageProcessor = messageProcessor;
+    private readonly IJsonRpcMessageProcessor<byte[], byte[]> _messageProcessor = messageProcessor;
     private readonly IJsonRpcWebSocketContainer _container = container;
     private readonly IJsonRpcWebSocketIdGenerator _idGenerator = idGenerator;
     private readonly ILogger _logger = logger;

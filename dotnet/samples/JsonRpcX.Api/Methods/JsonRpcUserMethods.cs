@@ -42,7 +42,7 @@ public class JsonRpcUserMethods(JsonRpcContext ctx, ILogger<JsonRpcUserMethods> 
     public string? Middleware() => _ctx.Data.TryGetValue("middleware", out var value) ? value.ToString() : null;
 
     [JsonRpcMethod]
-    public void ThrowException() => throw new JsonRpcAuthException("No permission");
+    public void ThrowException() => throw new InvalidOperationException("Invalid method");
 
     [JsonRpcMethod("AAAAAA")] // :D
     public void Dummy()

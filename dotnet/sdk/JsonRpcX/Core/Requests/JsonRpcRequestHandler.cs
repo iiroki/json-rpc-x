@@ -4,6 +4,7 @@ using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Middleware;
 using JsonRpcX.Models;
+using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Core.Requests;
 

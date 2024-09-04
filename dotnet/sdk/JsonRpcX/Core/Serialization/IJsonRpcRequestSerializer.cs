@@ -1,11 +1,8 @@
 using JsonRpcX.Models;
 
-namespace JsonRpcX.Core.Requests;
+namespace JsonRpcX.Core.Serialization;
 
-/// <summary>
-/// Parses JSON RPC requests.
-/// </summary>
-public interface IJsonRpcRequestParser<T>
+public interface IJsonRpcRequestSerializer<T>
 {
     /// <summary>
     /// Parses the raw chunk and converts it to a JSON RPC request.

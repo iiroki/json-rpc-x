@@ -1,23 +1,16 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace JsonRpcX.Extensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddScopedInterfaces<T>(this IServiceCollection services) =>
-        services.AddSingletonInterfaces(typeof(T));
+    public static IServiceCollection AddWithInterfaces<T>(this IServiceCollection services, ServiceLifetime lifetime) =>
+        services.AddWithInterfaces(typeof(T), lifetime);
 
-    public static IServiceCollection AddScopedInterfaces(this IServiceCollection services, Type type) =>
-        services.AddInterfaces(ServiceLifetime.Scoped, type);
-
-    public static IServiceCollection AddSingletonInterfaces<T>(this IServiceCollection services) =>
-        services.AddSingletonInterfaces(typeof(T));
-
-    public static IServiceCollection AddSingletonInterfaces(this IServiceCollection services, Type type) =>
-        services.AddInterfaces(ServiceLifetime.Singleton, type);
-
-    private static IServiceCollection AddInterfaces(
+    public static IServiceCollection AddWithInterfaces(
         this IServiceCollection services,
-        ServiceLifetime lifetime,
-        Type type
+        Type type,
+        ServiceLifetime lifetime
     )
     {
         foreach (var i in type.GetInterfaces())

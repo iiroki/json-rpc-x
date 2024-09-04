@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace JsonRpcX.WebSockets;
 
 internal class JsonRpcWebSocketIdGenerator : IJsonRpcWebSocketIdGenerator
