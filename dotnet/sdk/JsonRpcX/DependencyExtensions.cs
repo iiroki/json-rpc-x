@@ -3,7 +3,6 @@ using JsonRpcX.Attributes;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Exceptions;
-using JsonRpcX.Core.Messages;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
@@ -35,7 +34,7 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
             // Global services:
             .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
-            .AddSingleton(typeof(IJsonRpcMessageProcessor<,>), typeof(JsonRpcMessageProcessor<,>))
+            .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
             .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>()
             // WebSocket services:

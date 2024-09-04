@@ -5,14 +5,14 @@ using JsonRpcX.Exceptions;
 using JsonRpcX.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace JsonRpcX.Core.Messages;
+namespace JsonRpcX.Core;
 
-internal class JsonRpcMessageProcessor<TIn, TOut>(
+internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
     IJsonRpcRequestSerializer<TIn> requestSerializer,
     IJsonRpcResponseSerializer<TOut> responseSerializer,
     IJsonRpcExceptionHandler? exceptionHandler = null
-) : IJsonRpcMessageProcessor<TIn, TOut>
+) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly IJsonRpcRequestSerializer<TIn> _requestSerializer = requestSerializer;
