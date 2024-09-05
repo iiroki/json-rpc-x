@@ -12,14 +12,12 @@ internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
     IJsonRpcRequestSerializer<TIn> requestSerializer,
     IJsonRpcResponseSerializer<TOut> responseSerializer,
-    ILogger<JsonRpcProcessor<TIn, TOut>> logger,
-    IJsonRpcExceptionHandler? exceptionHandler = null
+    ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly IJsonRpcRequestSerializer<TIn> _requestSerializer = requestSerializer;
     private readonly IJsonRpcResponseSerializer<TOut> _responseSerializer = responseSerializer;
-    private readonly IJsonRpcExceptionHandler? _exceptionHandler = exceptionHandler;
     private readonly ILogger _logger = logger;
 
     public async Task<TOut?> ProcessAsync(TIn message, JsonRpcContext ctx, CancellationToken ct = default)
@@ -47,22 +45,27 @@ internal class JsonRpcProcessor<TIn, TOut>(
         }
         catch (Exception ex)
         {
-            // 1. If an exception handler is defined, try to handle the error with it.
             JsonRpcError? error = null;
-            if (_exceptionHandler != null)
+
+            // 1. If an exception handler is defined, try to handle the error with it.
+            var exceptionHandler = scope.ServiceProvider.GetService<IJsonRpcExceptionHandler>();
+            if (exceptionHandler != null)
             {
-                error = await _exceptionHandler.HandleAsync(ex, ctx, ct);
+                error = await exceptionHandler.HandleAsync(ex, ct);
             }
 
             // 2. If the error is still not defined, create a default error response.
-            if (ex is JsonRpcErrorException errorEx)
+            if (error == null)
             {
-                error = errorEx.Error;
-            }
-            else
-            {
-                _logger.LogError(ex, "Unknown error");
-                error = CreateUnknownError(ex);
+                if (ex is JsonRpcErrorException errorEx)
+                {
+                    error = errorEx.Error;
+                }
+                else
+                {
+                    _logger.LogError(ex, "Unknown error");
+                    error = CreateUnknownError(ex);
+                }
             }
 
             response = new JsonRpcResponseError { Id = ctx.Request?.Id, Error = error }.ToResponse();

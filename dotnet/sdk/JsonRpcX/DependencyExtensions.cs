@@ -2,7 +2,6 @@ using System.Reflection;
 using JsonRpcX.Attributes;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
-using JsonRpcX.Core.Exceptions;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
@@ -36,7 +35,6 @@ public static class DependencyExtensions
             .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
-            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>()
             // WebSocket services:
             .AddJsonRpcWebSocket();
 
@@ -127,7 +125,7 @@ public static class DependencyExtensions
     /// </summary>
     public static IServiceCollection SetJsonRpcExceptionHandler<T>(this IServiceCollection services)
         where T : IJsonRpcExceptionHandler =>
-        services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcExceptionHandler), typeof(T)));
+        services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), typeof(T)));
 
     /// <summary>
     /// Maps the JSON RPC API to the WebSocket in the given route.
