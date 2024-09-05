@@ -196,7 +196,7 @@ _JSON RPC X_'s error handling work in the following order:
 1. **Default:** The default error handler checks if the thrown exception is `JsonRpcErrorException`...
     - If yes: the exception's JSON RPC error is returned.
     - If no: an internal error is created from the thrown exception.
-1. **Response:** JSON RPC response is build with the JSON RPC error from the error handlers.
+1. **Response:** JSON RPC response is created from the JSON RPC error.
 
 See below for custom JSON RPC error handler documentation.
 
