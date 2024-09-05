@@ -1,16 +1,20 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
+using JsonRpcX.Constants;
+using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
-using JsonRpcX.Core.Messages;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
+using JsonRpcX.Core.Serialization;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using JsonRpcX.Options;
 using JsonRpcX.WebSockets;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace JsonRpcX;
@@ -29,11 +33,13 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcRequestHandler, JsonRpcRequestHandler>()
             .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
             // Global services:
-            .AddSingletonInterfaces<JsonRpcRequestParser>()
-            .AddSingleton<IJsonRpcMessageProcessor<byte[], byte[]?>, JsonRpcMessageProcessor>()
+            .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
+            .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
-            .AddSingleton<IJsonRpcExceptionHandler, JsonRpcExceptionHandler>()
-            .AddSingleton<JsonRpcExceptionOptions>();
+            // WebSocket services:
+            .AddJsonRpcWebSocket();
+
+    // TODO: HTTP services
 
     /// <summary>
     /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
@@ -116,40 +122,11 @@ public static class DependencyExtensions
     /// Set the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
     /// <br/>
     /// NOTE:<br/>
-    /// Using this method REPLACES the exception handler,
-    /// since there can only be one!
+    /// Using this method REPLACES the exception handler, since there can only be one!
     /// </summary>
-    public static IServiceCollection SetJsonRpcExceptionHandler<T>(
-        this IServiceCollection services,
-        JsonRpcExceptionOptions? opt = null
-    )
-        where T : IJsonRpcExceptionHandler
-    {
-        services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcExceptionHandler), typeof(T)));
-        if (opt != null)
-        {
-            services.SetJsonRpcExceptionOptions(opt);
-        }
-
-        return services;
-    }
-
-    /// <summary>
-    /// Sets the <c>JsonRpcExceptionOptions</c>.
-    /// </summary>
-    public static IServiceCollection SetJsonRpcExceptionOptions(
-        this IServiceCollection services,
-        JsonRpcExceptionOptions opt
-    ) => services.Replace(ServiceDescriptor.Singleton(typeof(JsonRpcExceptionOptions), opt));
-
-    /// <summary>
-    /// Adds JSON RPC WebSocket services to the services.
-    /// </summary>
-    public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
-        services
-            .AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>()
-            .AddSingleton<IJsonRpcWebSocketContainer, JsonRpcWebSocketContainer>()
-            .AddSingleton<IJsonRpcWebSocketIdGenerator, JsonRpcWebSocketIdGenerator>();
+    public static IServiceCollection SetJsonRpcExceptionHandler<T>(this IServiceCollection services)
+        where T : IJsonRpcExceptionHandler =>
+        services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), typeof(T)));
 
     /// <summary>
     /// Maps the JSON RPC API to the WebSocket in the given route.
@@ -172,6 +149,15 @@ public static class DependencyExtensions
         app.MapGet(route, new JsonRpcSchemaEndpointFactory().Create());
         return app;
     }
+
+    /// <summary>
+    /// Adds JSON RPC WebSocket services to the services.
+    /// </summary>
+    private static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
+        services
+            .AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>()
+            .AddSingleton<IJsonRpcWebSocketContainer, JsonRpcWebSocketContainer>()
+            .AddSingleton<IJsonRpcWebSocketIdGenerator, JsonRpcWebSocketIdGenerator>();
 
     private static bool IsValidJsonRpcMethodHandlerType(Type type) =>
         typeof(IJsonRpcMethodHandler).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;

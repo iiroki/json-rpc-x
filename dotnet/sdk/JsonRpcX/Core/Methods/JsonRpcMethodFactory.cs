@@ -1,6 +1,8 @@
 using System.Text.Json;
+using JsonRpcX.Constants;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Core.Methods;
 
@@ -19,13 +21,7 @@ internal class JsonRpcMethodFactory(
         // 1. Find method handler for the method
         var key = JsonRpcConstants.DiKeyPrefix + method;
 
-        var handler =
-            _services.GetKeyedService<IJsonRpcMethodHandler>(key)
-            ?? throw new JsonRpcErrorException(
-                (int)JsonRpcConstants.ErrorCode.MethodNotFound,
-                "Method not found",
-                new { Method = method }
-            );
+        var handler = _services.GetKeyedService<IJsonRpcMethodHandler>(key) ?? throw new JsonRpcMethodException(method);
 
         // 2. Find method invocation metadata for the method
         if (!_container.Methods.TryGetValue(method, out var methodMetadata))
@@ -36,8 +32,7 @@ internal class JsonRpcMethodFactory(
         // 3. Validate that the handler and method invocation metadata types match
         if (handler.GetType() != methodMetadata.DeclaringType)
         {
-            throw new JsonRpcErrorException(
-                (int)JsonRpcConstants.ErrorCode.InternalError,
+            throw new JsonRpcException(
                 $"Handler <-> Method type mismatch: {handler.GetType().FullName} != {methodMetadata.DeclaringType}"
             );
         }

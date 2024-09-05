@@ -4,6 +4,9 @@ using JsonRpcX.Models;
 
 namespace JsonRpcX.Serialization;
 
+/// <summary>
+/// JSON converter from JSON RPC responses.
+/// </summary>
 public class JsonRpcResponseConverter : JsonConverter<JsonRpcResponse>
 {
     public override JsonRpcResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions opt) =>

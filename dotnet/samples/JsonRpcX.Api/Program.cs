@@ -24,9 +24,9 @@ builder.Services.AddHostedService<JsonRpcStatusWorker>();
 // JSON RPC X methods:
 builder
     .Services.AddJsonRpc()
-    .AddJsonRpcWebSocket() // Requires "app.UseWebSockets()"
     .AddJsonRpcMethodsFromAssebly(jsonRpcOptions)
-    .AddJsonRpcMiddleware<JsonRpcExampleMiddleware>();
+    .AddJsonRpcMiddleware<JsonRpcExampleMiddleware>()
+    .SetJsonRpcExceptionHandler<JsonRpcExampleExceptionHandler>();
 
 //
 // App
@@ -34,7 +34,7 @@ builder
 
 var app = builder.Build();
 app.UseWebSockets();
-app.MapJsonRpcWebSocket("/ws");
+app.MapJsonRpcWebSocket("/ws"); // Requires "app.UseWebSockets()"
 app.MapJsonRpcSchema("/");
 
 await app.RunAsync();

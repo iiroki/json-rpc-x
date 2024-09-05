@@ -1,9 +1,11 @@
 using System.Text.Json;
+using JsonRpcX.Constants;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Middleware;
 using JsonRpcX.Models;
+using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Core.Requests;
 
@@ -39,7 +41,7 @@ internal class JsonRpcRequestHandler(
             if (hasInvalidParams)
             {
                 throw new JsonRpcErrorException(
-                    (int)JsonRpcConstants.ErrorCode.ParseError,
+                    (int)JsonRpcErrorCode.ParseError,
                     $"Invalid \"params\" value kind: {request.Params?.ValueKind}"
                 );
             }
@@ -58,7 +60,7 @@ internal class JsonRpcRequestHandler(
         catch (JsonException jsonEx)
         {
             _logger.LogError(jsonEx, "JSON error");
-            throw new JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.ParseError, "JSON parse error");
+            throw new JsonRpcErrorException((int)JsonRpcErrorCode.ParseError, "JSON parse error");
         }
     }
 }

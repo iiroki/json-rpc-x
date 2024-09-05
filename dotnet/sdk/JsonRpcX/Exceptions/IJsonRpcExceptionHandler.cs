@@ -7,5 +7,11 @@ namespace JsonRpcX.Exceptions;
 /// </summary>
 public interface IJsonRpcExceptionHandler
 {
-    Task<JsonRpcError?> HandleAsync(Exception ex, JsonRpcContext ctx, CancellationToken ct = default);
+    /// <summary>
+    /// Handles the exception by creating a JSON RPC error from the exception.<br />
+    /// <br />
+    /// If the exception is not handled and a JSON RPC error is not created,
+    /// the error handling will use the default error handling as the fallback.
+    /// </summary>
+    Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default);
 }

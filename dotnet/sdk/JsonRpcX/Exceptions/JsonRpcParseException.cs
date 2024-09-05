@@ -1,13 +1,14 @@
+using JsonRpcX.Constants;
 using JsonRpcX.Models;
 
 namespace JsonRpcX.Exceptions;
 
-public class JsonRpcParseException(string? detail = null)
+public class JsonRpcParseException(string? message = null)
     : JsonRpcErrorException(
         new JsonRpcError
         {
-            Code = (int)JsonRpcConstants.ErrorCode.ParseError,
+            Code = (int)JsonRpcErrorCode.ParseError,
             Message = "Parse error",
-            Data = !string.IsNullOrEmpty(detail) ? new { Detail = detail } : null,
+            Data = !string.IsNullOrEmpty(message) ? new { Message = message } : null,
         }
     );
