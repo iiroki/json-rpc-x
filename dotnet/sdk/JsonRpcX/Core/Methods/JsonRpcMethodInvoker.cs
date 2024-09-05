@@ -137,7 +137,7 @@ internal class JsonRpcMethodInvoker(
                 msgBuilder.Append($" - {paramRequiredCount + paramDefaultCount}");
             }
 
-            throw new JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.InvalidParams, msgBuilder.ToString());
+            throw new JsonRpcParamException(msgBuilder.ToString());
         }
 
         var @params = new object?[info.Length];

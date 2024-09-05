@@ -1,4 +1,6 @@
+using JsonRpcX.Constants;
+
 namespace JsonRpcX.Exceptions;
 
 public class JsonRpcMethodException(string method)
-    : JsonRpcErrorException((int)JsonRpcConstants.ErrorCode.MethodNotFound, "Method not found", new { method });
+    : JsonRpcErrorException((int)JsonRpcErrorCode.MethodNotFound, "Method not found", new { method });

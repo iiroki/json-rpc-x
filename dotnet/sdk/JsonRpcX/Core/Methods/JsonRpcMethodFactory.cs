@@ -1,4 +1,5 @@
 using System.Text.Json;
+using JsonRpcX.Constants;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Methods;
 using Microsoft.Extensions.DependencyInjection;

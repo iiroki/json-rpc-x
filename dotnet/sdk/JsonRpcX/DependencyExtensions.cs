@@ -1,5 +1,6 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
+using JsonRpcX.Constants;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Methods;

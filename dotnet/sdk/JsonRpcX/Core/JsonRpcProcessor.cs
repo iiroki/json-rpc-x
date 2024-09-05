@@ -1,3 +1,4 @@
+using JsonRpcX.Constants;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Serialization;
@@ -80,7 +81,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
     private static JsonRpcError CreateUnknownError(Exception ex) =>
         new()
         {
-            Code = (int)JsonRpcConstants.ErrorCode.InternalError,
+            Code = (int)JsonRpcErrorCode.InternalError,
             Message = "Unknown error",
             Data = new { ex.Message },
         };
