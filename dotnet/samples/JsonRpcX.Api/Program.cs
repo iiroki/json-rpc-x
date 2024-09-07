@@ -3,6 +3,7 @@ using JsonRpcX;
 using JsonRpcX.Api.Middleware;
 using JsonRpcX.Api.Services;
 using JsonRpcX.Options;
+using JsonRpcX.Transport;
 
 var jsonOptions = new JsonSerializerOptions
 {

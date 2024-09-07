@@ -1,5 +1,5 @@
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Middleware;
-using JsonRpcX.Models;
 
 namespace JsonRpcX.Api.Middleware;
 

@@ -1,9 +1,13 @@
 using System.Text.Json;
-using JsonRpcX.Extensions;
-using JsonRpcX.Models;
+using JsonRpcX.Domain.Models;
+using JsonRpcX.Transport.Extensions;
+using JsonRpcX.Transport.Serialization;
 
 namespace JsonRpcX.Core.Serialization;
 
+/// <summary>
+/// Default JSON RPC serializers.
+/// </summary>
 internal class JsonRpcSerializer(JsonSerializerOptions opt)
     : IJsonRpcSerializer<byte[]>,
         IJsonRpcSerializer<string>,

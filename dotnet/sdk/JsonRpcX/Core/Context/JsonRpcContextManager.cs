@@ -1,4 +1,4 @@
-using JsonRpcX.Models;
+using JsonRpcX.Domain.Models;
 
 namespace JsonRpcX.Core.Context;
 

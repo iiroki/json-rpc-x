@@ -199,7 +199,7 @@ _JSON RPC X_'s error handling work in the following order:
 1. **Response:** JSON RPC response is created from the JSON RPC error.
 
 See below for custom JSON RPC error handler documentation.
-
+ 
 ### Custom JSON RPC error handler
 
 If the default error handling of _JSON RPC X_ is not enough,
@@ -223,6 +223,8 @@ public class JsonRpcCustomExceptionHandler(IExampleService service) : IJsonRpcEx
 ```
 
 The custom error handler can be registered with `SetJsonRpcExceptionHandler` extension method.
+
+**`Program.cs`:**
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);

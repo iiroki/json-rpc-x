@@ -1,5 +1,5 @@
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Models;
 
 namespace JsonRpcX.Api.Middleware;
 

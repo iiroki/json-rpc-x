@@ -1,5 +1,5 @@
 using JsonRpcX.Attributes;
-using JsonRpcX.Models;
+using JsonRpcX.Domain.Models;
 using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Methods;

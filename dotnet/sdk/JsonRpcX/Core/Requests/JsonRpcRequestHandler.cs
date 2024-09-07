@@ -1,10 +1,11 @@
 using System.Text.Json;
 using JsonRpcX.Constants;
 using JsonRpcX.Core.Methods;
+using JsonRpcX.Domain.Constants;
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Middleware;
-using JsonRpcX.Models;
 using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Core.Requests;

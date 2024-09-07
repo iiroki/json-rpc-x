@@ -1,9 +1,10 @@
-using JsonRpcX.Constants;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Requests;
-using JsonRpcX.Core.Serialization;
+using JsonRpcX.Domain.Constants;
+using JsonRpcX.Domain.Interfaces;
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Models;
+using JsonRpcX.Transport.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

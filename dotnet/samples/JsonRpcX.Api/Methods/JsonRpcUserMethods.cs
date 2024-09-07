@@ -1,7 +1,6 @@
 using JsonRpcX.Attributes;
-using JsonRpcX.Exceptions;
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Methods;
-using JsonRpcX.Models;
 
 namespace JsonRpcX.Api.Methods;
 

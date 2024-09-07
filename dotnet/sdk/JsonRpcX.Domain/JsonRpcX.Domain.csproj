@@ -4,13 +4,9 @@
     <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>JsonRpcX</RootNamespace>
+    <RootNamespace>JsonRpcX.Domain</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\JsonRpcX.Domain\JsonRpcX.Domain.csproj" />
-    <ProjectReference Include="..\JsonRpcX.Transport\JsonRpcX.Transport.csproj" />
   </ItemGroup>
 </Project>
