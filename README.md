@@ -178,9 +178,9 @@ The initial motivation for this project was learning more about the following to
   so in theory some external client libraries would also work against my server implementation.
   The JSON-RPC 2.0 specifaction seemed to tick that box,
   since there are lots of libraries built to support it.
-- **Differentiation of communication and transport protocols:**
+- **Separation of communication and transport protocols:**
   In the past, I've mainly used one transport protocl per API communication protocol.
-  Because of that, I wanted to build an API implementation that support multiple transports
+  Because of that, I wanted to build an API implementation that supports multiple transports
   for a single communication protocol.
   JSON-RPC 2.0 specification states that it's transport agnostic,
   which makes it fit the description.

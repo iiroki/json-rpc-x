@@ -35,6 +35,8 @@ builder
 
 var app = builder.Build();
 app.UseWebSockets();
+
+app.MapJsonRpcHttp("/json-rpc");
 app.MapJsonRpcWebSocket("/ws"); // Requires "app.UseWebSockets()"
 app.MapJsonRpcSchema("/");
 

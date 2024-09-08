@@ -43,7 +43,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             response = await handler.HandleAsync(request, ctx, ct);
 
             // 4. Serialize the response
-            return _responseSerializer.Serialize(response);
+            return request.IsNotification ? default : _responseSerializer.Serialize(response);
         }
         catch (Exception ex)
         {
