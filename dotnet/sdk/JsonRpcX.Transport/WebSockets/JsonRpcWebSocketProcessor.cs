@@ -18,10 +18,10 @@ internal class JsonRpcWebSocketProcessor(
     private readonly IJsonRpcWebSocketIdGenerator _idGenerator = idGenerator;
     private readonly ILogger _logger = logger;
 
-    // See "Echo":
-    // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/websockets?view=aspnetcore-8.0#send-and-receive-messages
-    public async Task AttachAsync(WebSocket ws, HttpContext ctx, CancellationToken ct = default)
+    public async Task AttachAsync(WebSocket ws, HttpContext ctx)
     {
+        var ct = ctx.RequestAborted;
+
         var id = _idGenerator.Generate(ctx);
         _container.Add(id, ws);
 
@@ -47,7 +47,7 @@ internal class JsonRpcWebSocketProcessor(
 
     private async Task HandleAsync(WebSocket ws, byte[] buffer, HttpContext http, CancellationToken ct)
     {
-        var ctx = new JsonRpcContext { Transport = JsonRpcTransport.WebSocket, Http = http };
+        var ctx = new JsonRpcContext { Http = http };
         var response = await _messageProcessor.ProcessAsync(buffer, ctx, ct);
         if (response != null)
         {

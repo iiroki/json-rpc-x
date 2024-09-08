@@ -3,6 +3,7 @@ using System.Net;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Interfaces;
 using JsonRpcX.Domain.Models;
+using JsonRpcX.Transport.Constants;
 using JsonRpcX.Transport.Interfaces;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,8 @@ namespace JsonRpcX.Transport.Http;
 
 internal class JsonRpcHttpTransport : IJsonRpcTransport
 {
+    public string Type { get; } = JsonRpcTransportType.Http;
+
     /// <summary>
     /// HTTP status codes according to
     /// <see href="https://www.jsonrpc.org/historical/json-rpc-over-http.html#errors">JSON-RPC over HTTP</see>.<br />
@@ -44,12 +47,12 @@ internal class JsonRpcHttpTransport : IJsonRpcTransport
             }
 
             // Read the request content
-            var buffer = new byte[contentLength].AsMemory(0, contentLength);
-            await httpCtx.Request.Body.ReadAsync(buffer, httpCtx.RequestAborted);
+            var buffer = new byte[contentLength];
+            await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), httpCtx.RequestAborted);
 
             // Process the request
-            var ctx = new JsonRpcContext { Transport = JsonRpcTransport.Http, Http = httpCtx };
-            var response = await processor.ProcessAsync(buffer.ToArray(), ctx);
+            var ctx = new JsonRpcContext { Http = httpCtx };
+            var response = await processor.ProcessAsync(buffer, ctx);
 
             if (response != null)
             {

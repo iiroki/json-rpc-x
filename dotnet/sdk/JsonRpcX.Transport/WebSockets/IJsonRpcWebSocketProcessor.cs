@@ -5,5 +5,5 @@ namespace JsonRpcX.Transport.WebSockets;
 
 internal interface IJsonRpcWebSocketProcessor
 {
-    Task AttachAsync(WebSocket ws, HttpContext ctx, CancellationToken ct = default);
+    Task AttachAsync(WebSocket ws, HttpContext ctx);
 }

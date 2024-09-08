@@ -8,19 +8,13 @@ namespace JsonRpcX.Domain.Models;
 public class JsonRpcContext
 {
     /// <summary>
-    /// JSON RPC request's transport.
-    /// </summary>
-    public required JsonRpcTransport Transport { get; init; }
-
-    /// <summary>
     /// JSON RPC request currently being processed.<br />
     /// <br />
     /// If the value is null, the request could not be parsed.
     /// </summary>
     public JsonRpcRequest? Request { get; init; }
 
-    // TODO: Is this needed for all transports?
-    public required HttpContext Http { get; init; }
+    public HttpContext? Http { get; init; }
 
     /// <summary>
     /// Context data, which can be used to pass simple data within the JSON RPC method pipeline.
@@ -36,7 +30,6 @@ public class JsonRpcContext
 
         return new()
         {
-            Transport = Transport,
             Request = request,
             Http = Http,
             Data = Data,
