@@ -79,7 +79,7 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
     }
     ```
 
-3. Register the method handler in `Program.cs` (the example uses WebSocket transport):
+3. Register the method handler in `Program.cs` (the example uses HTTP transport):
     ```cs
     var builder = WebApplication.CreateBuilder(args);
 
@@ -88,9 +88,7 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
     builder.Services.AddJsonRpcWebSocket();
 
     var app = builder.Build();
-
-    app.UseWebSockets();
-    app.MapJsonRpcWebSocket("/ws");
+    app.MapJsonRpcHttp("/json-rpc");
 
     await app.RunAsync();
     ```

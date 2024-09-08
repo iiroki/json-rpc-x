@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Constants;
 using JsonRpcX.Core;
@@ -37,10 +36,7 @@ public static class DependencyExtensions
             // Global services:
             .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
-            .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
-            // Default transport services (HTTP + WebSocket):
-            // TODO: HTTP
-            .AddJsonRpcWebSocket();
+            .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
     // TODO: HTTP services
 
