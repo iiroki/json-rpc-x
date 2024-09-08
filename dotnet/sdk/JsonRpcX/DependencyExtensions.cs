@@ -7,12 +7,13 @@ using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
 using JsonRpcX.Core.Serialization;
+using JsonRpcX.Domain.Interfaces;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using JsonRpcX.Options;
-using JsonRpcX.WebSockets;
+using JsonRpcX.Transport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -35,9 +36,7 @@ public static class DependencyExtensions
             // Global services:
             .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
-            .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>()
-            // WebSocket services:
-            .AddJsonRpcWebSocket();
+            .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
     // TODO: HTTP services
 
@@ -63,7 +62,7 @@ public static class DependencyExtensions
             if (attr != null)
             {
                 var name = GetJsonRpcMethodName(m, attr, opt);
-                var key = JsonRpcConstants.DiKeyPrefix + name;
+                var key = JsonRpcDiConstants.KeyPrefix + name;
 
                 services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), key, type);
                 methodMetadata.Add(name, m);
@@ -129,19 +128,6 @@ public static class DependencyExtensions
         services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), typeof(T)));
 
     /// <summary>
-    /// Maps the JSON RPC API to the WebSocket in the given route.
-    /// </summary>
-    public static WebApplication MapJsonRpcWebSocket(
-        this WebApplication app,
-        string route,
-        bool shouldSendInitNotification = true
-    )
-    {
-        app.Map(route, new JsonRpcWebSocketEndpointFactory(shouldSendInitNotification).Create());
-        return app;
-    }
-
-    /// <summary>
     /// Maps the JSON RPC API schema endpoint to the given route.
     /// </summary>
     public static WebApplication MapJsonRpcSchema(this WebApplication app, string route)
@@ -149,15 +135,6 @@ public static class DependencyExtensions
         app.MapGet(route, new JsonRpcSchemaEndpointFactory().Create());
         return app;
     }
-
-    /// <summary>
-    /// Adds JSON RPC WebSocket services to the services.
-    /// </summary>
-    private static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
-        services
-            .AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>()
-            .AddSingleton<IJsonRpcWebSocketContainer, JsonRpcWebSocketContainer>()
-            .AddSingleton<IJsonRpcWebSocketIdGenerator, JsonRpcWebSocketIdGenerator>();
 
     private static bool IsValidJsonRpcMethodHandlerType(Type type) =>
         typeof(IJsonRpcMethodHandler).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;

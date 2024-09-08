@@ -92,7 +92,14 @@ internal class JsonRpcMethodInvoker(
     {
         if (!json.HasValue || json.Value.IsNull())
         {
-            return info.HasDefaultValue ? info.DefaultValue : null;
+            var isNullable = Nullable.GetUnderlyingType(info.ParameterType) != null;
+            var value = info.HasDefaultValue ? info.DefaultValue : null;
+            if (!isNullable && value == null)
+            {
+                throw new JsonRpcParamException($"Required param missing - Index: {index}");
+            }
+
+            return value;
         }
 
         try

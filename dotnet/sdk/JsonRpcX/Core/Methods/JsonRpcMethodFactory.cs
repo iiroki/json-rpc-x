@@ -19,7 +19,7 @@ internal class JsonRpcMethodFactory(
     public IJsonRpcMethodInvoker Create(string method)
     {
         // 1. Find method handler for the method
-        var key = JsonRpcConstants.DiKeyPrefix + method;
+        var key = JsonRpcDiConstants.KeyPrefix + method;
 
         var handler = _services.GetKeyedService<IJsonRpcMethodHandler>(key) ?? throw new JsonRpcMethodException(method);
 

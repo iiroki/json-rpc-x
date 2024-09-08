@@ -1,4 +1,4 @@
-using JsonRpcX.WebSockets;
+using JsonRpcX.Transport.WebSockets;
 
 namespace JsonRpcX.Api.Services;
 

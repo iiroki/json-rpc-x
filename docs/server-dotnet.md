@@ -4,7 +4,41 @@ This page contains the _JSON RPC X_ .NET server documentation.
 
 ## Use JSON RPC transports
 
-TODO: HTTP transport not implemented.
+_JSON RPC X_ provides multiple transports:
+- **Built-in:** HTTP, WebSocket
+- **Extensions:** _JSON RPC X_ can be extended by implementing custom transports.
+
+### Use HTTP transport
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+// No extra services needed
+builder.Services.AddJsonRpc().AddJsonRpcMethodsFromAssebly();
+
+var app = builder.Build();
+app.MapJsonRpcHttp("/json-rpc");
+
+await app.RunAsync();
+```
+
+### Use WebSocket transport
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Notice "AddJsonRpcWebSocket()"!
+builder.Services.AddJsonRpc().AddJsonRpcMethodsFromAssebly().AddJsonRpcWebSocket();
+
+var app = builder.Build();
+app.MapJsonRpcWebSocket("/json-rpc/ws");
+
+await app.RunAsync();
+```
+
+### Use custom transports
+
+TODO
 
 ## Implement JSON RPC method handlers
 
@@ -199,7 +233,7 @@ _JSON RPC X_'s error handling work in the following order:
 1. **Response:** JSON RPC response is created from the JSON RPC error.
 
 See below for custom JSON RPC error handler documentation.
-
+ 
 ### Custom JSON RPC error handler
 
 If the default error handling of _JSON RPC X_ is not enough,
@@ -223,6 +257,8 @@ public class JsonRpcCustomExceptionHandler(IExampleService service) : IJsonRpcEx
 ```
 
 The custom error handler can be registered with `SetJsonRpcExceptionHandler` extension method.
+
+**`Program.cs`:**
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);

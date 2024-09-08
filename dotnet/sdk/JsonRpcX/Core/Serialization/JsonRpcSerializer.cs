@@ -1,13 +1,18 @@
 using System.Text.Json;
-using JsonRpcX.Extensions;
-using JsonRpcX.Models;
+using JsonRpcX.Domain.Models;
+using JsonRpcX.Transport.Extensions;
+using JsonRpcX.Transport.Serialization;
 
 namespace JsonRpcX.Core.Serialization;
 
+/// <summary>
+/// Default JSON RPC serializers.
+/// </summary>
 internal class JsonRpcSerializer(JsonSerializerOptions opt)
     : IJsonRpcSerializer<byte[]>,
         IJsonRpcSerializer<string>,
-        IJsonRpcSerializer<JsonElement>
+        IJsonRpcSerializer<JsonElement>,
+        IJsonRpcResponseSerializer<JsonRpcResponse>
 {
     private readonly JsonSerializerOptions? _opt = opt;
 
@@ -31,10 +36,16 @@ internal class JsonRpcSerializer(JsonSerializerOptions opt)
     // JSON elements
     //
 
-    public JsonRpcRequest? Parse(JsonElement? chunk) => chunk?.Deserialize<JsonRpcRequest>(_opt);
+    public JsonRpcRequest? Parse(JsonElement chunk) => chunk.Deserialize<JsonRpcRequest>(_opt);
 
     JsonElement IJsonRpcResponseSerializer<JsonElement>.Serialize(JsonRpcResponse? response) =>
         JsonSerializer.SerializeToElement(response, _opt);
+
+    //
+    // JSON RPC response
+    //
+
+    JsonRpcResponse? IJsonRpcResponseSerializer<JsonRpcResponse>.Serialize(JsonRpcResponse? response) => response;
 
     //
     // Helpers
@@ -42,9 +53,4 @@ internal class JsonRpcSerializer(JsonSerializerOptions opt)
 
     private string? Stringify(JsonRpcResponse? response) =>
         response != null ? JsonSerializer.Serialize(response, _opt) : null;
-
-    public JsonRpcRequest? Parse(JsonElement chunk)
-    {
-        throw new NotImplementedException();
-    }
 }

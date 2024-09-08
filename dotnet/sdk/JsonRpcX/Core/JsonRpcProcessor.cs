@@ -1,9 +1,10 @@
-using JsonRpcX.Constants;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Requests;
-using JsonRpcX.Core.Serialization;
+using JsonRpcX.Domain.Constants;
+using JsonRpcX.Domain.Interfaces;
+using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Models;
+using JsonRpcX.Transport.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -42,7 +43,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             response = await handler.HandleAsync(request, ctx, ct);
 
             // 4. Serialize the response
-            return _responseSerializer.Serialize(response);
+            return request.IsNotification ? default : _responseSerializer.Serialize(response);
         }
         catch (Exception ex)
         {

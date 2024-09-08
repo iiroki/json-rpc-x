@@ -1,4 +1,4 @@
-using JsonRpcX.Constants;
+using JsonRpcX.Domain.Constants;
 
 namespace JsonRpcX.Exceptions;
 

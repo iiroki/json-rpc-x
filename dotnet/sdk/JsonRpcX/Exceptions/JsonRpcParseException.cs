@@ -1,5 +1,5 @@
-using JsonRpcX.Constants;
-using JsonRpcX.Models;
+using JsonRpcX.Domain.Constants;
+using JsonRpcX.Domain.Models;
 
 namespace JsonRpcX.Exceptions;
 

@@ -7,4 +7,4 @@
 - Initial .NET server implementation:
     - Method handlers
     - Middleware
-    - Transports: WebSocket, HTTP (TODO).
+    - Transports: HTTP + WebSocket.
