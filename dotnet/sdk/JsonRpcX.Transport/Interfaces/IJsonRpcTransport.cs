@@ -6,7 +6,8 @@ public interface IJsonRpcTransport
 {
     public string Type { get; }
 
+    /// <summary>
+    /// HTTP request delegate for receiving data.
+    /// </summary>
     public RequestDelegate Delegate { get; }
-
-    // TODO
 }

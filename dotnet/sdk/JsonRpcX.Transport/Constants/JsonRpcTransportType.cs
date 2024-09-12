@@ -1,6 +1,6 @@
 namespace JsonRpcX.Transport.Constants;
 
-public static class JsonRpcTransportType
+public static partial class JsonRpcTransportType
 {
     public const string Http = "HTTP";
 

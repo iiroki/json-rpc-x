@@ -1,9 +1,8 @@
 using System.Text.Json;
-using JsonRpcX.Constants;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Constants;
+using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Middleware;
 using Microsoft.Extensions.Logging;

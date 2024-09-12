@@ -15,6 +15,7 @@ public class JsonRpcRequest : JsonRpcBase
     /// MUST be an object or an array.
     /// </summary>
     [JsonPropertyName("params")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public JsonElement? Params { get; init; }
 
     [JsonIgnore]

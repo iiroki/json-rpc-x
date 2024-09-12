@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using JsonRpcX.Exceptions;
+using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 

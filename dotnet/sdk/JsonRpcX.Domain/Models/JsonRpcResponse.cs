@@ -19,6 +19,8 @@ public class JsonRpcResponse
         _error = error;
     }
 
+    public string? Id => IsSuccess ? Success.Id : Error.Id;
+
     public bool IsSuccess => _success != null;
 
     public JsonRpcResponseSuccess Success =>

@@ -3,7 +3,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-const ws = new WebSocket('ws://localhost:5245/ws')
+const id = crypto.randomUUID()
+const ws = new WebSocket('ws://localhost:5245/json-rpc/ws')
 
 ws.addEventListener('open', () => {
   console.log('WebSocket - Open')
@@ -14,6 +15,18 @@ ws.addEventListener('close', () => console.log('WebSocket - Close'))
 ws.addEventListener('message', msg => {
   console.log('WebSocket - Received:', msg.data)
   const data = JSON.parse(msg.data)
+
+  if (data.method === 'server2client' && data.id) {
+    const response = {
+      jsonrpc: '2.0',
+      id: data.id,
+      result: { responseFromClient: true }
+    }
+
+    ws.send(JSON.stringify(response))
+    console.log('WebSocket - Response:', response)
+  }
+
   if (data.method === 'init') {
     const request = {
       jsonrpc: '2.0',
@@ -22,7 +35,6 @@ ws.addEventListener('message', msg => {
     }
   
     ws.send(JSON.stringify(request))
-    console.log('Request:', request)
   }
 })
 
@@ -30,25 +42,13 @@ setInterval(() => {
   if (ws.readyState == ws.OPEN) {
     const request = {
       jsonrpc: '2.0',
-      method: 'ping'
+      method: 'notifyOthers',
+      params: ['client2client', `Hello from: ${id}`]
     }
-  
-    // ws.send(JSON.stringify(request))
-  }
-}, 1000)
 
-setInterval(() => {
-  if (ws.readyState == ws.OPEN) {
-    const request = {
-      jsonrpc: '2.0',
-      method: 'getUser',
-      id: crypto.randomUUID(),
-      params: [Date.now() % 10]
-    }
-  
     ws.send(JSON.stringify(request))
   }
-}, 5000)
+}, 10000)
 
 setInterval(() => {
   if (ws.readyState == ws.OPEN) {
@@ -60,7 +60,7 @@ setInterval(() => {
   
     ws.send(JSON.stringify(request))
   }
-}, 10000)
+}, 30000)
 
 setInterval(() => {
   if (ws.readyState == ws.OPEN) {
@@ -71,7 +71,7 @@ setInterval(() => {
   
     ws.send(JSON.stringify(request))
   }
-}, 10000)
+}, 60000)
 
 const App = () => {
   const [count, setCount] = useState(0)

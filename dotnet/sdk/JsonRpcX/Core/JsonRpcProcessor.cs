@@ -1,7 +1,9 @@
+using JsonRpcX.Client;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Domain.Constants;
-using JsonRpcX.Domain.Interfaces;
+using JsonRpcX.Domain.Core;
+using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Transport.Serialization;
@@ -12,12 +14,17 @@ namespace JsonRpcX.Core;
 
 internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
+    IJsonRpcMessageSerializer<TIn> messageSerializer,
+    IJsonRpcRequestAwaiter requestAwaiter,
     IJsonRpcRequestSerializer<TIn> requestSerializer,
     IJsonRpcResponseSerializer<TOut> responseSerializer,
     ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly IJsonRpcMessageSerializer<TIn> _messageSerializer = messageSerializer;
+    private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
+
     private readonly IJsonRpcRequestSerializer<TIn> _requestSerializer = requestSerializer;
     private readonly IJsonRpcResponseSerializer<TOut> _responseSerializer = responseSerializer;
     private readonly ILogger _logger = logger;
@@ -33,17 +40,32 @@ internal class JsonRpcProcessor<TIn, TOut>(
             var ctxManager = scope.ServiceProvider.GetRequiredService<IJsonRpcContextManager>();
             ctxManager.SetContext(ctx);
 
-            // 2. Update the context with the request
-            var request = _requestSerializer.Parse(message) ?? throw new JsonRpcParseException("Received null");
-            ctx = ctx.WithRequest(request);
+            // TODO: Do not return response parse errors!
+            // 2. Check if the received message is a request or a response:
+            // - Response -> Set the response to the request awaiter
+            // - Request -> Process the request with the normal JSON RPC pipeline.
+            var (req, res) = _messageSerializer.Parse(message);
+            if (res != null && !string.IsNullOrEmpty(ctx.ClientId))
+            {
+                _requestAwaiter.SetResponse(ctx.ClientId, res);
+                return default;
+            }
+
+            if (req == null)
+            {
+                return default; // Should not happen, but let's just ignore these messages!
+            }
+
+            // 3. Update the context with the request
+            ctx = ctx.WithRequest(req);
             ctxManager.SetContext(ctx);
 
-            // 3. Handle the request
+            // 4. Handle the request
             var handler = scope.ServiceProvider.GetRequiredService<IJsonRpcRequestHandler>();
-            response = await handler.HandleAsync(request, ctx, ct);
+            response = await handler.HandleAsync(req, ctx, ct);
 
-            // 4. Serialize the response
-            return request.IsNotification ? default : _responseSerializer.Serialize(response);
+            // 5. Serialize the response
+            return req.IsNotification ? default : _responseSerializer.Serialize(response);
         }
         catch (Exception ex)
         {
