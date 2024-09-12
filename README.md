@@ -1,26 +1,37 @@
 # JSON RPC X
 
-**_JSON RPC X_** is a JSON-RPC 2.0 .NET server with clients for .NET & TypeScript.
+**_JSON RPC X_** is a modern and developer-friendly
+[JSON-RPC 2.0](https://www.jsonrpc.org/specification) .NET server library for ASP.NET Core.
 
 ## Features
 
-### General
+- **JSON-RPC 2.0:**  
+  Implementation according to JSON-RPC 2.0 specification,
+  which means the server is compatible with existing JSON RPC clients.
+  
+- **Modern:**  
+  Built with .NET 8.
 
-- **JSON-RPC 2.0 support** (see ["Specification](#specification)).
-- **Multiple transports:** HTTP & WebSockets.
-    - Bidirectional communication over WebSockets!
+- **Lightweight:**  
+  Zero external dependencies!
 
-### Server
+- **Dependency injection capabilities:**  
+  Built on top of .NET's dependency injection.
 
-- **Modern:** Built with .NET 8.
-- **Lightweight:** Zero external dependencies!
-- **Dependency injection capabilities:** Built on top of .NET's dependency injection.
-- **Performant JSON serialization:** JSON serialization with `System.Text.Json`.
-- **Middleware:** Enrich JSON RPC request pipelines with custom middleware.
+- **Performant JSON serialization:**  
+  JSON serialization with `System.Text.Json`.
 
-### Client
+- **Middleware:**  
+  Enrich JSON RPC request pipelines with custom middleware.
 
-TODO
+- **Multiple transports:**  
+  Enforces the transport agnostic nature of JSON RPC by supporting multiple transports.
+  Default transport support for HTTP & WebSocket,
+  but the server can be extended with own custom transports!
+
+- **Truly bidirectional:**  
+  Provides an easy way to access clients from transport connections
+  with two-way communication capabilities.
 
 ## Installation
 
@@ -28,11 +39,7 @@ TODO
 
 ## Usage
 
-This chapter only contains quickstarts for quickly setting up _JSON RPC X_.
-
-See the full documentation for detailed information: **[DOCS](./docs/index.md)**
-
-### Server
+_See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
 
 **Quickstart:**
 
@@ -82,10 +89,8 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
 3. Register the method handler in `Program.cs` (the example uses HTTP transport):
     ```cs
     var builder = WebApplication.CreateBuilder(args);
-
     builder.Services.AddJsonRpc();
     builder.Services.AddJsonRpcMethodsFromAssebly();
-    builder.Services.AddJsonRpcWebSocket();
 
     var app = builder.Build();
     app.MapJsonRpcHttp("/json-rpc");
@@ -94,72 +99,6 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
     ```
 
 4. Success!
-
-## Specification
-
-**_JSON RPC X_** uses and implements
-[JSON-RPC 2.0](https://www.jsonrpc.org/specification)
-specification.
-
-Example JSON RPC payloads can be seen below.
-
-### Request
-
-
-_Example:_
-```json
-{
-    "jsonrpc": "2.0",
-    "method": "getUser",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "params": {
-        "id": 123
-    }
-}
-```
-
-### Response
-
-_Example - Success:_
-```json
-{
-    "jsonrpc": "2.0",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "result": {
-        "id": 123,
-        "name": "Example User",
-        "address": "Example Street 123",
-        "isAdmin": false
-    }
-}
-```
-
-_Example - Error:_
-```json
-{
-    "jsonrpc": "2.0",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "error": {
-        "code": 1,
-        "message": "User not found",
-        "data": {}
-    }
-}
-```
-
-### Notifications
-
-_Example:_
-```json
-{
-    "jsonrpc": "2.0",
-    "method": "friendLoggedIn",
-    "params": {
-        "timestamp": "2024-08-21T08:07:00.000Z",
-        "userId": 123
-    }
-}
-```
 
 ## Motivation
 
