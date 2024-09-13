@@ -1,28 +1,25 @@
 # JSON RPC X
 
-**_JSON RPC X_** is a modern and developer-friendly
-[JSON-RPC 2.0](https://www.jsonrpc.org/specification) .NET server library for ASP.NET Core.
+**_JSON RPC X_** is a [JSON-RPC 2.0](https://www.jsonrpc.org/specification)
+server implementation for .NET.
 
 ## Features
 
-- **JSON-RPC 2.0:**  
-  Implementation according to JSON-RPC 2.0 specification,
+- **JSON-RPC 2.0 implementation:**  
+  Implemented according to JSON-RPC 2.0 specification,
   which means the server is compatible with existing JSON RPC clients.
   
-- **Modern:**  
-  Built with .NET 8.
-
-- **Lightweight:**  
-  Zero external dependencies!
+- **Modern & lightweight:**  
+  Built with .NET 8 and zero external dependencies!.
 
 - **Dependency injection capabilities:**  
-  Built on top of .NET's dependency injection.
+  Utilizes .NET's well-established dependency injection system.
 
 - **Performant JSON serialization:**  
   JSON serialization with `System.Text.Json`.
 
-- **Middleware:**  
-  Enrich JSON RPC request pipelines with custom middleware.
+- **Customizable implementation:**  
+  Enrich JSON RPC request pipelines with custom middleware and errors handling.
 
 - **Multiple transports:**  
   Enforces the transport agnostic nature of JSON RPC by supporting multiple transports.
@@ -32,6 +29,10 @@
 - **Truly bidirectional:**  
   Provides an easy way to access clients from transport connections
   with two-way communication capabilities.
+
+### TODO Features
+
+- Authorization
 
 ## Installation
 
@@ -104,26 +105,27 @@ _See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
 
 The initial motivation for this project was learning more about the following topics:
 
-- **Experimenting with new API communication protocols:**
+- **Experimenting with new API communication protocols:**  
   Previously I had mainly implemented APIs with REST, GraphQL and gRPC.
-  I searched for existing API communication protocols as I figured that there must be some
-  simple and lightweight protocol somewhere between the ones that I've already gotten familiar with.
-  That's when I stumbled upon the JSON-RPC 2.0 and figured out that I wanted to build something
-  on top of it for learning purposes.
-- **Well-established specifications:**
+  I searched for some simple and lightweight communication protocols
+  which would also enable bidirectional communication.
+  That's when I stumbled upon the JSON-RPC 2.0 specification.
+
+- **Developing against well-established specifications:**  
   I wanted to develop something against a well-established specification,
   so in theory some external client libraries would also work against my server implementation.
-  The JSON-RPC 2.0 specifaction seemed to tick that box,
-  since there are lots of libraries built to support it.
-- **Separation of communication and transport protocols:**
-  In the past, I've mainly used one transport protocl per API communication protocol.
+  The JSON-RPC 2.0 specifaction seemed to also tick that box,
+  since there are lots of client libraries around built to support it.
+
+- **Separating communication and transport protocols:**  
+  In the past, I've mainly used one transport protocol per API communication protocol.
   Because of that, I wanted to build an API implementation that supports multiple transports
   for a single communication protocol.
   JSON-RPC 2.0 specification states that it's transport agnostic,
   which makes it fit the description.
-- **Customizable library:**
-  I wanted to experiment implementing a library, which would provide a clear and customizable
-  interface for the library's end user.
+
+- **Implementing customizable libraries:**  
+  I wanted to experiment implementing a library, which would provide a clear and customizable interface for the library's end user.
 
 ## License
 
