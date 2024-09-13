@@ -65,9 +65,7 @@ public static class DependencyExtensions
             if (attr != null)
             {
                 var name = GetJsonRpcMethodName(m, attr, opt);
-                var key = JsonRpcDiConstants.KeyPrefix + name;
-
-                services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), key, type);
+                services.AddJsonRpcMethod(name, type);
                 methodMetadata.Add(name, m);
             }
 
@@ -107,6 +105,9 @@ public static class DependencyExtensions
         handlerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
         return services;
     }
+
+    public static IServiceCollection AddJsonRpcMethod(this IServiceCollection services, string method, Type type) =>
+        services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), JsonRpcDiConstants.KeyPrefix + method, type);
 
     /// <summary>
     /// Adds <c>IJsonRpcMiddleware</c> implementation to the services as a scoped service.

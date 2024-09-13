@@ -14,7 +14,8 @@ See these pages for more detailed documentation about more advanced topics:
 - [**Middleware**](./server-middleware.md)
 - [**Errors**](./server-errors.md)
 - [**Serialization**](./server-serialization.md)
-- [**Custom Transport**](./server-custom-transports.md)
+- [**Bidirectional**](./server-bidirectional.md)
+- [**Custom transports**](./server-custom-transports.md)
 
 ## Implement JSON RPC method handlers
 

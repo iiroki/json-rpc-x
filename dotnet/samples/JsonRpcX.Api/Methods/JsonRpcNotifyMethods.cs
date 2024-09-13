@@ -15,6 +15,9 @@ public class JsonRpcNotifyMethods(
     private readonly IJsonRpcClientContainer _clientContainer = clientContainer;
     private readonly ILogger _logger = logger;
 
+    /// <summary>
+    /// The method sends a notification to all other connected clients.
+    /// </summary>
     [JsonRpcMethod]
     public async Task NotifyOthersAsync(string method, string message, CancellationToken ct = default)
     {
