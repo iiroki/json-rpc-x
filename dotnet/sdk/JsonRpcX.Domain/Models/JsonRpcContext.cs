@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace JsonRpcX.Domain.Models;
 
@@ -8,13 +8,26 @@ namespace JsonRpcX.Domain.Models;
 public class JsonRpcContext
 {
     /// <summary>
+    /// JSON RPC transport type.
+    /// </summary>
+    public required string Transport { get; init; }
+
+    /// <summary>
     /// JSON RPC request currently being processed.<br />
     /// <br />
     /// If the value is null, the request could not be parsed.
     /// </summary>
     public JsonRpcRequest? Request { get; init; }
 
-    public HttpContext? Http { get; init; }
+    /// <summary>
+    /// User that made the request.
+    /// </summary>
+    public required ClaimsPrincipal User { get; init; }
+
+    /// <summary>
+    /// JSON RPC client ID, if one is associated with the request.
+    /// </summary>
+    public string? ClientId { get; init; }
 
     /// <summary>
     /// Context data, which can be used to pass simple data within the JSON RPC method pipeline.
@@ -30,9 +43,12 @@ public class JsonRpcContext
 
         return new()
         {
-            Request = request,
-            Http = Http,
+            Transport = Transport,
+            User = User,
+            ClientId = ClientId,
             Data = Data,
+
+            Request = request,
         };
     }
 }

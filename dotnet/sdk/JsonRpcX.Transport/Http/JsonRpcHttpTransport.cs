@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Net;
 using JsonRpcX.Domain.Constants;
-using JsonRpcX.Domain.Interfaces;
+using JsonRpcX.Domain.Core;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Transport.Constants;
 using JsonRpcX.Transport.Interfaces;
@@ -51,7 +51,7 @@ internal class JsonRpcHttpTransport : IJsonRpcTransport
             await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), httpCtx.RequestAborted);
 
             // Process the request
-            var ctx = new JsonRpcContext { Http = httpCtx };
+            var ctx = new JsonRpcContext { Transport = JsonRpcTransportType.Http, User = httpCtx.User };
             var response = await processor.ProcessAsync(buffer, ctx);
 
             if (response != null)

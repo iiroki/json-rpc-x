@@ -1,6 +1,6 @@
 using JsonRpcX.Domain.Models;
 
-namespace JsonRpcX.Domain.Interfaces;
+namespace JsonRpcX.Domain.Core;
 
 /// <summary>
 /// JSON RPC processor that's responsible for parsing the request,

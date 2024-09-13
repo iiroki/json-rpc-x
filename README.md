@@ -1,26 +1,38 @@
 # JSON RPC X
 
-**_JSON RPC X_** is a JSON-RPC 2.0 .NET server with clients for .NET & TypeScript.
+**_JSON RPC X_** is a [JSON-RPC 2.0](https://www.jsonrpc.org/specification)
+server implementation for .NET.
 
 ## Features
 
-### General
+- **JSON-RPC 2.0 implementation:**  
+  Implemented according to JSON-RPC 2.0 specification,
+  which means the server is compatible with existing JSON RPC clients.
+  
+- **Modern & lightweight:**  
+  Built with .NET 8 and zero external dependencies!.
 
-- **JSON-RPC 2.0 support** (see ["Specification](#specification)).
-- **Multiple transports:** HTTP & WebSockets.
-    - Bidirectional communication over WebSockets!
+- **Dependency injection capabilities:**  
+  Utilizes .NET's well-established dependency injection system.
 
-### Server
+- **Performant JSON serialization:**  
+  JSON serialization with `System.Text.Json`.
 
-- **Modern:** Built with .NET 8.
-- **Lightweight:** Zero external dependencies!
-- **Dependency injection capabilities:** Built on top of .NET's dependency injection.
-- **Performant JSON serialization:** JSON serialization with `System.Text.Json`.
-- **Middleware:** Enrich JSON RPC request pipelines with custom middleware.
+- **Customizable implementation:**  
+  Enrich JSON RPC request pipelines with custom middleware and errors handling.
 
-### Client
+- **Multiple transports:**  
+  Enforces the transport agnostic nature of JSON RPC by supporting multiple transports.
+  Default transport support for HTTP & WebSocket,
+  but the server can be extended with own custom transports!
 
-TODO
+- **Truly bidirectional:**  
+  Provides an easy way to access clients from transport connections
+  with two-way communication capabilities.
+
+### TODO Features
+
+- Authorization
 
 ## Installation
 
@@ -28,11 +40,7 @@ TODO
 
 ## Usage
 
-This chapter only contains quickstarts for quickly setting up _JSON RPC X_.
-
-See the full documentation for detailed information: **[DOCS](./docs/index.md)**
-
-### Server
+_See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
 
 **Quickstart:**
 
@@ -82,10 +90,8 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
 3. Register the method handler in `Program.cs` (the example uses HTTP transport):
     ```cs
     var builder = WebApplication.CreateBuilder(args);
-
     builder.Services.AddJsonRpc();
     builder.Services.AddJsonRpcMethodsFromAssebly();
-    builder.Services.AddJsonRpcWebSocket();
 
     var app = builder.Build();
     app.MapJsonRpcHttp("/json-rpc");
@@ -95,96 +101,31 @@ See the full documentation for detailed information: **[DOCS](./docs/index.md)**
 
 4. Success!
 
-## Specification
-
-**_JSON RPC X_** uses and implements
-[JSON-RPC 2.0](https://www.jsonrpc.org/specification)
-specification.
-
-Example JSON RPC payloads can be seen below.
-
-### Request
-
-
-_Example:_
-```json
-{
-    "jsonrpc": "2.0",
-    "method": "getUser",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "params": {
-        "id": 123
-    }
-}
-```
-
-### Response
-
-_Example - Success:_
-```json
-{
-    "jsonrpc": "2.0",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "result": {
-        "id": 123,
-        "name": "Example User",
-        "address": "Example Street 123",
-        "isAdmin": false
-    }
-}
-```
-
-_Example - Error:_
-```json
-{
-    "jsonrpc": "2.0",
-    "id": "c890b461-fb55-4c31-a4d4-69ddaa7801d4",
-    "error": {
-        "code": 1,
-        "message": "User not found",
-        "data": {}
-    }
-}
-```
-
-### Notifications
-
-_Example:_
-```json
-{
-    "jsonrpc": "2.0",
-    "method": "friendLoggedIn",
-    "params": {
-        "timestamp": "2024-08-21T08:07:00.000Z",
-        "userId": 123
-    }
-}
-```
-
 ## Motivation
 
 The initial motivation for this project was learning more about the following topics:
 
-- **Experimenting with new API communication protocols:**
+- **Experimenting with new API communication protocols:**  
   Previously I had mainly implemented APIs with REST, GraphQL and gRPC.
-  I searched for existing API communication protocols as I figured that there must be some
-  simple and lightweight protocol somewhere between the ones that I've already gotten familiar with.
-  That's when I stumbled upon the JSON-RPC 2.0 and figured out that I wanted to build something
-  on top of it for learning purposes.
-- **Well-established specifications:**
+  I searched for some simple and lightweight communication protocols
+  which would also enable bidirectional communication.
+  That's when I stumbled upon the JSON-RPC 2.0 specification.
+
+- **Developing against well-established specifications:**  
   I wanted to develop something against a well-established specification,
   so in theory some external client libraries would also work against my server implementation.
-  The JSON-RPC 2.0 specifaction seemed to tick that box,
-  since there are lots of libraries built to support it.
-- **Separation of communication and transport protocols:**
-  In the past, I've mainly used one transport protocl per API communication protocol.
+  The JSON-RPC 2.0 specifaction seemed to also tick that box,
+  since there are lots of client libraries around built to support it.
+
+- **Separating communication and transport protocols:**  
+  In the past, I've mainly used one transport protocol per API communication protocol.
   Because of that, I wanted to build an API implementation that supports multiple transports
   for a single communication protocol.
   JSON-RPC 2.0 specification states that it's transport agnostic,
   which makes it fit the description.
-- **Customizable library:**
-  I wanted to experiment implementing a library, which would provide a clear and customizable
-  interface for the library's end user.
+
+- **Implementing customizable libraries:**  
+  I wanted to experiment implementing a library, which would provide a clear and customizable interface for the library's end user.
 
 ## License
 

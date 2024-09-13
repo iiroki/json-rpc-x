@@ -1,4 +1,6 @@
+using JsonRpcX.Domain.Extensions;
 using JsonRpcX.Transport.Http;
+using JsonRpcX.Transport.Serialization;
 using JsonRpcX.Transport.WebSockets;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +9,13 @@ namespace JsonRpcX.Transport;
 
 public static class DependencyExtensions
 {
+    //
+    // Serialization
+    //
+
+    public static IServiceCollection AddJsonRpcSerializerDefaults(this IServiceCollection services) =>
+        services.AddWithInterfaces<JsonRpcMessageSerializer>(ServiceLifetime.Singleton);
+
     //
     // HTTP
     //
@@ -39,11 +48,8 @@ public static class DependencyExtensions
     }
 
     // <summary>
-    /// Adds JSON RPC WebSocket services to the services.
+    /// Adds JSON RPC WebSocket services.
     /// </summary>
     public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
-        services
-            .AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>()
-            .AddSingleton<IJsonRpcWebSocketContainer, JsonRpcWebSocketContainer>()
-            .AddSingleton<IJsonRpcWebSocketIdGenerator, JsonRpcWebSocketIdGenerator>();
+        services.AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>();
 }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
+using JsonRpcX.Client;
 using JsonRpcX.Constants;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
@@ -7,9 +8,9 @@ using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
 using JsonRpcX.Core.Serialization;
-using JsonRpcX.Domain.Interfaces;
+using JsonRpcX.Domain.Core;
+using JsonRpcX.Domain.Extensions;
 using JsonRpcX.Exceptions;
-using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using JsonRpcX.Options;
@@ -34,6 +35,8 @@ public static class DependencyExtensions
             .AddScoped<IJsonRpcRequestHandler, JsonRpcRequestHandler>()
             .AddScoped<IJsonRpcMethodFactory, JsonRpcMethodFactory>()
             // Global services:
+            .AddJsonRpcClient()
+            .AddJsonRpcSerializerDefaults()
             .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
@@ -62,9 +65,7 @@ public static class DependencyExtensions
             if (attr != null)
             {
                 var name = GetJsonRpcMethodName(m, attr, opt);
-                var key = JsonRpcDiConstants.KeyPrefix + name;
-
-                services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), key, type);
+                services.AddJsonRpcMethod(name, type);
                 methodMetadata.Add(name, m);
             }
 
@@ -104,6 +105,9 @@ public static class DependencyExtensions
         handlerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
         return services;
     }
+
+    public static IServiceCollection AddJsonRpcMethod(this IServiceCollection services, string method, Type type) =>
+        services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), JsonRpcDiConstants.KeyPrefix + method, type);
 
     /// <summary>
     /// Adds <c>IJsonRpcMiddleware</c> implementation to the services as a scoped service.

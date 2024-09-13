@@ -1,6 +1,6 @@
 using JsonRpcX.Domain.Models;
 
-namespace JsonRpcX.Exceptions;
+namespace JsonRpcX.Domain.Exceptions;
 
 public class JsonRpcErrorException : JsonRpcException
 {
