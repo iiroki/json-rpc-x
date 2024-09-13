@@ -1,29 +1,67 @@
 # JSON RPC X - Server: Errors
 
-## Handle JSON RPC errors
+## JSON RPC error types
 
-_JSON RPX X_ handles the following errors according to the JSON-RPC 2.0 specification:
+_JSON RPC X_ supports all the errors defined in the JSON-RPC 2.0 specification
+and has C# exception counterparts of them.
 
-- "General error" -> `JsonRpcErrorException`
-    - The exception includes a JSON RPC error
-    - All the errors below extend from this
-    - This class can be extended to define custom JSON RPC error exception
-- -32700 = "Parse error" -> `JsonRpcParseException`
-- -32600 = "Invalid Request" -> `JsonRpcRequestException`
-- -32601 = "Method not found" -> `JsonRpcMethodException`
-- -32602 = "Invalid params" -> `JsonRpcParamException`
-- -32603 = "Internal error" -> All unknown and unhandled errors.
+All the JSON RPC error exceptions extend from `JsonRpcErrorException`,
+which is an exception class that contains a JSON RPC error.
 
-_JSON RPC X_'s error handling work in the following order:
+_JSON RPC X_ supports the following built-in JSON RPC error types:
+
+| **JSON RPC code** | **Description** | **C# exception** |
+| :-----: | ----- | ----- |
+| -32700 | "Parse error" | `JsonRpcParseException` |
+| -32600 | "Invalid Request" | `JsonRpcRequestException` |
+| -32601 | "Method not found" | `JsonRpcMethodException` |
+| -32602 | "Invalid params" | `JsonRpcParamException` |
+| -32603 | "Internal error" | All unhandled errors |
+| (any) | Custom error | `JsonRpcErrorException` |
+
+By throwing any of the exceptions listed above,
+the default error handler implementation will catch the exception
+and create an error response from it.
+
+### Custom JSON RPC error types
+
+Custom JSON RPC error types can be implemented by extending from `JsonRpcErrorException`.
+
+**`JsonRpcExampleException.cs`:**
+```cs
+public class JsonRpcExampleException()
+    : JsonRpcErrorException(new JsonRpcError { Code = 123, Message = "Example message" });
+```
+
+**`JsonRpcExampleMethodHandler.cs`:**
+```cs
+public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
+{
+    [JsonRpcMethod]
+    public void Throw() => throw new JsonRpcExampleException();
+}
+```
+
+**NOTE:** As the custom exception extends `JsonRpcErrorException`,
+it will be handled by the default error handler.
+
+## JSON RPC error handling
+
+_JSON RPC X_ handles the errors that occur during JSON RPC request processing with
+the default error handler, which can be overridden with a custom error handler.
+
+_JSON RPC X_'s error handling works in the following order:
+
 1. **Custom:** If a custom error handler exists, it's invoked first.
     - If the custom error handler did not exist or it did not produce a JSON RPC error,
       the default error handler is invoked.
+    - See ["Custom JSON RPC error handler"](#custom-json-rpc-error-handler)
+      below for implementation instructions.
 1. **Default:** The default error handler checks if the thrown exception is `JsonRpcErrorException`...
-    - If yes: the exception's JSON RPC error is returned.
-    - If no: an internal error is created from the thrown exception.
+    - **Yes:** The exception's JSON RPC error is returned.
+    - **No:** An internal error is created from the unhandled exception.
+        - Unhandled exceptions are also logged as errors.
 1. **Response:** JSON RPC response is created from the JSON RPC error.
-
-See below for custom JSON RPC error handler documentation.
  
 ### Custom JSON RPC error handler
 
@@ -64,4 +102,4 @@ builder.Services.SetJsonRpcExceptionHandler<JsonRpcCustomExceptionHandler>();
   which means that all services from the DI container can be used in the custom handler.
 - By returning `null`, the default error handler is invoked.
   This can be utilized implement some custom functionality for errors
-  without altering the JSON RPC response.
+  without altering the default JSON RPC response.
