@@ -10,7 +10,7 @@ server implementation for .NET.
   which means the server is compatible with existing JSON RPC clients.
   
 - **Modern & lightweight:**  
-  Built with .NET 8 and zero external dependencies!.
+  Built with .NET 8 and zero external dependencies!
 
 - **Dependency injection capabilities:**  
   Utilizes .NET's well-established dependency injection system.
@@ -30,9 +30,10 @@ server implementation for .NET.
   Provides an easy way to access clients from transport connections
   with two-way communication capabilities.
 
-### TODO Features
+### TODO
 
 - Authorization
+- Performance testing
 
 ## Installation
 

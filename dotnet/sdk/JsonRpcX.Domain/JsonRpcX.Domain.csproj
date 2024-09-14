@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>JsonRpcX.Domain</RootNamespace>
   </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

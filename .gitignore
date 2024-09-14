@@ -1,3 +1,6 @@
 # .NET
 bin
 obj
+
+# Tests
+lcov.info

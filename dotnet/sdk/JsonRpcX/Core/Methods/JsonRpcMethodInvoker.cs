@@ -21,7 +21,8 @@ internal class JsonRpcMethodInvoker(
 
     public async Task<object?> InvokeAsync(JsonElement? @params, CancellationToken ct = default)
     {
-        var result = Invoke(GetParameters(@params, ct));
+        var input = GetParameters(@params, ct);
+        var result = Invoke(input);
 
         // If the result is a task -> Wait for the completion.
         if (result is Task task)
@@ -148,6 +149,8 @@ internal class JsonRpcMethodInvoker(
         }
 
         var @params = new object?[info.Length];
+
+        var parsed = 0;
         foreach (var (el, i) in json.Value.EnumerateWithIndex())
         {
             if (i >= info.Length)
@@ -156,9 +159,10 @@ internal class JsonRpcMethodInvoker(
             }
 
             @params[i] = ParseSingleParam(el, info[i], i);
+            ++parsed;
         }
 
-        if (@params.Length != info.Length)
+        if (parsed != info.Length)
         {
             throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
         }
