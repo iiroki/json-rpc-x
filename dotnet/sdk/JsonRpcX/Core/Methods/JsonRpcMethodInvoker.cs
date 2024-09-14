@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Extensions;
+using JsonRpcX.Helpers.Extensions;
 using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
@@ -49,10 +50,6 @@ internal class JsonRpcMethodInvoker(
         {
             throw ex.InnerException ?? ex;
         }
-        catch (ArgumentException ex)
-        {
-            throw new JsonRpcException("Received invalid params", ex);
-        }
     }
 
     private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
@@ -90,7 +87,8 @@ internal class JsonRpcMethodInvoker(
     {
         if (!json.HasValue || json.Value.IsNull())
         {
-            var isNullable = Nullable.GetUnderlyingType(info.ParameterType) != null;
+            var isNullable = info.IsNullable();
+
             var value = info.HasDefaultValue ? info.DefaultValue : null;
             if (!isNullable && value == null)
             {

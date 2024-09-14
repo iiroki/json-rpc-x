@@ -15,6 +15,7 @@
     <ProjectReference Include="..\JsonRpcX.Domain\JsonRpcX.Domain.csproj" />
     <ProjectReference Include="..\JsonRpcX.Transport\JsonRpcX.Transport.csproj" />
     <ProjectReference Include="..\JsonRpcX.Client\JsonRpcX.Client.csproj" />
+    <ProjectReference Include="..\JsonRpcX.Helpers\JsonRpcX.Helpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

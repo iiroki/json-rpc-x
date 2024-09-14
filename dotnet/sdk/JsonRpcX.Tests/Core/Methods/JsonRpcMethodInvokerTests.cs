@@ -148,6 +148,32 @@ public sealed class JsonRpcMethodInvokerTests
         await invoker.InvokeAsync(@params);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Invoke_Params_NullReference__Valid_Ok(bool isJsonNull)
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsNullReference));
+        JsonElement? @params = isJsonNull ? JsonSerializer.SerializeToElement((object?)null) : null;
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Invoke_Params_NullValue__Valid_Ok(bool isJsonNull)
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsNullValue));
+        JsonElement? @params = isJsonNull ? JsonSerializer.SerializeToElement((int?)null) : null;
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
     #endregion
 
     #region Result
@@ -246,6 +272,18 @@ public sealed class JsonRpcMethodInvokerTests
         [JsonRpcMethod]
         public static async Task ParamsEnumerableAsyncCt(IEnumerable<int> _, CancellationToken ct) =>
             await Task.Delay(10, ct);
+
+        [JsonRpcMethod]
+        public static void ParamsNullReference(object? _)
+        {
+            // NOP
+        }
+
+        [JsonRpcMethod]
+        public static void ParamsNullValue(int? _)
+        {
+            // NOP
+        }
 
         //
         // Result
