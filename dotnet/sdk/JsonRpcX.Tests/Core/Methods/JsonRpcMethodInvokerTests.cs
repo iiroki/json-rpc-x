@@ -11,10 +11,10 @@ public sealed class JsonRpcMethodInvokerTests
     #region Params
 
     [Fact]
-    public async Task Invoke_MultipleParams_Ok()
+    public async Task Invoke_Params_Multiple_Valid_Ok()
     {
         // Arrange
-        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.MultipleParams));
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMultiple));
         var @params = JsonSerializer.SerializeToElement(new List<int> { 1, 2 });
 
         // Act
@@ -24,14 +24,41 @@ public sealed class JsonRpcMethodInvokerTests
     [Theory]
     [InlineData(1)]
     [InlineData(1, 2, 3)]
-    public async Task Invoke_MultipleParams_IncorrectCount_Exception(params int[] items)
+    public async Task Invoke_Params_Multiple_InvalidCount_Exception(params int[] items)
     {
         // Arrange
-        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.MultipleParams));
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMultiple));
         var @params = JsonSerializer.SerializeToElement(items);
 
         // Act
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Object_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsObject));
+        var @params = JsonSerializer.SerializeToElement(new TestObject { Id = 123, Name = nameof(TestObject) });
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Object_InvalidFields_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsObject));
+        var @params = JsonSerializer.SerializeToElement(new { Key = "invalid" });
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
         await Assert.ThrowsAsync<JsonRpcParamException>(fn);
     }
 
@@ -54,6 +81,8 @@ public sealed class JsonRpcMethodInvokerTests
 
     #endregion
 
+    #region Helpers
+
     private static JsonRpcMethodInvoker CreateMethodInvoker(string name)
     {
         var handler = new TestJsonRpcApi();
@@ -63,6 +92,8 @@ public sealed class JsonRpcMethodInvokerTests
             : throw new ArgumentException($"Method to test not found: {name}");
     }
 
+    #endregion
+
     private class TestJsonRpcApi : IJsonRpcMethodHandler
     {
         //
@@ -70,31 +101,31 @@ public sealed class JsonRpcMethodInvokerTests
         //
 
         [JsonRpcMethod]
-        public static void MultipleParams(int a, int b)
+        public static void ParamsMultiple(int a, int b)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void ObjectPayload(TestObject obj)
+        public static void ParamsObject(TestObject obj)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void MixedPayload(string name, TestObject obj, IEnumerable<string> items)
+        public static void ParamsMixed(string name, TestObject obj, IEnumerable<string> items)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void EnumerablePayload(IEnumerable<int> items)
+        public static void ParamsEnumerable(IEnumerable<int> items)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static async Task AsyncCt(string _, CancellationToken ct) => await Task.Delay(10, ct);
+        public static async Task ParamsAsyncCt(string _, CancellationToken ct) => await Task.Delay(10, ct);
 
         //
         // Result

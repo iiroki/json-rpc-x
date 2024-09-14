@@ -3,4 +3,7 @@ bin
 obj
 
 # Tests
-lcov.info
+coverage
+
+# macOS
+.DS_Store
