@@ -62,6 +62,92 @@ public sealed class JsonRpcMethodInvokerTests
         await Assert.ThrowsAsync<JsonRpcParamException>(fn);
     }
 
+    [Fact]
+    public async Task Invoke_Params_Enumerable_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsEnumerable));
+        var @params = JsonSerializer.SerializeToElement(Enumerable.Range(0, 1000));
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Enumerable_InvalidType_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsEnumerable));
+        var @params = JsonSerializer.SerializeToElement(new List<string> { "1st", "2nd", "3rd", "4th" });
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Mixed_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMixed));
+        var @params = JsonSerializer.SerializeToElement(
+            new List<object>
+            {
+                "Random Name",
+                new TestObject { Id = 321, Name = "Test Object" },
+                new List<string> { "1st", "2nd", "3rd", "4th" },
+            }
+        );
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Mixed_Invalid_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMixed));
+        var @params = JsonSerializer.SerializeToElement(
+            new List<object>
+            {
+                new List<string> { "1st", "2nd", "3rd", "4th" },
+                "Random Name",
+                new TestObject { Id = 321, Name = "Test Object" },
+            }
+        );
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_AsyncCt_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsAsyncCt));
+        var @params = JsonSerializer.SerializeToElement("param");
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_EnumerableAsyncCt_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsEnumerableAsyncCt));
+        var @params = JsonSerializer.SerializeToElement(Enumerable.Range(0, 1000));
+
+        // Act
+        await invoker.InvokeAsync(@params);
+    }
+
     #endregion
 
     #region Result
@@ -77,6 +163,36 @@ public sealed class JsonRpcMethodInvokerTests
 
         // Assert
         Assert.Equal("Hello, World!", result);
+    }
+
+    #endregion
+
+    #region Throw
+
+    [Fact]
+    public async Task Invoke_Throw_InnerException()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.Throw));
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(null);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(fn);
+    }
+
+    [Fact]
+    public async Task Invoke_ThrowAsync_InnerException()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ThrowAsync));
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(null);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(fn);
     }
 
     #endregion
@@ -101,31 +217,35 @@ public sealed class JsonRpcMethodInvokerTests
         //
 
         [JsonRpcMethod]
-        public static void ParamsMultiple(int a, int b)
+        public static void ParamsMultiple(int _1, int _2)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void ParamsObject(TestObject obj)
+        public static void ParamsObject(TestObject _)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void ParamsMixed(string name, TestObject obj, IEnumerable<string> items)
+        public static void ParamsEnumerable(IEnumerable<int> _)
         {
             // NOP
         }
 
         [JsonRpcMethod]
-        public static void ParamsEnumerable(IEnumerable<int> items)
+        public static void ParamsMixed(string _1, TestObject _2, IEnumerable<string> _3)
         {
             // NOP
         }
 
         [JsonRpcMethod]
         public static async Task ParamsAsyncCt(string _, CancellationToken ct) => await Task.Delay(10, ct);
+
+        [JsonRpcMethod]
+        public static async Task ParamsEnumerableAsyncCt(IEnumerable<int> _, CancellationToken ct) =>
+            await Task.Delay(10, ct);
 
         //
         // Result
@@ -142,6 +262,20 @@ public sealed class JsonRpcMethodInvokerTests
         {
             await Task.Delay(10);
             return ResultObject(id, name);
+        }
+
+        //
+        // Throw
+        //
+
+        [JsonRpcMethod]
+        public static string Throw() => throw new InvalidOperationException("Simulated failure");
+
+        [JsonRpcMethod]
+        public static async Task ThrowAsync(CancellationToken ct)
+        {
+            await Task.Delay(10, ct);
+            throw new InvalidOperationException("Simulated async failure");
         }
     }
 

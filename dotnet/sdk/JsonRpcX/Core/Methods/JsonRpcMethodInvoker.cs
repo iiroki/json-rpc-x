@@ -27,21 +27,12 @@ internal class JsonRpcMethodInvoker(
         // If the result is a task -> Wait for the completion.
         if (result is Task task)
         {
-            await task;
+            await task; // This also throws async exceptions!
             if (task.GetType().GenericTypeArguments.Length > 0)
             {
-                if (task.IsCompletedSuccessfully)
-                {
-                    result = GetTaskResult(task);
-                }
-                else if (task.Exception != null)
-                {
-                    throw task.Exception;
-                }
-                else
-                {
-                    throw new JsonRpcException("Could not extract result from a task");
-                }
+                result = task.IsCompletedSuccessfully
+                    ? GetTaskResult(task)
+                    : throw new JsonRpcException("Could not extract result from task");
             }
         }
 
@@ -60,13 +51,15 @@ internal class JsonRpcMethodInvoker(
         }
         catch (ArgumentException ex)
         {
-            throw new JsonRpcParamException($"Invalid param type - {ex.Message}");
+            throw new JsonRpcException("Received invalid params", ex);
         }
     }
 
     private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
     {
         var methodParams = Method.GetParameters();
+
+        // Exlude the cancellation token so the actual parameters are easier to handle
         var hasCt = methodParams.LastOrDefault()?.ParameterType == typeof(CancellationToken);
         if (hasCt)
         {
@@ -74,12 +67,16 @@ internal class JsonRpcMethodInvoker(
         }
 
         object?[]? parsedParams;
-        if (methodParams.Length > 0)
+        if (methodParams.Length == 1 && json.HasValue && json.Value.IsArray())
+        {
+            parsedParams = [ParseParam(json, methodParams.First(), 0)];
+        }
+        else if (methodParams.Length > 0)
         {
             parsedParams =
                 json.HasValue && json.Value.IsArray()
-                    ? ParseMultipleParams(json, methodParams)
-                    : [ParseSingleParam(json, methodParams.First(), 0)];
+                    ? ParseParams(json, methodParams)
+                    : [ParseParam(json, methodParams.First(), 0)];
         }
         else
         {
@@ -89,7 +86,7 @@ internal class JsonRpcMethodInvoker(
         return @hasCt ? [.. parsedParams, ct] : parsedParams;
     }
 
-    private object? ParseSingleParam(JsonElement? json, ParameterInfo info, int index)
+    private object? ParseParam(JsonElement? json, ParameterInfo info, int index)
     {
         if (!json.HasValue || json.Value.IsNull())
         {
@@ -116,7 +113,7 @@ internal class JsonRpcMethodInvoker(
         }
     }
 
-    private object?[]? ParseMultipleParams(JsonElement? json, ParameterInfo[] info)
+    private object?[]? ParseParams(JsonElement? json, ParameterInfo[] info)
     {
         var paramDefaultCount = 0;
         for (var i = info.Length - 1; i >= 0; --i)
@@ -158,7 +155,7 @@ internal class JsonRpcMethodInvoker(
                 throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
             }
 
-            @params[i] = ParseSingleParam(el, info[i], i);
+            @params[i] = ParseParam(el, info[i], i);
             ++parsed;
         }
 
