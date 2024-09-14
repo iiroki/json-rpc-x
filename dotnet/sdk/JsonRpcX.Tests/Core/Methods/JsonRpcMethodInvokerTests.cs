@@ -266,7 +266,7 @@ public sealed class JsonRpcMethodInvokerTests
     #region Result
 
     [Fact]
-    public async Task Invoke_Result_Simple_Ok()
+    public async Task Invoke_Result_HelloWorld_Ok()
     {
         // Arrange
         var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ResultHelloWorld));
@@ -276,6 +276,21 @@ public sealed class JsonRpcMethodInvokerTests
 
         // Assert
         Assert.Equal("Hello, World!", actual);
+    }
+
+    [Fact]
+    public async Task Invoke_Result_ObjectAsync_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ResultObjectAsync));
+        var expected = new TestObject { Id = 123, Name = nameof(Invoke_Result_ObjectAsync_Ok) };
+        var @params = JsonSerializer.SerializeToElement(new List<object> { expected.Id, expected.Name });
+
+        // Act
+        var actual = await invoker.InvokeAsync(@params);
+
+        // Assert
+        Assert.Equal(expected, actual);
     }
 
     #endregion
@@ -410,7 +425,7 @@ public sealed class JsonRpcMethodInvokerTests
         }
     }
 
-    private class TestObject
+    private record TestObject
     {
         public required long Id { get; init; }
 

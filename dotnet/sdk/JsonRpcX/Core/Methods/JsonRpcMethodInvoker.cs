@@ -33,7 +33,7 @@ internal class JsonRpcMethodInvoker(
             {
                 result = task.IsCompletedSuccessfully
                     ? GetTaskResult(task)
-                    : throw new JsonRpcException("Could not extract result from task");
+                    : throw new JsonRpcException("Could not extract result from task", task.Exception);
             }
         }
 
