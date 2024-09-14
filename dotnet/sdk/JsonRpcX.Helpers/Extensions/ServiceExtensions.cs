@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace JsonRpcX.Domain.Extensions;
+namespace JsonRpcX.Helpers.Extensions;
 
 public static class ServiceExtensions
 {

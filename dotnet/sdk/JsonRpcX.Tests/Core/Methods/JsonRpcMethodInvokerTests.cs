@@ -2,6 +2,7 @@ using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Exceptions;
+using JsonRpcX.Helpers.Constants;
 using JsonRpcX.Methods;
 
 namespace JsonRpcX.Tests.Core.Methods;
@@ -46,6 +47,20 @@ public sealed class JsonRpcMethodInvokerTests
 
         // Act
         await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Object_InvalidNull_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsObject));
+        var @params = JsonConstants.Null;
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
     }
 
     [Fact]
@@ -151,11 +166,11 @@ public sealed class JsonRpcMethodInvokerTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task Invoke_Params_NullReference__Valid_Ok(bool isJsonNull)
+    public async Task Invoke_Params_NullReference_Valid_Ok(bool isJsonNull)
     {
         // Arrange
         var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsNullReference));
-        JsonElement? @params = isJsonNull ? JsonSerializer.SerializeToElement((object?)null) : null;
+        JsonElement? @params = isJsonNull ? JsonConstants.Null : null;
 
         // Act
         await invoker.InvokeAsync(@params);
@@ -164,7 +179,7 @@ public sealed class JsonRpcMethodInvokerTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task Invoke_Params_NullValue__Valid_Ok(bool isJsonNull)
+    public async Task Invoke_Params_NullValue_Valid_Ok(bool isJsonNull)
     {
         // Arrange
         var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsNullValue));
@@ -172,6 +187,78 @@ public sealed class JsonRpcMethodInvokerTests
 
         // Act
         await invoker.InvokeAsync(@params);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Default_Valid_Ok()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsDefault));
+        var @params = JsonSerializer.SerializeToElement(new List<int> { 1 });
+
+        // Act
+        var actual = await invoker.InvokeAsync(@params);
+
+        // Assert
+        Assert.Equal(123, actual);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Default_InvalidCount_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsDefault));
+        var @params = JsonConstants.Null;
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Invoke_Params_DefaultMultiple_Valid_Ok(bool isJsonNull)
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsDefaultMultiple));
+        JsonElement? @params = isJsonNull ? JsonSerializer.SerializeToElement((int?)null) : null;
+
+        // Act
+        var actual = await invoker.InvokeAsync(@params);
+
+        // Assert
+        Assert.Equal(3, actual);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_InvalidType_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMultiple));
+        var @params = JsonSerializer.SerializeToElement("invalid");
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+    }
+
+    [Fact]
+    public async Task Invoke_Params_Undefined_Exception()
+    {
+        // Arrange
+        var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ParamsMultiple));
+        var @params = JsonConstants.Undefined;
+
+        // Act
+        async Task<object?> fn() => await invoker.InvokeAsync(@params);
+
+        // Assert
+        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
     }
 
     #endregion
@@ -185,10 +272,10 @@ public sealed class JsonRpcMethodInvokerTests
         var invoker = CreateMethodInvoker(nameof(TestJsonRpcApi.ResultHelloWorld));
 
         // Act
-        var result = await invoker.InvokeAsync(null);
+        var actual = await invoker.InvokeAsync(null);
 
         // Assert
-        Assert.Equal("Hello, World!", result);
+        Assert.Equal("Hello, World!", actual);
     }
 
     #endregion
@@ -284,6 +371,12 @@ public sealed class JsonRpcMethodInvokerTests
         {
             // NOP
         }
+
+        [JsonRpcMethod]
+        public static int ParamsDefault(int _, int @default = 123) => @default;
+
+        [JsonRpcMethod]
+        public static int ParamsDefaultMultiple(int default1 = 1, int default2 = 2) => default1 + default2;
 
         //
         // Result

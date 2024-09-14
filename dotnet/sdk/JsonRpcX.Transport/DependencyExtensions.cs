@@ -1,4 +1,4 @@
-using JsonRpcX.Domain.Extensions;
+using JsonRpcX.Helpers.Extensions;
 using JsonRpcX.Transport.Http;
 using JsonRpcX.Transport.Serialization;
 using JsonRpcX.Transport.WebSockets;

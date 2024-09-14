@@ -63,24 +63,8 @@ internal class JsonRpcMethodInvoker(
             methodParams = methodParams[0..(methodParams.Length - 1)];
         }
 
-        object?[]? parsedParams;
-        if (methodParams.Length == 1 && json.HasValue && json.Value.IsArray())
-        {
-            parsedParams = [ParseParam(json, methodParams.First(), 0)];
-        }
-        else if (methodParams.Length > 0)
-        {
-            parsedParams =
-                json.HasValue && json.Value.IsArray()
-                    ? ParseParams(json, methodParams)
-                    : [ParseParam(json, methodParams.First(), 0)];
-        }
-        else
-        {
-            parsedParams = [];
-        }
-
-        return @hasCt ? [.. parsedParams, ct] : parsedParams;
+        object?[]? parsed = methodParams.Length > 0 ? ParseParams(json, methodParams) : [];
+        return @hasCt ? [.. parsed, ct] : parsed;
     }
 
     private object? ParseParam(JsonElement? json, ParameterInfo info, int index)
@@ -88,7 +72,6 @@ internal class JsonRpcMethodInvoker(
         if (!json.HasValue || json.Value.IsNull())
         {
             var isNullable = info.IsNullable();
-
             var value = info.HasDefaultValue ? info.DefaultValue : null;
             if (!isNullable && value == null)
             {
@@ -127,12 +110,13 @@ internal class JsonRpcMethodInvoker(
         }
 
         var paramRequiredCount = info.Length - paramDefaultCount;
-        if (paramRequiredCount == 0 && json?.ValueKind == JsonValueKind.Undefined)
+        if (info.Length == 1)
         {
-            return null;
+            return [ParseParam(json, info.First(), 0)];
         }
 
-        if (!json.HasValue || json.Value.ValueKind != JsonValueKind.Array)
+        var items = json.HasValue && json.Value.IsArray() ? json.Value.EnumerateArray().ToList() : [];
+        if (items.Count < paramRequiredCount || items.Count > info.Length)
         {
             var msgBuilder = new StringBuilder($"Expected \"params\" array with length: {paramRequiredCount}");
             if (paramDefaultCount != 0)
@@ -144,22 +128,10 @@ internal class JsonRpcMethodInvoker(
         }
 
         var @params = new object?[info.Length];
-
-        var parsed = 0;
-        foreach (var (el, i) in json.Value.EnumerateWithIndex())
+        for (var i = 0; i < @params.Length; ++i)
         {
-            if (i >= info.Length)
-            {
-                throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
-            }
-
+            JsonElement? el = i < items.Count ? items[i] : null;
             @params[i] = ParseParam(el, info[i], i);
-            ++parsed;
-        }
-
-        if (parsed != info.Length)
-        {
-            throw new JsonRpcParamException($"Invalid param count - Expected: {info.Length}");
         }
 
         return @params;
