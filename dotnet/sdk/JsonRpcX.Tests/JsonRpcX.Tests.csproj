@@ -30,7 +30,7 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>./coverage/opencover.xml</CoverletOutput>
-    <ExcludeByFile>**/DependencyExtensions.cs</ExcludeByFile>
+    <ExcludeByFile>**/*Exception.cs,**/*Attribute.cs</ExcludeByFile>
   </PropertyGroup>
 
   <Target Name="CoverageReport" AfterTargets="GenerateCoverageResultAfterTest">

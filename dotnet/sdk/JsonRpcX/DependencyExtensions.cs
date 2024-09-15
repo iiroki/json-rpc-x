@@ -41,8 +41,6 @@ public static class DependencyExtensions
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
-    // TODO: HTTP services
-
     /// <summary>
     /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
     /// </summary>
