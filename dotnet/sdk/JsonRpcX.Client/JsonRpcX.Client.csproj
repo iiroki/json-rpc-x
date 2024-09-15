@@ -14,4 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\JsonRpcX.Domain\JsonRpcX.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="JsonRpcX.Tests" />
+  </ItemGroup>
 </Project>

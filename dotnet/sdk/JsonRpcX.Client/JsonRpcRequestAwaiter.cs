@@ -8,13 +8,21 @@ internal class JsonRpcRequestAwaiter : IJsonRpcRequestAwaiter
 {
     private readonly ConcurrentDictionary<RequestKey, TaskCompletionSource<JsonRpcResponse>> _requests = [];
 
+    /// <summary>
+    /// Count of request currently being awaited.
+    /// </summary>
+    public int Count => _requests.Count;
+
     public async Task<JsonRpcResponse> WaitForResponseAsync(string clientId, string requestId, TimeSpan? timeout = null)
     {
-        timeout ??= TimeSpan.FromSeconds(5);
-        var key = new RequestKey(clientId, requestId);
-        var ct = new CancellationTokenSource(timeout.Value).Token;
+        var taskSource = new TaskCompletionSource<JsonRpcResponse>();
 
-        var taskSource = new TaskCompletionSource<JsonRpcResponse>(ct);
+        // Cancel the task after the specified timeout
+        timeout ??= TimeSpan.FromSeconds(5);
+        var ct = new CancellationTokenSource(timeout.Value).Token;
+        ct.Register(() => taskSource.SetCanceled(ct));
+
+        var key = new RequestKey(clientId, requestId);
         _requests.TryAdd(key, taskSource);
         try
         {
@@ -23,6 +31,10 @@ internal class JsonRpcRequestAwaiter : IJsonRpcRequestAwaiter
         catch (OperationCanceledException ex)
         {
             throw new JsonRpcTimeoutException("JSON RPC timeout exceeded", timeout.Value, ex);
+        }
+        finally
+        {
+            _requests.TryRemove(key, out _);
         }
     }
 
