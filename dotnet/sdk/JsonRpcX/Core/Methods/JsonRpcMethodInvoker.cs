@@ -63,8 +63,34 @@ internal class JsonRpcMethodInvoker(
             methodParams = methodParams[0..(methodParams.Length - 1)];
         }
 
-        object?[]? parsed = methodParams.Length > 0 ? ParseParams(json, methodParams) : [];
+        object?[]? parsed = ParseParams(json, methodParams);
         return @hasCt ? [.. parsed, ct] : parsed;
+    }
+
+    private object?[]? ParseParams(JsonElement? json, ParameterInfo[] info)
+    {
+        var (paramRequiredCount, paramDefaultCount) = GetRequiredAndDefaultParamCounts(info);
+
+        var items = ExtractJsonParams(json);
+        if (items.Count < paramRequiredCount || items.Count > info.Length)
+        {
+            var msgBuilder = new StringBuilder($"Expected \"params\" array with length: {paramRequiredCount}");
+            if (paramDefaultCount != 0)
+            {
+                msgBuilder.Append($" - {paramRequiredCount + paramDefaultCount}");
+            }
+
+            throw new JsonRpcParamException(msgBuilder.ToString());
+        }
+
+        var @params = new object?[info.Length];
+        for (var i = 0; i < @params.Length; ++i)
+        {
+            JsonElement? el = i < items.Count ? items[i] : null;
+            @params[i] = ParseParam(el, info[i], i);
+        }
+
+        return @params;
     }
 
     private object? ParseParam(JsonElement? json, ParameterInfo info, int index)
@@ -94,7 +120,7 @@ internal class JsonRpcMethodInvoker(
         }
     }
 
-    private object?[]? ParseParams(JsonElement? json, ParameterInfo[] info)
+    private static (int, int) GetRequiredAndDefaultParamCounts(ParameterInfo[] info)
     {
         var paramDefaultCount = 0;
         for (var i = info.Length - 1; i >= 0; --i)
@@ -110,31 +136,29 @@ internal class JsonRpcMethodInvoker(
         }
 
         var paramRequiredCount = info.Length - paramDefaultCount;
-        if (info.Length == 1)
+        return (paramRequiredCount, paramDefaultCount);
+    }
+
+    private static List<JsonElement> ExtractJsonParams(JsonElement? json)
+    {
+        if (!json.HasValue || json.Value.IsNull())
         {
-            return [ParseParam(json, info.First(), 0)];
+            return [];
         }
 
-        var items = json.HasValue && json.Value.IsArray() ? json.Value.EnumerateArray().ToList() : [];
-        if (items.Count < paramRequiredCount || items.Count > info.Length)
+        if (json.Value.IsArray())
         {
-            var msgBuilder = new StringBuilder($"Expected \"params\" array with length: {paramRequiredCount}");
-            if (paramDefaultCount != 0)
-            {
-                msgBuilder.Append($" - {paramRequiredCount + paramDefaultCount}");
-            }
-
-            throw new JsonRpcParamException(msgBuilder.ToString());
+            return [.. json.Value.EnumerateArray()];
         }
 
-        var @params = new object?[info.Length];
-        for (var i = 0; i < @params.Length; ++i)
+        if (json.Value.IsObject())
         {
-            JsonElement? el = i < items.Count ? items[i] : null;
-            @params[i] = ParseParam(el, info[i], i);
+            return [json.Value];
         }
 
-        return @params;
+        throw new JsonRpcParamException(
+            $"Params must be either an array or an object - Received: {json.Value.ValueKind}"
+        );
     }
 
     private static object? GetTaskResult(Task task) =>

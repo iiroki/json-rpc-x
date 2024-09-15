@@ -8,6 +8,8 @@ public static class JsonExtensions
 
     public static bool IsArray(this JsonElement json) => json.ValueKind == JsonValueKind.Array;
 
+    public static bool IsObject(this JsonElement json) => json.ValueKind == JsonValueKind.Object;
+
     public static bool IsValueKindOneOf(this JsonElement json, params JsonValueKind[] kinds) =>
         kinds.Contains(json.ValueKind);
 
