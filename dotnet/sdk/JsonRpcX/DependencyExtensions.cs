@@ -62,6 +62,7 @@ public static class DependencyExtensions
         {
             var attr = (JsonRpcMethodAttribute?)
                 m.GetCustomAttributes(typeof(JsonRpcMethodAttribute), true).FirstOrDefault();
+
             if (attr != null)
             {
                 var name = GetJsonRpcMethodName(m, attr, opt);
@@ -71,7 +72,7 @@ public static class DependencyExtensions
 
             if (methodMetadata.Count > 0)
             {
-                services.AddSingleton(new JsonRpcMethodMetadataOptions { Type = type, Methods = methodMetadata });
+                services.AddSingleton(new JsonRpcMethodMetadataBuilder { Methods = methodMetadata });
             }
         }
 
