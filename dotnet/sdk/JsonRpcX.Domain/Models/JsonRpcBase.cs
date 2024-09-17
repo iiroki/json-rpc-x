@@ -12,6 +12,6 @@ public abstract class JsonRpcBase
     public string JsonRpc { get; private init; } = JsonRpcConstants.Version;
 
     [JsonPropertyName("id")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    // [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Id { get; init; }
 }

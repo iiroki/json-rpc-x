@@ -26,7 +26,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -131,7 +131,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Fact]
@@ -244,7 +244,7 @@ public sealed class JsonRpcMethodInvokerTests
         async Task<object?> fn() => await invoker.InvokeAsync(@params);
 
         // Assert
-        await Assert.ThrowsAsync<JsonRpcParamException>(fn);
+        await Assert.ThrowsAsync<JsonRpcInvalidParamsException>(fn);
     }
 
     [Theory]

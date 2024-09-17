@@ -38,7 +38,7 @@ public class JsonRpcMethodFactoryTests
         IJsonRpcMethodInvoker fn() => _factory.Create(method);
 
         // Assert
-        Assert.Throws<JsonRpcMethodException>(fn);
+        Assert.Throws<JsonRpcMethodNotFoundException>(fn);
     }
 
     [Fact]

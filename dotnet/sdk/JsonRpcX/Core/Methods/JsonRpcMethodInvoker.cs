@@ -80,7 +80,7 @@ internal class JsonRpcMethodInvoker(
                 msgBuilder.Append($" - {paramRequiredCount + paramDefaultCount}");
             }
 
-            throw new JsonRpcParamException(msgBuilder.ToString());
+            throw new JsonRpcInvalidParamsException(msgBuilder.ToString());
         }
 
         var @params = new object?[info.Length];
@@ -101,7 +101,7 @@ internal class JsonRpcMethodInvoker(
             var value = info.HasDefaultValue ? info.DefaultValue : null;
             if (!isNullable && value == null)
             {
-                throw new JsonRpcParamException($"Required param missing - Index: {index}");
+                throw new JsonRpcInvalidParamsException($"Required param missing - Index: {index}");
             }
 
             return value;
@@ -113,7 +113,7 @@ internal class JsonRpcMethodInvoker(
         }
         catch (JsonException)
         {
-            throw new JsonRpcParamException(
+            throw new JsonRpcInvalidParamsException(
                 $"Invalid param type - Index: {index}, "
                     + $"Expected: {info.ParameterType.Name}, Received: {json.Value.ValueKind}"
             );
@@ -156,7 +156,7 @@ internal class JsonRpcMethodInvoker(
             return [json.Value];
         }
 
-        throw new JsonRpcParamException(
+        throw new JsonRpcInvalidParamsException(
             $"Params must be either an array or an object - Received: {json.Value.ValueKind}"
         );
     }

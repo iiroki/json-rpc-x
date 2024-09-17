@@ -3,12 +3,12 @@ using JsonRpcX.Domain.Models;
 
 namespace JsonRpcX.Domain.Exceptions;
 
-public class JsonRpcParamException(string? message = null)
+public class JsonRpcParseErrorException(string? message = null)
     : JsonRpcErrorException(
         new JsonRpcError
         {
-            Code = (int)JsonRpcErrorCode.InvalidParams,
-            Message = "Invalid params",
+            Code = (int)JsonRpcErrorCode.ParseError,
+            Message = "Parse error",
             Data = !string.IsNullOrEmpty(message) ? new { Message = message } : null,
         }
     );

@@ -17,7 +17,7 @@ internal class JsonRpcMethodFactory(
     public IJsonRpcMethodInvoker Create(string method)
     {
         // 1. Find method handler for the method
-        var handler = _services.GetJsonRpcMethod(method) ?? throw new JsonRpcMethodException(method);
+        var handler = _services.GetJsonRpcMethod(method) ?? throw new JsonRpcMethodNotFoundException(method);
 
         // 2. Find method invocation metadata for the method
         if (!_container.Methods.TryGetValue(method, out var methodMetadata))

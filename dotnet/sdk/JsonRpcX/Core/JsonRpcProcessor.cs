@@ -14,14 +14,14 @@ namespace JsonRpcX.Core;
 
 internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
-    IJsonRpcMessageParser<TIn> messageSerializer,
+    IJsonRpcMessageParser<TIn> messageParser,
     IJsonRpcRequestAwaiter requestAwaiter,
     IJsonRpcResponseSerializer<TOut> responseSerializer,
     ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly IJsonRpcMessageParser<TIn> _messageSerializer = messageSerializer;
+    private readonly IJsonRpcMessageParser<TIn> _messageParser = messageParser;
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
     private readonly IJsonRpcResponseSerializer<TOut> _responseSerializer = responseSerializer;
     private readonly ILogger _logger = logger;
@@ -37,11 +37,10 @@ internal class JsonRpcProcessor<TIn, TOut>(
             var ctxManager = scope.ServiceProvider.GetRequiredService<IJsonRpcContextManager>();
             ctxManager.SetContext(ctx);
 
-            // TODO: Do not return response parse errors!
             // 2. Check if the received message is a request or a response:
             //     - Response -> Set the response to the request awaiter
             //     - Request -> Process the request with the normal JSON RPC pipeline.
-            var (req, res) = _messageSerializer.Parse(message);
+            var (req, res) = _messageParser.Parse(message);
             if (res != null && !string.IsNullOrEmpty(ctx.ClientId))
             {
                 _requestAwaiter.SetResponse(ctx.ClientId, res);
@@ -50,7 +49,8 @@ internal class JsonRpcProcessor<TIn, TOut>(
 
             if (req == null)
             {
-                return default; // Should not happen, but let's just ignore these messages!
+                // This can happen when a non-critical parsing fails
+                return default;
             }
 
             // 3. Update the context with the request
@@ -66,6 +66,12 @@ internal class JsonRpcProcessor<TIn, TOut>(
         }
         catch (Exception ex)
         {
+            // 0. Do not send responses for notification
+            if (ctx.Request != null && ctx.Request.IsNotification)
+            {
+                return default;
+            }
+
             JsonRpcError? error = null;
 
             // 1. If an exception handler is defined, try to handle the error with it.

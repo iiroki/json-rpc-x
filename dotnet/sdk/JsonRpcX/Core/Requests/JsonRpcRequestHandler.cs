@@ -34,19 +34,16 @@ internal class JsonRpcRequestHandler(
                 );
             }
 
+            var invoker = _factory.Create(request.Method);
+
             var hasInvalidParams =
                 request.Params.HasValue
                 && !request.Params.Value.IsValueKindOneOf(JsonValueKind.Object, JsonValueKind.Array);
 
             if (hasInvalidParams)
             {
-                throw new JsonRpcErrorException(
-                    (int)JsonRpcErrorCode.ParseError,
-                    $"Invalid \"params\" value kind: {request.Params?.ValueKind}"
-                );
+                throw new JsonRpcInvalidParamsException($"Invalid \"params\" value kind: {request.Params?.ValueKind}");
             }
-
-            var invoker = _factory.Create(request.Method);
 
             // Process middleware after acquiring the invoker, but before invoking the method.
             foreach (var m in _middleware)
