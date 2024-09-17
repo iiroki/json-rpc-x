@@ -6,7 +6,7 @@ namespace JsonRpcX.Transport.Serialization;
 /// <summary>
 /// Default JSON RPC response serializers.
 /// </summary>
-internal class JsonRpcResponseSerializer(JsonSerializerOptions opt)
+internal class JsonRpcResponseSerializer(JsonSerializerOptions? opt = null)
     : IJsonRpcResponseSerializer<byte[]>,
         IJsonRpcResponseSerializer<string>,
         IJsonRpcResponseSerializer<JsonElement>,

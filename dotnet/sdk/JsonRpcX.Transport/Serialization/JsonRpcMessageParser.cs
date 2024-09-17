@@ -6,12 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Transport.Serialization;
 
-internal class JsonRpcMessageParser(JsonSerializerOptions opt, ILogger<JsonRpcMessageParser> logger)
+internal class JsonRpcMessageParser(ILogger<JsonRpcMessageParser> logger, JsonSerializerOptions? opt = null)
     : IJsonRpcMessageParser<byte[]>,
         IJsonRpcMessageParser<string>,
-        IJsonRpcMessageParser<JsonElement>
+        IJsonRpcMessageParser<JsonElement>,
+        IJsonRpcMessageParser<JsonRpcRequest>,
+        IJsonRpcMessageParser<JsonRpcResponse>
 {
-    private readonly JsonSerializerOptions _opt = opt;
+    private readonly JsonSerializerOptions? _opt = opt;
     private readonly ILogger _logger = logger;
 
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(byte[] chunk) =>
@@ -49,4 +51,8 @@ internal class JsonRpcMessageParser(JsonSerializerOptions opt, ILogger<JsonRpcMe
 
         return (req, res);
     }
+
+    public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonRpcRequest chunk) => (chunk, null);
+
+    public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonRpcResponse chunk) => (null, chunk);
 }

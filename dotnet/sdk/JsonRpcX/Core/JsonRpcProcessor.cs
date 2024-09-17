@@ -39,8 +39,8 @@ internal class JsonRpcProcessor<TIn, TOut>(
 
             // TODO: Do not return response parse errors!
             // 2. Check if the received message is a request or a response:
-            // - Response -> Set the response to the request awaiter
-            // - Request -> Process the request with the normal JSON RPC pipeline.
+            //     - Response -> Set the response to the request awaiter
+            //     - Request -> Process the request with the normal JSON RPC pipeline.
             var (req, res) = _messageSerializer.Parse(message);
             if (res != null && !string.IsNullOrEmpty(ctx.ClientId))
             {
