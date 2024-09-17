@@ -14,7 +14,9 @@ public static class DependencyExtensions
     //
 
     public static IServiceCollection AddJsonRpcSerializerDefaults(this IServiceCollection services) =>
-        services.AddWithInterfaces<JsonRpcMessageSerializer>(ServiceLifetime.Singleton);
+        services
+            .AddWithInterfaces<JsonRpcMessageParser>(ServiceLifetime.Singleton)
+            .AddWithInterfaces<JsonRpcResponseSerializer>(ServiceLifetime.Singleton);
 
     //
     // HTTP

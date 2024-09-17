@@ -6,10 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Transport.Serialization;
 
-internal class JsonRpcMessageSerializer(JsonSerializerOptions opt, ILogger<JsonRpcMessageSerializer> logger)
-    : IJsonRpcMessageSerializer<byte[]>,
-        IJsonRpcMessageSerializer<string>,
-        IJsonRpcMessageSerializer<JsonElement>
+internal class JsonRpcMessageParser(JsonSerializerOptions opt, ILogger<JsonRpcMessageParser> logger)
+    : IJsonRpcMessageParser<byte[]>,
+        IJsonRpcMessageParser<string>,
+        IJsonRpcMessageParser<JsonElement>
 {
     private readonly JsonSerializerOptions _opt = opt;
     private readonly ILogger _logger = logger;

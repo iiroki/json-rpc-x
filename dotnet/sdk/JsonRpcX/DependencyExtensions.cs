@@ -6,7 +6,6 @@ using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Core.Requests;
 using JsonRpcX.Core.Schema;
-using JsonRpcX.Core.Serialization;
 using JsonRpcX.Domain.Core;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
@@ -37,7 +36,6 @@ public static class DependencyExtensions
             // Global services:
             .AddJsonRpcClient()
             .AddJsonRpcSerializerDefaults()
-            .AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton)
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 

@@ -14,18 +14,15 @@ namespace JsonRpcX.Core;
 
 internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
-    IJsonRpcMessageSerializer<TIn> messageSerializer,
+    IJsonRpcMessageParser<TIn> messageSerializer,
     IJsonRpcRequestAwaiter requestAwaiter,
-    IJsonRpcRequestSerializer<TIn> requestSerializer,
     IJsonRpcResponseSerializer<TOut> responseSerializer,
     ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly IJsonRpcMessageSerializer<TIn> _messageSerializer = messageSerializer;
+    private readonly IJsonRpcMessageParser<TIn> _messageSerializer = messageSerializer;
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
-
-    private readonly IJsonRpcRequestSerializer<TIn> _requestSerializer = requestSerializer;
     private readonly IJsonRpcResponseSerializer<TOut> _responseSerializer = responseSerializer;
     private readonly ILogger _logger = logger;
 
