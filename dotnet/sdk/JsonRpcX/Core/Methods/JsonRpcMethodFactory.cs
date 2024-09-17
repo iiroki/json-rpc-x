@@ -1,8 +1,6 @@
 using System.Text.Json;
-using JsonRpcX.Constants;
 using JsonRpcX.Domain.Exceptions;
-using JsonRpcX.Methods;
-using Microsoft.Extensions.DependencyInjection;
+using JsonRpcX.Extensions;
 
 namespace JsonRpcX.Core.Methods;
 
@@ -19,9 +17,7 @@ internal class JsonRpcMethodFactory(
     public IJsonRpcMethodInvoker Create(string method)
     {
         // 1. Find method handler for the method
-        var key = JsonRpcDiConstants.KeyPrefix + method;
-
-        var handler = _services.GetKeyedService<IJsonRpcMethodHandler>(key) ?? throw new JsonRpcMethodException(method);
+        var handler = _services.GetJsonRpcMethod(method) ?? throw new JsonRpcMethodException(method);
 
         // 2. Find method invocation metadata for the method
         if (!_container.Methods.TryGetValue(method, out var methodMetadata))

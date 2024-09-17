@@ -1,7 +1,6 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
 using JsonRpcX.Client;
-using JsonRpcX.Constants;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Methods;
@@ -10,6 +9,7 @@ using JsonRpcX.Core.Schema;
 using JsonRpcX.Core.Serialization;
 using JsonRpcX.Domain.Core;
 using JsonRpcX.Exceptions;
+using JsonRpcX.Extensions;
 using JsonRpcX.Helpers.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
@@ -24,7 +24,7 @@ namespace JsonRpcX;
 public static class DependencyExtensions
 {
     /// <summary>
-    /// Adds the base services from JSON RPC processing.
+    /// Adds the base services for JSON RPC processing.
     /// </summary>
     public static IServiceCollection AddJsonRpc(this IServiceCollection services) =>
         services
@@ -104,9 +104,6 @@ public static class DependencyExtensions
         handlerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
         return services;
     }
-
-    public static IServiceCollection AddJsonRpcMethod(this IServiceCollection services, string method, Type type) =>
-        services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), JsonRpcDiConstants.KeyPrefix + method, type);
 
     /// <summary>
     /// Adds <c>IJsonRpcMiddleware</c> implementation to the services as a scoped service.

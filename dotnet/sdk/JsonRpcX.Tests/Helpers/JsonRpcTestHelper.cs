@@ -6,7 +6,9 @@ public static class JsonRpcTestHelper
 {
     public static IServiceCollection CreateTestServices(IEnumerable<Type>? handlers = null)
     {
-        var services = CreateTestServices();
+        var services = new ServiceCollection();
+        services.AddJsonRpc();
+
         foreach (var h in handlers ?? [])
         {
             services.AddJsonRpcMethodHandler(h);
