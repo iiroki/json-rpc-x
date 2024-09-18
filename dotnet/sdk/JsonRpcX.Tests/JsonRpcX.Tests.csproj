@@ -34,6 +34,6 @@
   </PropertyGroup>
 
   <Target Name="CoverageReport" AfterTargets="GenerateCoverageResultAfterTest">
-    <ReportGenerator Title="JSON RPC X" TargetDirectory="./coverage/report" ReportFiles="@(CoverletReport)" ProjectDirectory="$(MSBuildProjectDirectory)" ReportTypes="Html" />
+    <ReportGenerator Title="JSON RPC X" TargetDirectory="./coverage/report" ReportFiles="@(CoverletReport)" ProjectDirectory="$(MSBuildProjectDirectory)" ReportTypes="HtmlInline;Cobertura" />
   </Target>
 </Project>
