@@ -122,8 +122,11 @@ public static class DependencyExtensions
     /// Using this method REPLACES the exception handler, since there can only be one!
     /// </summary>
     public static IServiceCollection SetJsonRpcExceptionHandler<T>(this IServiceCollection services)
-        where T : IJsonRpcExceptionHandler =>
-        services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), typeof(T)));
+        where T : IJsonRpcExceptionHandler => services.SetJsonRpcExceptionHandler(typeof(T));
+
+    /// <inheritdoc cref="SetJsonRpcExceptionHandler(IServiceCollection)" />
+    public static IServiceCollection SetJsonRpcExceptionHandler(this IServiceCollection services, Type type) =>
+        services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), type));
 
     /// <summary>
     /// Maps the JSON RPC API schema endpoint to the given route.

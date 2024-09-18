@@ -15,4 +15,10 @@ public static class JsonExtensions
 
     public static IEnumerable<(JsonElement, int)> EnumerateWithIndex(this JsonElement json) =>
         json.EnumerateArray().Select((el, i) => (el, i));
+
+    public static string Stringify(this JsonElement json, JsonSerializerOptions? opt = null) =>
+        JsonSerializer.Serialize(json, opt);
+
+    public static string? Stringify(this JsonElement? json, JsonSerializerOptions? opt = null) =>
+        json.HasValue ? json.Value.Stringify(opt) : null;
 }

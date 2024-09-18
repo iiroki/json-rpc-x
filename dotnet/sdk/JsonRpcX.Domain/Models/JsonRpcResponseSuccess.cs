@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace JsonRpcX.Domain.Models;
@@ -9,7 +10,7 @@ public class JsonRpcResponseSuccess : JsonRpcBase
 {
     [JsonPropertyName("result")]
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-    public object? Result { get; init; }
+    public JsonElement? Result { get; init; }
 
     public JsonRpcResponse ToResponse() => new(this);
 }

@@ -5,7 +5,10 @@ using JsonRpcX.Client;
 using JsonRpcX.Core;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Models;
+using JsonRpcX.Exceptions;
+using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
+using JsonRpcX.Middleware;
 using JsonRpcX.Tests.Helpers;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,9 +18,13 @@ namespace JsonRpcX.Tests.Core;
 
 public class JsonRpcProcessorTests
 {
-    private readonly IServiceProvider _services = JsonRpcTestHelper
-        .CreateTestServices([typeof(TestJsonRpcApi)])
-        .BuildServiceProvider();
+    private readonly IServiceCollection _services = JsonRpcTestHelper.CreateTestServices([typeof(TestJsonRpcApi)]);
+
+    private IServiceProvider? _serviceProvider;
+
+    private IServiceProvider ServiceProvider => _serviceProvider ??= _services.BuildServiceProvider();
+
+    #region Request
 
     [Fact]
     public async Task Process_Request_Ok()
@@ -34,7 +41,7 @@ public class JsonRpcProcessorTests
         Assert.NotNull(res);
         Assert.True(res.IsSuccess);
         Assert.Equal(req.Id, res.Success.Id);
-        Assert.Equal("Hello, World!", res.Success.Result);
+        Assert.Equal(JsonSerializer.SerializeToElement("Hello, World!").Stringify(), res.Success.Result.Stringify());
     }
 
     [Fact]
@@ -51,6 +58,46 @@ public class JsonRpcProcessorTests
         // Assert
         Assert.Null(res);
     }
+
+    #endregion
+
+    #region Response
+
+    [Fact]
+    public async Task Process_Response_Ok()
+    {
+        // Arrange
+        var processor = CreateProcessor<byte[]>();
+        var requestAwaiter = ServiceProvider.GetRequiredService<IJsonRpcRequestAwaiter>();
+
+        var ctx = new JsonRpcContext
+        {
+            Transport = "TEST",
+            User = new ClaimsPrincipal(),
+            ClientId = Guid.NewGuid().ToString(),
+        };
+
+        var expected = new JsonRpcResponseSuccess
+        {
+            Id = Guid.NewGuid().ToString(),
+            Result = JsonSerializer.SerializeToElement(new { IsTestResponse = true, Value = 1.23 }),
+        };
+
+        // Act
+        var task = requestAwaiter.WaitForResponseAsync(ctx.ClientId, expected.Id, TimeSpan.FromSeconds(10));
+        var output = await processor.ProcessAsync(JsonSerializer.SerializeToUtf8Bytes(expected.ToResponse()), ctx);
+        var actual = await task;
+
+        // Assert
+        Assert.Null(output);
+        Assert.True(actual.IsSuccess);
+        Assert.Equal(expected.Id, actual.Id);
+        Assert.Equal(expected.Result.Stringify(), actual.Success.Result.Stringify());
+    }
+
+    #endregion
+
+    #region Error
 
     [Fact]
     public async Task Process_ParseError_Error()
@@ -121,13 +168,63 @@ public class JsonRpcProcessorTests
         }
     }
 
+    [Fact]
+    public async Task Process_ErrorHandler_Invoked()
+    {
+        // Arrange
+        ICollection<Exception> invocations = [];
+
+        var error = new JsonRpcError { Code = 123, Message = "Custom Test Error" };
+        JsonRpcError? errorFn(Exception ex) => error;
+
+        _services.AddJsonRpcMiddleware<TestJsonRpcMiddleware>();
+        _services.AddSingleton(invocations);
+        _services.AddSingleton(errorFn);
+        _services.SetJsonRpcExceptionHandler<TestJsonRpcExceptionHandler>();
+
+        var processor = CreateProcessor<string>();
+
+        var ctx = new JsonRpcContext { Transport = "TEST", User = new ClaimsPrincipal() };
+        var req = new JsonRpcRequest { Id = Guid.NewGuid().ToString(), Method = nameof(TestJsonRpcApi.True) };
+
+        // Act
+        var res = await processor.ProcessAsync(JsonSerializer.Serialize(req), ctx);
+
+        // Assert
+        Assert.NotNull(res);
+        Assert.False(res.IsSuccess);
+        Assert.Equal(error, res.Error.Error);
+        Assert.Single(invocations);
+    }
+
+    [Fact]
+    public async Task Process_UnknownError_Error()
+    {
+        // Arrange
+        _services.AddJsonRpcMiddleware<TestJsonRpcMiddleware>();
+        var processor = CreateProcessor<string>();
+
+        var ctx = new JsonRpcContext { Transport = "TEST", User = new ClaimsPrincipal() };
+        var req = new JsonRpcRequest { Id = Guid.NewGuid().ToString(), Method = nameof(TestJsonRpcApi.True) };
+
+        // Act
+        var res = await processor.ProcessAsync(JsonSerializer.Serialize(req), ctx);
+
+        // Assert
+        Assert.NotNull(res);
+        Assert.False(res.IsSuccess);
+        Assert.Equal((int)JsonRpcErrorCode.InternalError, res.Error.Error.Code);
+    }
+
+    #endregion
+
     private JsonRpcProcessor<T, JsonRpcResponse> CreateProcessor<T>() =>
         new(
-            _services.GetRequiredService<IServiceScopeFactory>(),
-            _services.GetRequiredService<IJsonRpcMessageParser<T>>(),
-            _services.GetRequiredService<IJsonRpcRequestAwaiter>(),
-            _services.GetRequiredService<IJsonRpcResponseSerializer<JsonRpcResponse>>(),
-            _services.GetRequiredService<ILogger<JsonRpcProcessor<T, JsonRpcResponse>>>()
+            ServiceProvider.GetRequiredService<IServiceScopeFactory>(),
+            ServiceProvider.GetRequiredService<IJsonRpcMessageParser<T>>(),
+            ServiceProvider.GetRequiredService<IJsonRpcRequestAwaiter>(),
+            ServiceProvider.GetRequiredService<IJsonRpcResponseSerializer<JsonRpcResponse>>(),
+            ServiceProvider.GetRequiredService<ILogger<JsonRpcProcessor<T, JsonRpcResponse>>>()
         );
 
     private class TestJsonRpcApi : IJsonRpcMethodHandler
@@ -146,5 +243,30 @@ public class JsonRpcProcessorTests
 
         [JsonRpcMethod]
         public static string HelloWorld() => "Hello, World!";
+
+        [JsonRpcMethod]
+        public static void Throw() => throw new InvalidOperationException("Simulated failure");
+    }
+
+    private class TestJsonRpcExceptionHandler(
+        ICollection<Exception> invocations,
+        Func<Exception, JsonRpcError?> errorFn
+    ) : IJsonRpcExceptionHandler
+    {
+        private readonly ICollection<Exception> _invocations = invocations;
+        private readonly Func<Exception, JsonRpcError?> _errorFn = errorFn;
+
+        public Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default)
+        {
+            _invocations.Add(ex);
+            return Task.FromResult(_errorFn(ex));
+        }
+    }
+
+    private class TestJsonRpcMiddleware : IJsonRpcMiddleware
+    {
+        public const string Message = nameof(TestJsonRpcMiddleware);
+
+        public Task HandleAsync(CancellationToken ct = default) => throw new InvalidOperationException(Message);
     }
 }

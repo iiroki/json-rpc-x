@@ -12,12 +12,14 @@ namespace JsonRpcX.Core.Requests;
 internal class JsonRpcRequestHandler(
     IJsonRpcMethodFactory factory,
     IEnumerable<IJsonRpcMiddleware> middleware,
-    ILogger<JsonRpcRequestHandler> logger
+    ILogger<JsonRpcRequestHandler> logger,
+    JsonSerializerOptions? jsonOpt = null
 ) : IJsonRpcRequestHandler
 {
     private readonly IJsonRpcMethodFactory _factory = factory;
     private readonly List<IJsonRpcMiddleware> _middleware = middleware.ToList();
     private readonly ILogger _logger = logger;
+    private readonly JsonSerializerOptions? _jsonOpt = jsonOpt;
 
     public async Task<JsonRpcResponse?> HandleAsync(
         JsonRpcRequest request,
@@ -52,7 +54,11 @@ internal class JsonRpcRequestHandler(
             }
 
             var result = await invoker.InvokeAsync(request.Params, ct);
-            return new JsonRpcResponseSuccess { Id = request.Id, Result = result }.ToResponse();
+            return new JsonRpcResponseSuccess
+            {
+                Id = request.Id,
+                Result = JsonSerializer.SerializeToElement(result, _jsonOpt),
+            }.ToResponse();
         }
         catch (JsonException jsonEx)
         {
