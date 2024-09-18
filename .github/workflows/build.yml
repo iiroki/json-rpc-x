@@ -9,6 +9,7 @@ jobs:
     defaults:
       run:
         working-directory: dotnet/
+      
 
     steps:
     - name: 'Checkout'
@@ -35,10 +36,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CoverageReport
-        path: ./sdk/JsonRpcX.Tests/coverage/report
+        path: dotnet/sdk/JsonRpcX.Tests/coverage/report
 
     - name: Upload coverage report 2
       uses: actions/upload-artifact@v4
       with:
         name: coverage
-        path: ./sdk/JsonRpcX.Tests/coverage/report/Cobertura.xml
+        path: dotnet/sdk/JsonRpcX.Tests/coverage/report/Cobertura.xml
