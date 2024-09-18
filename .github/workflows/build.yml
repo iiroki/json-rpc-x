@@ -1,10 +1,10 @@
-name: 'JSON RPC X Build & Test'
+name: 'Build & Test'
 
 on: [push]
 
 jobs:
   build:
-    name: 'Test'
+    name: 'Build & Test'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,3 +27,12 @@ jobs:
 
     - name: 'Run tests'
       run: dotnet test --no-restore -l 'console;verbosity=normal'
+
+    - name: 'TESTING'
+      run: ls sdk/JsonRpcX.Tests/coverage
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: CoverageReport
+        path: sdk/JsonRpcX.Tests/coverage/report
