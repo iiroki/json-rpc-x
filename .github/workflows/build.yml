@@ -21,17 +21,26 @@ jobs:
         dotnet-version: 8.x
 
     - name: 'Restore dependencies'
-      run: dotnet restore
+      run: |
+        dotnet restore
 
     - name: 'Build solution'
-      run: dotnet build --no-restore
+      run: |
+        dotnet build --no-restore
+
+    - name: 'Set coverage report tag'
+      run: |
+        echo "[ReportGenerator]\n  tag = \"$TAG\"" >> .netconfig
+      env:
+        TAG: ${{ github.head_ref || github.ref_name }}
+
 
     - name: 'Run tests'
-      run: dotnet test --no-restore -l 'console;verbosity=normal'
+      run: |
+        dotnet test --no-restore -l 'console;verbosity=normal'
 
-    - name: Upload coverage
+    - name: Upload coverage report
       uses: actions/upload-artifact@v4
       with:
         name: coverage
         path: dotnet/sdk/JsonRpcX.Tests/coverage/report
-        retention-days: 7

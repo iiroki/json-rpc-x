@@ -3,6 +3,7 @@ bin
 obj
 
 # Tests
+**/*.Tests/.netconfig
 coverage
 
 # macOS
