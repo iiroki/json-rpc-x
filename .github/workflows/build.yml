@@ -2,14 +2,13 @@ name: 'Build & Test'
 
 on: [push]
 
+env:
+  TEST_ROOT: tests/JsonRpcX.Tests
+
 jobs:
   build:
     name: 'Build & Test'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: dotnet/
-      
 
     steps:
     - name: 'Checkout'
@@ -30,7 +29,7 @@ jobs:
 
     - name: 'Set coverage report tag'
       run: |
-        echo "[ReportGenerator]\n  tag = \"$TAG\"" >> .netconfig
+        echo "[ReportGenerator]\n  tag = \"$TAG\"" >> $TEST_ROOT/.netconfig
       env:
         TAG: ${{ github.head_ref || github.ref_name }}
 
@@ -43,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: coverage
-        path: dotnet/sdk/JsonRpcX.Tests/coverage/report
+        path: $TEST_ROOT/coverage/report
