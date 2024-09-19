@@ -30,13 +30,12 @@ jobs:
     - name: 'Set coverage report tag'
       run: |
         echo "[ReportGenerator]" >> ${{ env.TEST_ROOT }}/.netconfig
-        echo "  tag = github-actions, ${{ env.REPO }}, ${{ env.REF }}, ${{ env.RUN }}, ${{ env.NOW }}" \
+        echo "  tag = github-actions, ${{ env.REPO }}, ${{ env.REF }}, ${{ env.NOW }}" \
           >> ${{ env.TEST_ROOT }}/.netconfig
       env:
         REPO: ${{ github.repository }}
         REF: ${{ github.ref_name }}
-        RUN: ${{ github.run_id }}
-        NOW: ${{ github.repository.updated_at }}
+        NOW: ${{ github.event.repository.updated_at }}
 
     - name: 'Run tests'
       run: |
