@@ -29,7 +29,8 @@ jobs:
 
     - name: 'Set coverage report tag'
       run: |
-        echo "[ReportGenerator]\n  tag = \"${{ env.TAG }}\"" >> ${{ env.TEST_ROOT }}/.netconfig
+        echo "[ReportGenerator]" >> ${{ env.TEST_ROOT }}/.netconfig
+        echo "  tag = \"${{ env.TAG }}\"" >> ${{ env.TEST_ROOT }}/.netconfig
       env:
         TAG: ${{ github.head_ref || github.ref_name }}
 
