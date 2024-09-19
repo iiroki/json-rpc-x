@@ -1,5 +1,7 @@
 # JSON RPC X
 
+[![Build & Test](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml/badge.svg)](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml)
+
 **_JSON RPC X_** is a [JSON-RPC 2.0](https://www.jsonrpc.org/specification)
 server implementation for .NET.
 
