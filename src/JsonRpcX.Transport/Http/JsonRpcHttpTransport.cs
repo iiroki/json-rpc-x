@@ -14,32 +14,36 @@ internal class JsonRpcHttpTransport
         async httpCtx =>
         {
             var ct = httpCtx.RequestAborted;
-            if (
-                !JsonRpcHttpHelper.HasValidContentType(httpCtx.Request)
-                || !JsonRpcHttpHelper.HasValidAccept(httpCtx.Request)
-            )
+
+            if (!JsonRpcHttpHelper.HasValidContentType(httpCtx.Request))
             {
                 httpCtx.Response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
                 return;
             }
 
+            if (!JsonRpcHttpHelper.HasValidAccept(httpCtx.Request))
+            {
+                httpCtx.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
+                return;
+            }
+
+            if (!httpCtx.Request.ContentLength.HasValue)
+            {
+                httpCtx.Response.StatusCode = (int)HttpStatusCode.LengthRequired;
+                return;
+            }
+
+            // Read the request content
+            var contentLength = (int)httpCtx.Request.ContentLength;
+            var buffer = new byte[contentLength];
+            await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), ct);
+
+            // Process the request
             // Request a processor that does not serialize the response,
             // since we want to extract the status code from it.
             var processor = httpCtx.RequestServices.GetRequiredService<IJsonRpcProcessor<byte[], JsonRpcResponse>>();
             var serializer = httpCtx.RequestServices.GetRequiredService<IJsonRpcResponseSerializer<byte[]>>();
 
-            var contentLength = (int)(httpCtx.Request.ContentLength ?? 0);
-            if (contentLength == 0)
-            {
-                httpCtx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return;
-            }
-
-            // Read the request content
-            var buffer = new byte[contentLength];
-            await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), ct);
-
-            // Process the request
             var ctx = new JsonRpcContext { Transport = JsonRpcTransportType.Http, User = httpCtx.User };
             var response = await processor.ProcessAsync(buffer, ctx);
 

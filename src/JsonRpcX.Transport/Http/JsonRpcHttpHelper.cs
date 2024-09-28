@@ -12,25 +12,36 @@ public static class JsonRpcHttpHelper
         JsonRpcHttpConstants.ContentTypeJsonRequest,
     ];
 
-    public static bool HasValidContentType(HttpRequest req) => IsValidContentType(req.ContentType);
+    public static bool HasValidContentType(HttpRequest req)
+    {
+        var type = req.GetTypedHeaders().ContentType?.MediaType;
+        return type.HasValue && IsValidContentType(type.Value.Value);
+    }
 
     public static bool IsValidContentType(string? contentType) =>
         !string.IsNullOrEmpty(contentType) && ValidContentTypes.Contains(contentType);
 
     public static bool HasValidAccept(HttpRequest req)
     {
-        foreach (var accept in req.GetTypedHeaders().Accept)
+        var accept = req.GetTypedHeaders().Accept;
+        if (accept.Count == 0)
         {
-            if (accept.MatchesAllTypes)
+            return true;
+        }
+
+        foreach (var a in accept)
+        {
+            if (a.MatchesAllTypes)
             {
                 return true;
             }
 
-            if (accept.MediaType.HasValue && ValidContentTypes.Contains(accept.MediaType.Value))
+            if (a.MediaType.HasValue && ValidContentTypes.Contains(a.MediaType.Value))
             {
                 return true;
             }
         }
+
         return false;
     }
 
