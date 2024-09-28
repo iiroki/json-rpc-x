@@ -1,6 +1,5 @@
 using System.Text.Json;
 using JsonRpcX.Core.Methods;
-using JsonRpcX.Transport.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +17,7 @@ internal class JsonRpcSchemaEndpointFactory
             // TODO: Think about what's needed in the schema?
             var schema = new { Methods = container.Methods.Keys.Order() };
 
-            var bytes = JsonSerializer.Serialize(schema, jsonOptions).GetUtf8Bytes();
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(schema, jsonOptions);
 
             ctx.Response.ContentType = "appilication/json";
             await ctx.Response.BodyWriter.WriteAsync(bytes);

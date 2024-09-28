@@ -221,7 +221,7 @@ public class JsonRpcProcessorTests
     private JsonRpcProcessor<T, JsonRpcResponse> CreateProcessor<T>() =>
         new(
             ServiceProvider.GetRequiredService<IServiceScopeFactory>(),
-            ServiceProvider.GetRequiredService<IJsonRpcMessageParser<T>>(),
+            ServiceProvider.GetRequiredService<IJsonRpcParser<T>>(),
             ServiceProvider.GetRequiredService<IJsonRpcRequestAwaiter>(),
             ServiceProvider.GetRequiredService<IJsonRpcResponseSerializer<JsonRpcResponse>>(),
             ServiceProvider.GetRequiredService<ILogger<JsonRpcProcessor<T, JsonRpcResponse>>>()

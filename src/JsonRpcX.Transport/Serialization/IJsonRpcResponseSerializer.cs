@@ -5,7 +5,6 @@ namespace JsonRpcX.Transport.Serialization;
 /// <summary>
 /// JSON RPC response serializer for a data type.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IJsonRpcResponseSerializer<T>
 {
     /// <summary>

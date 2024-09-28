@@ -1,17 +1,16 @@
 using System.Text.Json;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Transport.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Transport.Serialization;
 
-internal class JsonRpcMessageParser(ILogger<JsonRpcMessageParser> logger, JsonSerializerOptions? opt = null)
-    : IJsonRpcMessageParser<byte[]>,
-        IJsonRpcMessageParser<string>,
-        IJsonRpcMessageParser<JsonElement>,
-        IJsonRpcMessageParser<JsonRpcRequest>,
-        IJsonRpcMessageParser<JsonRpcResponse>
+internal class JsonRpcParser(ILogger<JsonRpcParser> logger, JsonSerializerOptions? opt = null)
+    : IJsonRpcParser<byte[]>,
+        IJsonRpcParser<string>,
+        IJsonRpcParser<JsonElement>,
+        IJsonRpcParser<JsonRpcRequest>,
+        IJsonRpcParser<JsonRpcResponse>
 {
     private readonly JsonSerializerOptions? _opt = opt;
     private readonly ILogger _logger = logger;
