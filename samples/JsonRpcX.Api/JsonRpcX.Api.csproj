@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\sdk\JsonRpcX\JsonRpcX.csproj" />
+    <ProjectReference Include="..\..\src\JsonRpcX\JsonRpcX.csproj" />
   </ItemGroup>
 </Project>

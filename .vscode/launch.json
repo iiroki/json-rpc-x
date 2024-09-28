@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/dotnet/samples/JsonRpcX.Api/bin/Debug/net8.0/JsonRpcX.Api.dll",
+            "program": "${workspaceFolder}/samples/JsonRpcX.Api/bin/Debug/net8.0/JsonRpcX.Api.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/dotnet/samples/JsonRpcX.Api",
+            "cwd": "${workspaceFolder}/samples/JsonRpcX.Api",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",
@@ -19,9 +19,6 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
             }
         },
         {

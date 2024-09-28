@@ -1,39 +1,28 @@
-using System.Collections.Immutable;
 using System.Net;
-using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Core;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Transport.Constants;
-using JsonRpcX.Transport.Interfaces;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Transport.Http;
 
-internal class JsonRpcHttpTransport : IJsonRpcTransport
+internal class JsonRpcHttpTransport
 {
-    public string Type { get; } = JsonRpcTransportType.Http;
-
-    /// <summary>
-    /// HTTP status codes according to
-    /// <see href="https://www.jsonrpc.org/historical/json-rpc-over-http.html#errors">JSON-RPC over HTTP</see>.<br />
-    /// <br />
-    /// The specification says that "Invalid params" should result in HTTP 500,
-    /// but we'll use HTTP 400 as it describes the situation better.
-    /// </summary>
-    private static readonly ImmutableDictionary<int, int> StatusCodes = new Dictionary<int, int>
-    {
-        { (int)JsonRpcErrorCode.ParseError, (int)HttpStatusCode.BadRequest },
-        { (int)JsonRpcErrorCode.InvalidRequest, (int)HttpStatusCode.BadRequest },
-        { (int)JsonRpcErrorCode.InvalidParams, (int)HttpStatusCode.BadRequest },
-        { (int)JsonRpcErrorCode.MethodNotFound, (int)HttpStatusCode.NotFound },
-        { (int)JsonRpcErrorCode.InternalError, (int)HttpStatusCode.InternalServerError },
-    }.ToImmutableDictionary();
-
     public RequestDelegate Delegate { get; } =
         async httpCtx =>
         {
+            var ct = httpCtx.RequestAborted;
+            if (
+                !JsonRpcHttpHelper.HasValidContentType(httpCtx.Request)
+                || !JsonRpcHttpHelper.HasValidAccept(httpCtx.Request)
+            )
+            {
+                httpCtx.Response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
+                return;
+            }
+
             // Request a processor that does not serialize the response,
             // since we want to extract the status code from it.
             var processor = httpCtx.RequestServices.GetRequiredService<IJsonRpcProcessor<byte[], JsonRpcResponse>>();
@@ -48,7 +37,7 @@ internal class JsonRpcHttpTransport : IJsonRpcTransport
 
             // Read the request content
             var buffer = new byte[contentLength];
-            await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), httpCtx.RequestAborted);
+            await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), ct);
 
             // Process the request
             var ctx = new JsonRpcContext { Transport = JsonRpcTransportType.Http, User = httpCtx.User };
@@ -62,13 +51,10 @@ internal class JsonRpcHttpTransport : IJsonRpcTransport
                 }
                 else
                 {
-                    httpCtx.Response.StatusCode = StatusCodes.GetValueOrDefault(
-                        response.Error.Error.Code,
-                        (int)HttpStatusCode.InternalServerError
-                    );
+                    httpCtx.Response.StatusCode = JsonRpcHttpHelper.GetStatus(response.Error.Error.Code);
                 }
 
-                httpCtx.Response.ContentType = "application/json";
+                httpCtx.Response.ContentType = JsonRpcHttpConstants.ContentTypeJsonRpc;
                 var serialized = serializer.Serialize(response);
                 await httpCtx.Response.BodyWriter.WriteAsync(serialized);
             }

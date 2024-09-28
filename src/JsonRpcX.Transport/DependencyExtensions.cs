@@ -1,8 +1,10 @@
+using System.Net;
 using JsonRpcX.Helpers.Extensions;
 using JsonRpcX.Transport.Http;
 using JsonRpcX.Transport.Serialization;
 using JsonRpcX.Transport.WebSockets;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Transport;
@@ -44,8 +46,26 @@ public static class DependencyExtensions
     /// </summary>
     public static WebApplication MapJsonRpcWebSocket(this WebApplication app, string route)
     {
-        var transport = new JsonRpcWebSocketTransport();
-        app.Map(route, transport.Delegate);
+        app.Map(
+            route,
+            async ctx =>
+            {
+                if (ctx.WebSockets.IsWebSocketRequest)
+                {
+                    var processor = ctx.RequestServices.GetRequiredService<IJsonRpcWebSocketProcessor>();
+                    using var ws = await ctx.WebSockets.AcceptWebSocketAsync();
+                    var task = processor.AttachAsync(ws, ctx);
+
+                    // Wait for the WebSocket processor to complete
+                    await task;
+                }
+                else
+                {
+                    ctx.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+            }
+        );
+
         return app;
     }
 
