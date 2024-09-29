@@ -4,7 +4,6 @@ using JsonRpcX.Transport.Http;
 using JsonRpcX.Transport.Serialization;
 using JsonRpcX.Transport.WebSockets;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Transport;
@@ -53,10 +52,7 @@ public static class DependencyExtensions
                 {
                     var processor = ctx.RequestServices.GetRequiredService<IJsonRpcWebSocketProcessor>();
                     using var ws = await ctx.WebSockets.AcceptWebSocketAsync();
-                    var task = processor.AttachAsync(ws, ctx);
-
-                    // Wait for the WebSocket processor to complete
-                    await task;
+                    await processor.AttachAsync(ws, ctx);
                 }
                 else
                 {

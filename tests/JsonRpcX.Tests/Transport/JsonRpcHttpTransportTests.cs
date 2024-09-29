@@ -6,9 +6,20 @@ using JsonRpcX.Transport;
 
 namespace JsonRpcX.Tests.Transport;
 
-public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
+public class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
 {
+    private const string TestRoute = "/json-rpc-test";
+
     private readonly HttpClient _client = new();
+
+    private string TestEndpoint => "http://" + TestAppUrl + TestRoute;
+
+    public JsonRpcHttpTransportTests()
+    {
+        InitTestApp();
+        TestApp.MapJsonRpcHttp(TestRoute);
+        _ = TestApp.RunAsync();
+    }
 
     [Theory]
     [InlineData(true)]
@@ -16,11 +27,6 @@ public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
     public async Task Http_Status_Ok(bool isNotification)
     {
         // Arrange
-        App = CreateTestApp();
-
-        App.MapJsonRpcHttp(TestRoute);
-        _ = App.RunAsync();
-
         var content = CreateTestContent(
             new JsonRpcRequest { Id = isNotification ? null : "test", Method = nameof(TestJsonRpcApi.Method) }
         );
@@ -41,11 +47,6 @@ public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
     public async Task Http_Header_ContentType_Ok(bool isValid, string contentType)
     {
         // Arrange
-        App = CreateTestApp();
-
-        App.MapJsonRpcHttp(TestRoute);
-        _ = App.RunAsync();
-
         var content = CreateTestContent(
             new JsonRpcRequest { Id = "test", Method = nameof(TestJsonRpcApi.Method) },
             contentType
@@ -62,11 +63,6 @@ public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
     public async Task Http_Header_ContentLength_Missing_Ok()
     {
         // Arrange
-        App = CreateTestApp();
-
-        App.MapJsonRpcHttp(TestRoute);
-        _ = App.RunAsync();
-
         var content = CreateTestContent(new JsonRpcRequest { Id = "test", Method = nameof(TestJsonRpcApi.Method) });
         content.Headers.ContentLength = null;
 
@@ -87,11 +83,6 @@ public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
     public async Task Http_Header_Accept_Ok(bool isValid, string contentType)
     {
         // Arrange
-        App = CreateTestApp();
-
-        App.MapJsonRpcHttp(TestRoute);
-        _ = App.RunAsync();
-
         var content = CreateTestContent(
             new JsonRpcRequest { Id = Guid.NewGuid().ToString(), Method = nameof(TestJsonRpcApi.Method) }
         );
@@ -110,11 +101,6 @@ public sealed class JsonRpcHttpTransportTests : JsonRpcTransportTestBase
     public async Task Http_Error_Ok()
     {
         // Arrange
-        App = CreateTestApp();
-
-        App.MapJsonRpcHttp(TestRoute);
-        _ = App.RunAsync();
-
         var content = CreateTestContent(new JsonRpcRequest { Id = "abc", Method = nameof(TestJsonRpcApi.Error) });
 
         // Act

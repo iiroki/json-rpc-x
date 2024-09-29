@@ -1,43 +1,63 @@
+using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Methods;
+using JsonRpcX.Transport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Tests.Transport;
 
 public abstract class JsonRpcTransportTestBase : IDisposable
 {
-    protected const string TestUrl = "http://localhost:65431";
-    protected const string TestRoute = "/json-rpc-test";
-    protected const string TestEndpoint = TestUrl + TestRoute;
+    protected static readonly JsonSerializerOptions JsonOpt = new() { PropertyNameCaseInsensitive = true };
 
-    protected WebApplication? App;
+    private WebApplication? _app;
+
+    protected WebApplication TestApp => _app ?? throw new InvalidOperationException("Test app not initialized");
+
+    protected string TestAppUrl => "localhost:" + TestApp.Urls.First().Split(':').Last();
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
 
-        var task = App?.DisposeAsync();
+        DisposeInternal();
+
+        // _app?.StopAsync().Wait();
+        var task = _app?.DisposeAsync();
         if (task.HasValue)
         {
             SpinWait.SpinUntil(() => task.Value.IsCompleted, TimeSpan.FromSeconds(5));
         }
     }
 
-    protected static WebApplication CreateTestApp(params Type[] handlers)
+    protected void InitTestApp(Action<IServiceCollection>? serviceFn = null)
+    {
+        _app = CreateTestApp(serviceFn);
+    }
+
+    protected static WebApplication CreateTestApp(Action<IServiceCollection>? serviceFn = null)
     {
         var builder = WebApplication.CreateBuilder();
-        builder.WebHost.UseUrls(TestUrl);
-        builder.Services.AddJsonRpc().AddJsonRpcMethodHandler<TestJsonRpcApi>();
+        builder.WebHost.UseUrls("http://*:0");
 
-        foreach (var h in handlers)
-        {
-            builder.Services.AddJsonRpcMethodHandler(h);
-        }
+        builder
+            .Services.AddSingleton(JsonOpt)
+            .AddJsonRpc()
+            .AddJsonRpcWebSocket()
+            .AddJsonRpcMethodHandler<TestJsonRpcApi>();
+
+        serviceFn?.Invoke(builder.Services);
 
         builder.Logging.AddFilter(null, LogLevel.None);
         return builder.Build();
+    }
+
+    protected virtual void DisposeInternal()
+    {
+        // NOP
     }
 
     protected class TestJsonRpcApi : IJsonRpcMethodHandler
@@ -47,5 +67,8 @@ public abstract class JsonRpcTransportTestBase : IDisposable
 
         [JsonRpcMethod]
         public static void Error() => throw new InvalidOperationException();
+
+        [JsonRpcMethod]
+        public static int Params(int a, int b) => a + b;
     }
 }
