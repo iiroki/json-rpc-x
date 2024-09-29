@@ -1,6 +1,6 @@
 using System.Text.Json;
 using JsonRpcX.Attributes;
-using JsonRpcX.Methods;
+using JsonRpcX.Controllers;
 using JsonRpcX.Transport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,7 +46,7 @@ public abstract class JsonRpcTransportTestBase : IDisposable
             .Services.AddSingleton(JsonOpt)
             .AddJsonRpc()
             .AddJsonRpcWebSocket()
-            .AddJsonRpcMethodHandler<TestJsonRpcApi>();
+            .AddJsonRpcController<TestJsonRpcApi>();
 
         serviceFn?.Invoke(builder.Services);
 
@@ -59,7 +59,7 @@ public abstract class JsonRpcTransportTestBase : IDisposable
         // NOP
     }
 
-    protected class TestJsonRpcApi : IJsonRpcMethodHandler
+    protected class TestJsonRpcApi : IJsonRpcController
     {
         [JsonRpcMethod]
         public static string Method() => "Hello";

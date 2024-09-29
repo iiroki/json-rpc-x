@@ -25,7 +25,7 @@ builder.Services.AddHostedService<JsonRpcStatusWorker>();
 // JSON RPC X methods:
 builder
     .Services.AddJsonRpc()
-    .AddJsonRpcMethodsFromAssebly(jsonRpcOptions)
+    .AddJsonRpcControllersFromAssebly(jsonRpcOptions)
     .AddJsonRpcWebSocket()
     .AddJsonRpcMiddleware<JsonRpcExampleMiddleware>()
     .SetJsonRpcExceptionHandler<JsonRpcExampleExceptionHandler>();

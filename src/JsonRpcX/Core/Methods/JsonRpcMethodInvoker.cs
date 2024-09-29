@@ -1,20 +1,20 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Helpers.Extensions;
-using JsonRpcX.Methods;
 
 namespace JsonRpcX.Core.Methods;
 
 internal class JsonRpcMethodInvoker(
-    IJsonRpcMethodHandler handler,
+    IJsonRpcController controller,
     MethodInfo method,
     JsonSerializerOptions? jsonOptions = null
 ) : IJsonRpcMethodInvoker
 {
-    public IJsonRpcMethodHandler Handler { get; } = handler;
+    public IJsonRpcController Controller { get; } = controller;
 
     public MethodInfo Method { get; } = method;
 
@@ -44,7 +44,7 @@ internal class JsonRpcMethodInvoker(
     {
         try
         {
-            return Method.Invoke(Handler, @params);
+            return Method.Invoke(Controller, @params);
         }
         catch (TargetInvocationException ex)
         {

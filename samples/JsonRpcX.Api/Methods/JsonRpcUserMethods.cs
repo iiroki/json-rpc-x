@@ -1,10 +1,10 @@
 using JsonRpcX.Attributes;
+using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Methods;
 
 namespace JsonRpcX.Api.Methods;
 
-public class JsonRpcUserMethods(JsonRpcContext ctx, ILogger<JsonRpcUserMethods> logger) : IJsonRpcMethodHandler
+public class JsonRpcUserController(JsonRpcContext ctx, ILogger<JsonRpcUserController> logger) : IJsonRpcController
 {
     private static readonly List<ExampleUser> Users = Enumerable
         .Range(1, 10)

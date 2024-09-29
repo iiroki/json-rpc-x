@@ -1,4 +1,4 @@
-using JsonRpcX.Methods;
+using JsonRpcX.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Extensions;
@@ -10,11 +10,11 @@ public static class JsonRpcExtensions
     public static IServiceCollection AddJsonRpcMethod(
         this IServiceCollection services,
         string method,
-        Type handlerType
-    ) => services.AddKeyedScoped(typeof(IJsonRpcMethodHandler), ToMethodKey(method), handlerType);
+        Type controllerType
+    ) => services.AddKeyedScoped(typeof(IJsonRpcController), ToMethodKey(method), controllerType);
 
-    public static IJsonRpcMethodHandler? GetJsonRpcMethod(this IServiceProvider services, string method) =>
-        services.GetKeyedService<IJsonRpcMethodHandler>(ToMethodKey(method));
+    public static IJsonRpcController? GetJsonRpcController(this IServiceProvider services, string method) =>
+        services.GetKeyedService<IJsonRpcController>(ToMethodKey(method));
 
     private static string ToMethodKey(string method) => KeyPrefix + method;
 }
