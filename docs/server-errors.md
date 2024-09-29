@@ -23,6 +23,11 @@ By throwing any of the exceptions listed above,
 the default error handler implementation will catch the exception
 and create an error response from it.
 
+**Example:**
+```cs
+throw new JsonRpcErrorException(12345, "Custom error message");
+```
+
 ### Custom JSON RPC error types
 
 Custom JSON RPC error types can be implemented by extending from `JsonRpcErrorException`.

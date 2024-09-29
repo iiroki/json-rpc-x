@@ -1,5 +1,7 @@
 # JSON RPC X
 
+[![Build & Test](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml/badge.svg)](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml)
+
 **_JSON RPC X_** is a [JSON-RPC 2.0](https://www.jsonrpc.org/specification)
 server implementation for .NET.
 
@@ -10,7 +12,7 @@ server implementation for .NET.
   which means the server is compatible with existing JSON RPC clients.
   
 - **Modern & lightweight:**  
-  Built with .NET 8 and zero external dependencies!.
+  Built with .NET 8 and zero external dependencies!
 
 - **Dependency injection capabilities:**  
   Utilizes .NET's well-established dependency injection system.
@@ -30,9 +32,10 @@ server implementation for .NET.
   Provides an easy way to access clients from transport connections
   with two-way communication capabilities.
 
-### TODO Features
+### TODO
 
 - Authorization
+- Performance testing
 
 ## Installation
 

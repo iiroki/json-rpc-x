@@ -1,0 +1,48 @@
+name: 'Build & Test'
+
+on: [push]
+
+env:
+  TEST_ROOT: tests/JsonRpcX.Tests
+
+jobs:
+  build:
+    name: 'Build & Test'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v4
+
+    - name: 'Setup .NET'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: 'Restore dependencies'
+      run: |
+        dotnet restore
+
+    - name: 'Build solution'
+      run: |
+        dotnet build --no-restore
+
+    - name: 'Set coverage report tag'
+      run: |
+        echo "[ReportGenerator]" >> ${{ env.TEST_ROOT }}/.netconfig
+        echo "  tag = ${{ env.NOW }}, github-actions, ${{ env.REPO }}, ${{ env.REF }}" \
+          >> ${{ env.TEST_ROOT }}/.netconfig
+      env:
+        NOW: ${{ github.event.repository.updated_at }}
+        REPO: ${{ github.repository }}
+        REF: ${{ github.ref_name }}
+
+    - name: 'Run tests'
+      run: |
+        dotnet test --no-restore -l 'console;verbosity=normal'
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage
+        path: ${{ env.TEST_ROOT }}/coverage/report
