@@ -52,6 +52,6 @@ jobs:
       - name: 'Push: JsonRpcX'
         working-directory: 'src/JsonRpcX'
         run: |
-          dotnet nuget push "bin/Release/JsonRpxX.$NUGET_VERSION.nupkg" \
+          dotnet nuget push "bin/Release/JsonRpcX.$NUGET_VERSION.nupkg" \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json
