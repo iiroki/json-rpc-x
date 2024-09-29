@@ -11,10 +11,14 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
+      - name: 'Print release'
+        run: |
+          echo "${{ github.event.release.name }}"
+
       - name: 'Validate version'
         if: ${{ !startsWith(github.event.release.name, 'v') }}
         run: |
-          core.setFailed('Version must start with "v"')
+          core.setFailed('Version must start with v')
 
       - name: 'Checkout'
         uses: actions/checkout@v4
