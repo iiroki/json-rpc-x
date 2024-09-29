@@ -1,0 +1,27 @@
+name: 'Publish'
+
+on:
+  release:
+    types:
+      - 'published'
+
+jobs:
+  publish:
+    name: 'Publish NuGet'
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: 'Validate version'
+        if: ${{ !startsWith(github.event.release.name, 'v') }}
+        run: |
+          core.setFailed('Version must start with "v"')
+
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+
+      - name: 'Setup .NET'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+    # TODO: Actual steps

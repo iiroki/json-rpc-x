@@ -7,6 +7,17 @@
     <RootNamespace>JsonRpcX</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Authors>iiroki</Authors>
+    <PackageDescription>JSON-RPC 2.0 Server</PackageDescription>
+    <RepositoryUrl>https://github.com/iiroki/json-rpc-x</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
