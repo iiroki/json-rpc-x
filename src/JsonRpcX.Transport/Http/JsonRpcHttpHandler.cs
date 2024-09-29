@@ -5,48 +5,35 @@ using JsonRpcX.Transport.Constants;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 
 namespace JsonRpcX.Transport.Http;
 
-internal class JsonRpcHttpTransport
+internal class JsonRpcHttpHandler
 {
     public RequestDelegate Delegate { get; } =
         async httpCtx =>
         {
             var ct = httpCtx.RequestAborted;
-
-            if (!JsonRpcHttpHelper.HasValidContentType(httpCtx.Request))
+            var validation = ValidateRequest(httpCtx.Request);
+            if (validation.ErrorStatus.HasValue)
             {
-                httpCtx.Response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
-                return;
-            }
-
-            if (!JsonRpcHttpHelper.HasValidAccept(httpCtx.Request))
-            {
-                httpCtx.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
-                return;
-            }
-
-            if (!httpCtx.Request.ContentLength.HasValue)
-            {
-                httpCtx.Response.StatusCode = (int)HttpStatusCode.LengthRequired;
+                httpCtx.Response.StatusCode = (int)validation.ErrorStatus;
                 return;
             }
 
             // Read the request content
-            var contentLength = (int)httpCtx.Request.ContentLength;
+            var contentLength = (int)(httpCtx.Request.ContentLength ?? 0);
             var buffer = new byte[contentLength];
             await httpCtx.Request.Body.ReadAsync(buffer.AsMemory(0, contentLength), ct);
 
-            // Process the request
-            // Request a processor that does not serialize the response,
-            // since we want to extract the status code from it.
+            // Initialize services
             var processor = httpCtx.RequestServices.GetRequiredService<IJsonRpcProcessor<byte[], JsonRpcResponse>>();
             var serializer = httpCtx.RequestServices.GetRequiredService<IJsonRpcResponseSerializer<byte[]>>();
-
             var ctx = new JsonRpcContext { Transport = JsonRpcTransportType.Http, User = httpCtx.User };
-            var response = await processor.ProcessAsync(buffer, ctx);
 
+            // Process the request
+            var response = await processor.ProcessAsync(buffer, ctx);
             if (response != null)
             {
                 if (response.IsSuccess)
@@ -58,13 +45,38 @@ internal class JsonRpcHttpTransport
                     httpCtx.Response.StatusCode = JsonRpcHttpHelper.GetStatus(response.Error.Error.Code);
                 }
 
-                httpCtx.Response.ContentType = JsonRpcHttpConstants.ContentTypeJsonRpc;
                 var serialized = serializer.Serialize(response);
+
+                httpCtx.Response.ContentType = validation.ResponseContentType?.ToString();
                 await httpCtx.Response.BodyWriter.WriteAsync(serialized);
             }
             else
             {
+                httpCtx.Response.ContentType = null;
                 httpCtx.Response.StatusCode = (int)HttpStatusCode.NoContent;
             }
         };
+
+    private static JsonRpcHttpRequest ValidateRequest(HttpRequest req)
+    {
+        if (!JsonRpcHttpHelper.HasValidContentType(req))
+        {
+            return new(HttpStatusCode.UnsupportedMediaType, null);
+        }
+
+        var (isValidAccept, resContentType) = JsonRpcHttpHelper.HasValidAccept(req);
+        if (!isValidAccept)
+        {
+            return new(HttpStatusCode.NotAcceptable, resContentType);
+        }
+
+        if (!req.ContentLength.HasValue)
+        {
+            return new(HttpStatusCode.LengthRequired, resContentType);
+        }
+
+        return new(null, resContentType);
+    }
+
+    private record JsonRpcHttpRequest(HttpStatusCode? ErrorStatus, MediaTypeHeaderValue? ResponseContentType);
 }

@@ -32,8 +32,7 @@ public static class DependencyExtensions
     /// </remarks>
     public static WebApplication MapJsonRpcHttp(this WebApplication app, string route)
     {
-        var transport = new JsonRpcHttpTransport();
-        app.MapPost(route, transport.Delegate);
+        app.MapPost(route, new JsonRpcHttpHandler().Delegate);
         return app;
     }
 
