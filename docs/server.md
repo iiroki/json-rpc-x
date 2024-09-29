@@ -130,6 +130,11 @@ app.MapJsonRpcHttp("/json-rpc");
 await app.RunAsync();
 ```
 
+**NOTES:**
+- _JSON RPC X_ implements HTTP transport as described here:
+  ["JSON-RPC over HTTP"](https://www.jsonrpc.org/historical/json-rpc-over-http.html)
+    - Only POST method is supported!
+
 ### Use WebSocket transport
 
 ```cs
