@@ -25,7 +25,6 @@ public abstract class JsonRpcTransportTestBase : IDisposable
 
         DisposeInternal();
 
-        // _app?.StopAsync().Wait();
         var task = _app?.DisposeAsync();
         if (task.HasValue)
         {
@@ -70,5 +69,8 @@ public abstract class JsonRpcTransportTestBase : IDisposable
 
         [JsonRpcMethod]
         public static int Params(int a, int b) => a + b;
+
+        [JsonRpcMethod]
+        public static async Task Async(int ms) => await Task.Delay(ms);
     }
 }

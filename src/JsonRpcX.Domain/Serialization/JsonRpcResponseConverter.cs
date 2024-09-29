@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using JsonRpcX.Domain.Models;
@@ -10,23 +11,24 @@ namespace JsonRpcX.Domain.Serialization;
 /// </summary>
 internal class JsonRpcResponseConverter : JsonConverter<JsonRpcResponse>
 {
+    private static readonly string ResultProperty = GetResultPropertyName();
+
     public override JsonRpcResponse? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions opt)
     {
         JsonRpcResponseSuccess? success = null;
         JsonRpcResponseError? error = null;
 
-        var successConverter = GetSuccessConverter(opt);
-        if (successConverter.CanConvert(typeof(JsonRpcResponseSuccess)))
+        var elementConverter = GetElementConverter(opt);
+        var json = elementConverter.Read(ref reader, typeof(JsonElement), opt);
+        var isSuccess = json.TryGetProperty(ResultProperty, out _);
+
+        if (isSuccess)
         {
-            success = successConverter.Read(ref reader, typeof(JsonRpcResponseSuccess), opt);
+            success = json.Deserialize<JsonRpcResponseSuccess>(opt);
         }
         else
         {
-            var errorConverter = GetErrorConverter(opt);
-            if (errorConverter.CanConvert(typeof(JsonRpcResponseError)))
-            {
-                error = errorConverter.Read(ref reader, typeof(JsonRpcResponseError), opt);
-            }
+            error = json.Deserialize<JsonRpcResponseError>(opt);
         }
 
         if (success != null)
@@ -55,9 +57,20 @@ internal class JsonRpcResponseConverter : JsonConverter<JsonRpcResponse>
         }
     }
 
+    private static JsonConverter<JsonElement> GetElementConverter(JsonSerializerOptions opt) =>
+        (JsonConverter<JsonElement>)opt.GetConverter(typeof(JsonElement));
+
     private static JsonConverter<JsonRpcResponseSuccess> GetSuccessConverter(JsonSerializerOptions opt) =>
         (JsonConverter<JsonRpcResponseSuccess>)opt.GetConverter(typeof(JsonRpcResponseSuccess));
 
     private static JsonConverter<JsonRpcResponseError> GetErrorConverter(JsonSerializerOptions opt) =>
         (JsonConverter<JsonRpcResponseError>)opt.GetConverter(typeof(JsonRpcResponseError));
+
+    private static string GetResultPropertyName()
+    {
+        var @default = nameof(JsonRpcResponseSuccess.Result);
+        var prop = typeof(JsonRpcResponseSuccess).GetProperty(@default);
+        var attr = prop?.GetCustomAttribute<JsonPropertyNameAttribute>();
+        return attr?.Name ?? @default;
+    }
 }

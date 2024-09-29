@@ -32,16 +32,14 @@ internal class JsonRpcWebSocketProcessor(
         _clientManager.Add(new JsonRpcWebSocketClient(id, _requestAwaiter, ws, ctx.User, _jsonOpt));
 
         var buffer = new byte[1024 * 4];
-        var result = await ws.ReceiveAsync(buffer, ct);
-
-        if (!result.EndOfMessage)
-        {
-            throw new WebSocketException("TODO: Unhandled \"end of message\" = false");
-        }
-
-        while (!result.CloseStatus.HasValue)
+        WebSocketReceiveResult? result = null;
+        while (result == null || !result.CloseStatus.HasValue)
         {
             result = await ws.ReceiveAsync(buffer, ct);
+            if (!result.EndOfMessage)
+            {
+                throw new WebSocketException("TODO: Unhandled \"end of message\" = false");
+            }
 
             // Process the messages in a non-blocking manner
             _ = HandleAsync(id, ws, buffer[..result.Count], ctx, ct);
