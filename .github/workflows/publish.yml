@@ -22,8 +22,10 @@ jobs:
 
       - id: version
         name: 'Prepare version'
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          echo "version=${${{ github.ref_name }}:1}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG:1}" >> "$GITHUB_OUTPUT"
 
   publish:
     name: 'Publish NuGet'
