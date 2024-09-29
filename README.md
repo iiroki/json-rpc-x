@@ -47,9 +47,9 @@ _See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
 
 **Quickstart:**
 
-1. Create a JSON RPC method handler class by tagging it with `IJsonRpcMethodHandler` interface:
+1. Create a JSON RPC controller class by tagging it with `IJsonRpcController` interface:
     ```cs
-    public class JsonRpcExampleMethodHandler(ILogger<JsonRpcExampleMethodHandler> logger) : IJsonRpcMethodHandler
+    public class JsonRpcExampleController(ILogger<JsonRpcExampleController> logger) : IJsonRpcController
     {
         private readonly ILogger _logger = logger;
 
@@ -57,9 +57,9 @@ _See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
     }
     ```
 
-2. Implement JSON RPC methods by marking the with `JsonRpcMethod` attribute:
+2. Implement JSON RPC methods by marking them with `JsonRpcMethod` attribute:
     ```cs
-    public class JsonRpcExampleMethodHandler(ILogger<JsonRpcExampleMethodHandler> logger) : IJsonRpcMethodHandler
+    public class JsonRpcExampleController(ILogger<JsonRpcExampleController> logger) : IJsonRpcController
     {
         private readonly ILogger _logger = logger;
 
@@ -90,11 +90,11 @@ _See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
     }
     ```
 
-3. Register the method handler in `Program.cs` (the example uses HTTP transport):
+3. Register the controller in `Program.cs` (the example uses HTTP transport):
     ```cs
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddJsonRpc();
-    builder.Services.AddJsonRpcMethodsFromAssebly();
+    builder.Services.AddJsonRpcControllersFromAssebly();
 
     var app = builder.Build();
     app.MapJsonRpcHttp("/json-rpc");

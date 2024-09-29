@@ -16,8 +16,8 @@ internal class JsonRpcMethodFactory(
 
     public IJsonRpcMethodInvoker Create(string method)
     {
-        // 1. Find method handler for the method
-        var handler = _services.GetJsonRpcController(method) ?? throw new JsonRpcMethodNotFoundException(method);
+        // 1. Find controller for the method
+        var controller = _services.GetJsonRpcController(method) ?? throw new JsonRpcMethodNotFoundException(method);
 
         // 2. Find method invocation metadata for the method
         if (!_container.Methods.TryGetValue(method, out var methodMetadata))
@@ -25,15 +25,15 @@ internal class JsonRpcMethodFactory(
             throw new JsonRpcException($"Method invocation metadata not found for method: {method}");
         }
 
-        // 3. Validate that the handler and method invocation metadata types match
-        if (handler.GetType() != methodMetadata.DeclaringType)
+        // 3. Validate that the controller and method invocation metadata types match
+        if (controller.GetType() != methodMetadata.DeclaringType)
         {
             throw new JsonRpcException(
-                $"Handler <-> Method type mismatch: {handler.GetType().FullName} != {methodMetadata.DeclaringType}"
+                $"Controller/method type mismatch: {controller.GetType().FullName} != {methodMetadata.DeclaringType?.FullName}"
             );
         }
 
         // 4. Create the method invoker
-        return new JsonRpcMethodInvoker(handler, methodMetadata, _jsonOptions);
+        return new JsonRpcMethodInvoker(controller, methodMetadata, _jsonOptions);
     }
 }

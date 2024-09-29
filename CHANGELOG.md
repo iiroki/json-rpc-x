@@ -5,6 +5,6 @@
 ### Added
 
 - Initial .NET server implementation:
-    - Method handlers
+    - Controllers & methods
     - Middleware
     - Transports: HTTP + WebSocket.

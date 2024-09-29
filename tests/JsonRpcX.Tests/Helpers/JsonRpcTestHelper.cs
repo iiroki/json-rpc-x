@@ -4,15 +4,15 @@ namespace JsonRpcX.Tests.Helpers;
 
 public static class JsonRpcTestHelper
 {
-    public static IServiceCollection CreateTestServices(IEnumerable<Type>? handlers = null)
+    public static IServiceCollection CreateTestServices(IEnumerable<Type>? controllers = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddJsonRpc();
 
-        foreach (var h in handlers ?? [])
+        foreach (var h in controllers ?? [])
         {
-            services.AddJsonRpcMethodHandler(h);
+            services.AddJsonRpcController(h);
         }
 
         return services;

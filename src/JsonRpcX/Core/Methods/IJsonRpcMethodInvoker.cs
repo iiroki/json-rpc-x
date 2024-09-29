@@ -10,7 +10,7 @@ namespace JsonRpcX.Core.Methods;
 internal interface IJsonRpcMethodInvoker
 {
     /// <summary>
-    /// JSON RPC method handler to invoke the methods against.
+    /// JSON RPC controller to invoke the method against.
     /// </summary>
     public IJsonRpcController Controller { get; }
 

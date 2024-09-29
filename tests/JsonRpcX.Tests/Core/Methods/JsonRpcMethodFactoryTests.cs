@@ -32,7 +32,7 @@ public class JsonRpcMethodFactoryTests
     [Theory]
     [InlineData("unknown")]
     [InlineData("method")]
-    public void Create__Handler_NotFound_Exception(string method)
+    public void Create_Controller_NotFound_Exception(string method)
     {
         // Act
         IJsonRpcMethodInvoker fn() => _factory.Create(method);

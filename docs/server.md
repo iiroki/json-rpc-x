@@ -17,16 +17,16 @@ See these pages for more detailed documentation about more advanced topics:
 - [**Bidirectional**](./server-bidirectional.md)
 - [**Custom transports**](./server-custom-transports.md)
 
-## Implement JSON RPC method handlers
+## Implement JSON RPC controllers
 
-_JSON RPC X_ implements JSON RPC methods with "method handlers".
+_JSON RPC X_ implements JSON RPC methods with "controllers".
 
-JSON RPC method handlers are implemented in two parts:
-1. Create a class that extends `IJsonRpcMethodHandler`
+JSON RPC controllers are implemented in two parts:
+1. Create a class that extends `IJsonRpcController`
 1. Create `public` methods and mark them with `JsonRpcMethod` attribute.
 
 ```cs
-public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
+public class JsonRpcExampleController : IJsonRpcController
 {
     // Gets the JSON RPC method name from the actual method -> "Hello"
     [JsonRpcMethod]
@@ -56,16 +56,16 @@ public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
 
 ## Register JSON RPC methods
 
-JSON RPC methods from the method handlers can be registered collectively from the current app domain's assembly or separately one-by-one.
+JSON RPC methods from the controllers can be registered collectively from the current app domain's assembly or separately one-by-one.
 
 ```cs
 var builder = WebApplication.CreateBuilder(args);
 
-// Add methods from the assembly...
-builder.Services.AddJsonRpcMethodsFromAssebly();
+// Add controllers from the assembly...
+builder.Services.AddJsonRpcControllersFromAssebly();
 
-// ...or add the method handlers one-by-one.
-builder.Services.AddJsonRpcMethodHandler<JsonRpcExampleMethodHandler>();
+// ...or add the controllers one-by-one.
+builder.Services.AddJsonRpcController<JsonRpcExampleController>();
 ```
 
 ### Configure JSON RPC methods with options
@@ -81,20 +81,20 @@ var options = new JsonRpcMethodOptions
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddJsonRpcMethodsFromAssebly(options);
-builder.Services.AddJsonRpcMethodHandler<JsonRpcExampleMethodHandler>(options);
+builder.Services.AddJsonRpcControllersFromAssebly(options);
+builder.Services.AddJsonRpcController<JsonRpcExampleController>(options);
 ```
 
 ## Access JSON RPC context
 
-JSON RPC context is served to JSON RPC method handlers via dependency injection
+JSON RPC context is served to JSON RPC controllers via dependency injection
 by injecting `JsonRpcContext`.
 
 ```cs
-public class JsonRpcExampleMethodHandler(
+public class JsonRpcExampleController(
     JsonRpcContext ctx,
-    ILogger<JsonRpcExampleMethodHandler> logger
-) : IJsonRpcMethodHandler
+    ILogger<JsonRpcExampleController> logger
+) : IJsonRpcController
 {
     private readonly JsonRpcContext _ctx = ctx;
     private readonly ILogger _logger = logger;
@@ -122,7 +122,7 @@ _JSON RPC X_ provides multiple transports:
 var builder = WebApplication.CreateBuilder(args);
 
 // No extra services needed
-builder.Services.AddJsonRpc().AddJsonRpcMethodsFromAssebly();
+builder.Services.AddJsonRpc().AddJsonRpcControllersFromAssebly();
 
 var app = builder.Build();
 app.MapJsonRpcHttp("/json-rpc");
@@ -133,7 +133,7 @@ await app.RunAsync();
 **NOTES:**
 - _JSON RPC X_ implements HTTP transport as described here:
   ["JSON-RPC over HTTP"](https://www.jsonrpc.org/historical/json-rpc-over-http.html)
-    - Only POST method is supported!
+    - Only POST HTTP method is supported!
 
 ### Use WebSocket transport
 
@@ -141,7 +141,7 @@ await app.RunAsync();
 var builder = WebApplication.CreateBuilder(args);
 
 // Notice "AddJsonRpcWebSocket()"!
-builder.Services.AddJsonRpc().AddJsonRpcMethodsFromAssebly().AddJsonRpcWebSocket();
+builder.Services.AddJsonRpc().AddJsonRpcControllersFromAssebly().AddJsonRpcWebSocket();
 
 var app = builder.Build();
 app.MapJsonRpcWebSocket("/json-rpc/ws");
@@ -163,14 +163,14 @@ builder.Services.AddScoped<IScopedService, ScopedService>();
 builder.Services.AddTransient<ITransientService, TransientService>();
 ```
 
-**`JsonRpcExampleMethodHandler.cs`**
+**`JsonRpcExampleController.cs`**
 
 ```cs
-public class JsonRpcExampleMethodHandler(
+public class JsonRpcExampleController(
     ISingletonService singletonService,
     IScopedService scopedService,
     ITransientService transientService
-) : IJsonRpcMethodHandler
+) : IJsonRpcController
 {
     private readonly ISingletonService _singletonService = singletonService;
     private readonly IScopedService _scopedService = scopedService;
@@ -179,4 +179,4 @@ public class JsonRpcExampleMethodHandler(
 ```
 
 **NOTES:**
-- JSON RPC method handlers use service scopes, which enables using scoped services.
+- JSON RPC controllers use service scopes, which enables using scoped services.

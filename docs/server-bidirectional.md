@@ -7,14 +7,14 @@ Bidirectional communication is only available for transports that support it!
 When a bidirectional transport is used, `IJsonRpcClient` instances are created from it
 and added to `IJsonRpcClientContainer`.
 
-To access the clients, just inject `IJsonRpcClientContainer` to a method handler or middleware.
+To access the clients, just inject `IJsonRpcClientContainer` to a controller or middleware.
 
 ```cs
 public class JsonRpcExampleMethods(
     JsonRpcContext ctx,
     IJsonRpcClientContainer clientContainer,
     ILogger<JsonRpcNotifyMethods> logger
-) : IJsonRpcMethodHandler
+) : IJsonRpcController
 {
     private readonly JsonRpcContext _ctx = ctx;
     private readonly IJsonRpcClientContainer _clientContainer = clientContainer;

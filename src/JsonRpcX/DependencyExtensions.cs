@@ -41,7 +41,7 @@ public static class DependencyExtensions
     /// <summary>
     /// Adds the <c>IJsonRpcController </c> implementation to the services.
     /// </summary>
-    public static IServiceCollection AddJsonRpcMethodHandler(
+    public static IServiceCollection AddJsonRpcController(
         this IServiceCollection services,
         Type type,
         JsonRpcMethodOptions? opt = null
@@ -81,7 +81,7 @@ public static class DependencyExtensions
         this IServiceCollection services,
         JsonRpcMethodOptions? opt = null
     )
-        where T : IJsonRpcController => services.AddJsonRpcMethodHandler(typeof(T), opt);
+        where T : IJsonRpcController => services.AddJsonRpcController(typeof(T), opt);
 
     /// <summary>
     /// Reads <c>IJsonRpcController </c> implementations from the current app domain's
@@ -98,7 +98,7 @@ public static class DependencyExtensions
             .Where(IsValidJsonRpcControllerType)
             .ToList();
 
-        controllerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
+        controllerTypes.ForEach(h => services.AddJsonRpcController(h, opt));
         return services;
     }
 

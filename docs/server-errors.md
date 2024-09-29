@@ -38,9 +38,9 @@ public class JsonRpcExampleException()
     : JsonRpcErrorException(new JsonRpcError { Code = 123, Message = "Example message" });
 ```
 
-**`JsonRpcExampleMethodHandler.cs`:**
+**`JsonRpcExampleController.cs`:**
 ```cs
-public class JsonRpcExampleMethodHandler : IJsonRpcMethodHandler
+public class JsonRpcExampleController : IJsonRpcController
 {
     [JsonRpcMethod]
     public void Throw() => throw new JsonRpcExampleException();
