@@ -1,4 +1,4 @@
-# JSON RPC X - Server: Middleware
+# JSON RPC X - Middleware
 
 ## Use JSON RPC middleware
 

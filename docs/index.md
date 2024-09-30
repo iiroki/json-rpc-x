@@ -1,4 +1,4 @@
-# JSON RPC X - Server
+# JSON RPC X - Documentation
 
 Welcome to the _JSON RPC X_ .NET server documentation!
 
@@ -11,11 +11,11 @@ Documentation about more advanced topics can be found under ["Advanced"](#advanc
 
 See these pages for more detailed documentation about more advanced topics:
 
-- [**Middleware**](./server-middleware.md)
-- [**Errors**](./server-errors.md)
-- [**Serialization**](./server-serialization.md)
-- [**Bidirectional**](./server-bidirectional.md)
-- [**Custom transports**](./server-custom-transports.md)
+- [**Middleware**](./middleware.md)
+- [**Errors**](./errors.md)
+- [**Serialization**](./serialization.md)
+- [**Bidirectional**](./bidirectional.md)
+- [**Custom transports**](./custom-transports.md)
 
 ## Implement JSON RPC controllers
 
@@ -114,7 +114,7 @@ public class JsonRpcExampleController(
 _JSON RPC X_ provides multiple transports:
 - **Default:** HTTP & WebSocket
 - **Extensions:** _JSON RPC X_ can be extended by implementing custom transports.
-    - (See ["Custom Transports"](./server-custom-transports.md))
+    - (See ["Custom Transports"](./custom-transports.md))
 
 ### Use HTTP transport
 

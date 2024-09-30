@@ -1,4 +1,4 @@
-# JSON RPC X - Server: Serialization
+# JSON RPC X - Serialization
 
 ## Configure JSON serialization
 

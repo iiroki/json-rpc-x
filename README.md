@@ -2,8 +2,10 @@
 
 [![Build & Test](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml/badge.svg)](https://github.com/iiroki/json-rpc-x/actions/workflows/build.yml)
 
-**_JSON RPC X_** is a [JSON-RPC 2.0](https://www.jsonrpc.org/specification)
-server implementation for .NET.
+**_JSON RPC X_** is a simple and lightweight [JSON-RPC 2.0](https://www.jsonrpc.org/specification) .NET Server implementation.
+
+_JSON RPC X_ leverages ASP.NET Core's built-in capabilities for providing
+a great developer experience.
 
 ## Features
 
@@ -39,11 +41,15 @@ server implementation for .NET.
 
 ## Installation
 
-TODO
+Install _JSON RPC X_ with .NET CLI:
+
+```
+dotnet add package JsonRpcX
+```
 
 ## Usage
 
-_See the full .NET server documentation here: **[DOCS](./docs/server.md)**_
+_See the full documentation here: **[DOCS](https://github.com/iiroki/json-rpc-x/blob/main/docs/index.md)**_
 
 **Quickstart:**
 
@@ -129,6 +135,14 @@ The initial motivation for this project was learning more about the following to
 
 - **Implementing customizable libraries:**  
   I wanted to experiment implementing a library, which would provide a clear and customizable interface for the library's end user.
+
+## Contribute
+
+There probably won't be too much contributors,
+so there's no predefined process for contributing to _JSON RPC X_.
+
+If you wish to contribute to _JSON RPC X_,
+open a GitHub issue about the change and we'll figure it out from there.
 
 ## License
 

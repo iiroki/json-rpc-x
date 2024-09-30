@@ -1,4 +1,4 @@
-# JSON RPC X - Server: Errors
+# JSON RPC X - Errors
 
 ## JSON RPC error types
 

@@ -1,4 +1,4 @@
-# JSON RPC X - Server: Bidirectional
+# JSON RPC X - Bidirectional
 
 Bidirectional communication is only available for transports that support it!
 
