@@ -2,4 +2,4 @@
 
 ## Implement custom transports
 
-TODO
+TODO: Document this process during the first custom transport implementation.

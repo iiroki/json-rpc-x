@@ -5,19 +5,44 @@ using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Transport.Serialization;
 
-internal class JsonRpcParser(ILogger<JsonRpcParser> logger, JsonSerializerOptions? opt = null)
+/// <summary>
+/// Default JSON RPC serializers.
+/// </summary>
+internal class JsonRpcSerializer(ILogger<JsonRpcSerializer> logger, JsonSerializerOptions? opt = null)
     : IJsonRpcParser<byte[]>,
         IJsonRpcParser<string>,
         IJsonRpcParser<JsonElement>,
         IJsonRpcParser<JsonRpcRequest>,
-        IJsonRpcParser<JsonRpcResponse>
+        IJsonRpcParser<JsonRpcResponse>,
+        IJsonRpcResponseSerializer<byte[]>,
+        IJsonRpcResponseSerializer<string>,
+        IJsonRpcResponseSerializer<JsonElement>,
+        IJsonRpcResponseSerializer<JsonRpcResponse>
 {
     private readonly JsonSerializerOptions? _opt = opt;
     private readonly ILogger _logger = logger;
 
+    //
+    // Bytes
+    //
+
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(byte[] chunk) => Parse(ReadAsJson(chunk));
 
+    public byte[]? Serialize(JsonRpcResponse? response) =>
+        response != null ? JsonSerializer.SerializeToUtf8Bytes(response, _opt) : null;
+
+    //
+    // Strings
+    //
+
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(string chunk) => Parse(ReadAsJson(chunk));
+
+    string? IJsonRpcResponseSerializer<string>.Serialize(JsonRpcResponse? response) =>
+        response != null ? JsonSerializer.Serialize(response, _opt) : null;
+
+    //
+    // JSON elements
+    //
 
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonElement chunk)
     {
@@ -55,9 +80,22 @@ internal class JsonRpcParser(ILogger<JsonRpcParser> logger, JsonSerializerOption
         return (req, res);
     }
 
+    JsonElement IJsonRpcResponseSerializer<JsonElement>.Serialize(JsonRpcResponse? response) =>
+        JsonSerializer.SerializeToElement(response, _opt);
+
+    //
+    // JSON RPC types
+    //
+
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonRpcRequest chunk) => (chunk, null);
 
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonRpcResponse chunk) => (null, chunk);
+
+    JsonRpcResponse? IJsonRpcResponseSerializer<JsonRpcResponse>.Serialize(JsonRpcResponse? response) => response;
+
+    //
+    // Helpers
+    //
 
     private JsonElement ReadAsJson(object chunk)
     {

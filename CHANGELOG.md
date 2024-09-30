@@ -1,12 +1,10 @@
 # Changelog
 
-## [0.1.0] - 2024-MM-DD
-
-PRE-RELEASE
+## [0.1.0] - 2024-09-30
 
 ### Added
 
-- Initial .NET server implementation:
+- Initial implementation:
     - Controllers & methods
     - Middleware
     - Error handler

@@ -4,8 +4,8 @@
 
 **_JSON RPC X_** is a simple and lightweight [JSON-RPC 2.0](https://www.jsonrpc.org/specification) .NET Server implementation.
 
-_JSON RPC X_ leverages ASP.NET Core's built-in capabilities for providing
-a great developer experience.
+_JSON RPC X_ leverages ASP.NET Core's built-in capabilities in order to
+provide a flexible and easy-to-use developer experience.
 
 ## Features
 
