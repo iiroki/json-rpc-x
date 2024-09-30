@@ -14,16 +14,16 @@ namespace JsonRpcX.Core;
 
 internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
-    IJsonRpcParser<TIn> messageParser,
+    IJsonRpcParser<TIn> parser,
     IJsonRpcRequestAwaiter requestAwaiter,
-    IJsonRpcResponseSerializer<TOut> responseSerializer,
+    IJsonRpcResponseSerializer<TOut> serializer,
     ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly IJsonRpcParser<TIn> _messageParser = messageParser;
+    private readonly IJsonRpcParser<TIn> _parser = parser;
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
-    private readonly IJsonRpcResponseSerializer<TOut> _responseSerializer = responseSerializer;
+    private readonly IJsonRpcResponseSerializer<TOut> _serializer = serializer;
     private readonly ILogger _logger = logger;
 
     public async Task<TOut?> ProcessAsync(TIn message, JsonRpcContext ctx, CancellationToken ct = default)
@@ -40,7 +40,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             // 2. Check if the received message is a request or a response:
             //     - Response -> Set the response to the request awaiter
             //     - Request -> Process the request with the normal JSON RPC pipeline.
-            var (req, res) = _messageParser.Parse(message);
+            var (req, res) = _parser.Parse(message);
             if (res != null && !string.IsNullOrEmpty(ctx.ClientId))
             {
                 _requestAwaiter.SetResponse(ctx.ClientId, res);
@@ -62,7 +62,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             response = await handler.HandleAsync(req, ctx, ct);
 
             // 5. Serialize the response
-            return req.IsNotification ? default : _responseSerializer.Serialize(response);
+            return req.IsNotification ? default : _serializer.Serialize(response);
         }
         catch (Exception ex)
         {
@@ -96,7 +96,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             }
 
             response = new JsonRpcResponseError { Id = ctx.Request?.Id, Error = error }.ToResponse();
-            return _responseSerializer.Serialize(response);
+            return _serializer.Serialize(response);
         }
         finally
         {

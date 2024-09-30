@@ -2,12 +2,12 @@ using System.Security.Claims;
 using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Client;
+using JsonRpcX.Controllers;
 using JsonRpcX.Core;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
-using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using JsonRpcX.Tests.Helpers;
 using JsonRpcX.Transport.Serialization;
@@ -227,7 +227,7 @@ public class JsonRpcProcessorTests
             ServiceProvider.GetRequiredService<ILogger<JsonRpcProcessor<T, JsonRpcResponse>>>()
         );
 
-    private class TestJsonRpcApi : IJsonRpcMethodHandler
+    private class TestJsonRpcApi : IJsonRpcController
     {
         [JsonRpcMethod]
         public static bool True() => true;

@@ -1,4 +1,4 @@
-# JSON RPC X - Server: Middleware
+# JSON RPC X - Middleware
 
 ## Use JSON RPC middleware
 
@@ -31,9 +31,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddJsonRpcMiddleware<JsonRpcExampleMiddleware>();
 ```
 
-**`JsonRpcExampleMethodHandler.cs`:**
+**`JsonRpcExampleController.cs`:**
 ```cs
-public class JsonRpcExampleMethodHandler(JsonRpcContext ctx) : IJsonRpcMethodHandler
+public class JsonRpcExampleController(JsonRpcContext ctx) : IJsonRpcController
 {
     private readonly JsonRpcContext _ctx = ctx;
 
@@ -44,4 +44,4 @@ public class JsonRpcExampleMethodHandler(JsonRpcContext ctx) : IJsonRpcMethodHan
 
 **NOTES:**
 - As JSON RPC requests are processed within a service scope,
-  the middleware's effects are available to the method handlers.
+  the middleware's effects are available to the controllers.

@@ -1,15 +1,15 @@
 using JsonRpcX.Attributes;
 using JsonRpcX.Client;
+using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Methods;
 
 namespace JsonRpcX.Api.Methods;
 
-public class JsonRpcNotifyMethods(
+public class JsonRpcNotifyController(
     JsonRpcContext ctx,
     IJsonRpcClientContainer clientContainer,
-    ILogger<JsonRpcNotifyMethods> logger
-) : IJsonRpcMethodHandler
+    ILogger<JsonRpcNotifyController> logger
+) : IJsonRpcController
 {
     private readonly JsonRpcContext _ctx = ctx;
     private readonly IJsonRpcClientContainer _clientContainer = clientContainer;

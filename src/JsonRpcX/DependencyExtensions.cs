@@ -1,6 +1,7 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
 using JsonRpcX.Client;
+using JsonRpcX.Controllers;
 using JsonRpcX.Core;
 using JsonRpcX.Core.Context;
 using JsonRpcX.Core.Methods;
@@ -9,8 +10,6 @@ using JsonRpcX.Core.Schema;
 using JsonRpcX.Domain.Core;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
-using JsonRpcX.Helpers.Extensions;
-using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using JsonRpcX.Options;
 using JsonRpcX.Transport;
@@ -40,17 +39,17 @@ public static class DependencyExtensions
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
     /// <summary>
-    /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
+    /// Adds the <c>IJsonRpcController </c> implementation to the services.
     /// </summary>
-    public static IServiceCollection AddJsonRpcMethodHandler(
+    public static IServiceCollection AddJsonRpcController(
         this IServiceCollection services,
         Type type,
         JsonRpcMethodOptions? opt = null
     )
     {
-        if (!IsValidJsonRpcMethodHandlerType(type))
+        if (!IsValidJsonRpcControllerType(type))
         {
-            throw new ArgumentException($"\"{nameof(type)}\" is not valid \"{nameof(IJsonRpcMethodHandler)}\" type");
+            throw new ArgumentException($"\"{nameof(type)}\" is not valid \"{nameof(IJsonRpcController)}\" type");
         }
 
         Dictionary<string, MethodInfo> methodMetadata = [];
@@ -76,30 +75,30 @@ public static class DependencyExtensions
     }
 
     /// <summary>
-    /// Adds the <c>IJsonRpcMethodHandler </c> implementation to the services.
+    /// Adds the <c>IJsonRpcController </c> implementation to the services.
     /// </summary>
-    public static IServiceCollection AddJsonRpcMethodHandler<T>(
+    public static IServiceCollection AddJsonRpcController<T>(
         this IServiceCollection services,
         JsonRpcMethodOptions? opt = null
     )
-        where T : IJsonRpcMethodHandler => services.AddJsonRpcMethodHandler(typeof(T), opt);
+        where T : IJsonRpcController => services.AddJsonRpcController(typeof(T), opt);
 
     /// <summary>
-    /// Reads <c>IJsonRpcMethodHandler </c> implementations from the current app domain's
+    /// Reads <c>IJsonRpcController </c> implementations from the current app domain's
     /// assemblies and adds them to the services.
     /// </summary>
-    public static IServiceCollection AddJsonRpcMethodsFromAssebly(
+    public static IServiceCollection AddJsonRpcControllersFromAssebly(
         this IServiceCollection services,
         JsonRpcMethodOptions? opt = null
     )
     {
-        var handlerTypes = AppDomain
+        var controllerTypes = AppDomain
             .CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(IsValidJsonRpcMethodHandlerType)
+            .Where(IsValidJsonRpcControllerType)
             .ToList();
 
-        handlerTypes.ForEach(h => services.AddJsonRpcMethodHandler(h, opt));
+        controllerTypes.ForEach(h => services.AddJsonRpcController(h, opt));
         return services;
     }
 
@@ -137,8 +136,8 @@ public static class DependencyExtensions
         return app;
     }
 
-    private static bool IsValidJsonRpcMethodHandlerType(Type type) =>
-        typeof(IJsonRpcMethodHandler).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;
+    private static bool IsValidJsonRpcControllerType(Type type) =>
+        typeof(IJsonRpcController).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;
 
     private static string GetJsonRpcMethodName(
         MethodInfo method,

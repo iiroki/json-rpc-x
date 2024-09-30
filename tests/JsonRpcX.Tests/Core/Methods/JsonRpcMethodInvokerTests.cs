@@ -1,9 +1,9 @@
 using System.Text.Json;
 using JsonRpcX.Attributes;
+using JsonRpcX.Controllers;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Helpers.Constants;
-using JsonRpcX.Methods;
 
 namespace JsonRpcX.Tests.Core.Methods;
 
@@ -372,10 +372,10 @@ public sealed class JsonRpcMethodInvokerTests
 
     private static JsonRpcMethodInvoker CreateMethodInvoker(string name)
     {
-        var handler = new TestJsonRpcApi();
-        var method = handler.GetType().GetMethod(name);
+        var api = new TestJsonRpcApi();
+        var method = api.GetType().GetMethod(name);
         return method != null
-            ? new JsonRpcMethodInvoker(handler, method)
+            ? new JsonRpcMethodInvoker(api, method)
             : throw new ArgumentException($"Method to test not found: {name}");
     }
 
@@ -384,7 +384,7 @@ public sealed class JsonRpcMethodInvokerTests
 
     #endregion
 
-    private class TestJsonRpcApi : IJsonRpcMethodHandler
+    private class TestJsonRpcApi : IJsonRpcController
     {
         //
         // Params

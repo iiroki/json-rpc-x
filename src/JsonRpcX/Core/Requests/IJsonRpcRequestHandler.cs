@@ -3,7 +3,7 @@ using JsonRpcX.Domain.Models;
 namespace JsonRpcX.Core.Requests;
 
 /// <summary>
-/// Handles JSON RPC requests.
+/// Handler for JSON RPC requests.
 /// </summary>
 internal interface IJsonRpcRequestHandler
 {

@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.1.0] - 2024-09-30
 
 ### Added
 
-- Initial .NET server implementation:
-    - Method handlers
+- Initial implementation:
+    - Controllers & methods
     - Middleware
+    - Error handler
     - Transports: HTTP + WebSocket.

@@ -2,9 +2,9 @@ using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.Json;
 using JsonRpcX.Attributes;
+using JsonRpcX.Controllers;
 using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Exceptions;
-using JsonRpcX.Methods;
 using JsonRpcX.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,13 +26,13 @@ public class JsonRpcMethodFactoryTests
         var invoker = _factory.Create(method);
 
         // Assert
-        Assert.Equal(typeof(TestJsonRpcApi).FullName, invoker.Handler.GetType().FullName);
+        Assert.Equal(typeof(TestJsonRpcApi).FullName, invoker.Controller.GetType().FullName);
     }
 
     [Theory]
     [InlineData("unknown")]
     [InlineData("method")]
-    public void Create__Handler_NotFound_Exception(string method)
+    public void Create_Controller_NotFound_Exception(string method)
     {
         // Act
         IJsonRpcMethodInvoker fn() => _factory.Create(method);
@@ -78,7 +78,7 @@ public class JsonRpcMethodFactoryTests
     }
 
     private static IServiceCollection CreateTestServices() =>
-        JsonRpcTestHelper.CreateTestServices().AddJsonRpcMethodHandler<TestJsonRpcApi>();
+        JsonRpcTestHelper.CreateTestServices().AddJsonRpcController<TestJsonRpcApi>();
 
     private static JsonRpcMethodFactory CreateTestFactory()
     {
@@ -91,7 +91,7 @@ public class JsonRpcMethodFactoryTests
         );
     }
 
-    private class TestJsonRpcApi : IJsonRpcMethodHandler
+    private class TestJsonRpcApi : IJsonRpcController
     {
         [JsonRpcMethod]
         public static bool True() => true;
@@ -109,7 +109,7 @@ public class JsonRpcMethodFactoryTests
         public static string HelloWorld() => "Hello, World!";
     }
 
-    private class TestJsonRpcApi2 : IJsonRpcMethodHandler
+    private class TestJsonRpcApi2 : IJsonRpcController
     {
         [JsonRpcMethod]
         public static string HelloWorld() => throw new NotImplementedException();
