@@ -5,15 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>JsonRpcX</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <Authors>iiroki</Authors>
-    <PackageDescription>JSON-RPC 2.0 .NET Server</PackageDescription>
-    <RepositoryUrl>https://github.com/iiroki/json-rpc-x</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageDescription>JSON RPC X - JSON-RPC 2.0 .NET Server</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Authors>iiroki</Authors>
+    <RepositoryUrl>https://github.com/iiroki/json-rpc-x</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+</Project>
