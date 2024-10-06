@@ -6,7 +6,7 @@ using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Helpers.Extensions;
 
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 internal class JsonRpcMethodInvoker(
     IJsonRpcController controller,

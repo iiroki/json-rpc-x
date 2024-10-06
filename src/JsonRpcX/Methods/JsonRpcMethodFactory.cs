@@ -2,7 +2,7 @@ using System.Text.Json;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Extensions;
 
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 internal class JsonRpcMethodFactory(
     IServiceProvider services,

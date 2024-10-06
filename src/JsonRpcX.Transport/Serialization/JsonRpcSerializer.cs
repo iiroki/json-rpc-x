@@ -9,15 +9,15 @@ namespace JsonRpcX.Transport.Serialization;
 /// Default JSON RPC serializers.
 /// </summary>
 internal class JsonRpcSerializer(ILogger<JsonRpcSerializer> logger, JsonSerializerOptions? opt = null)
-    : IJsonRpcParser<byte[]>,
-        IJsonRpcParser<string>,
-        IJsonRpcParser<JsonElement>,
-        IJsonRpcParser<JsonRpcRequest>,
-        IJsonRpcParser<JsonRpcResponse>,
-        IJsonRpcResponseSerializer<byte[]>,
-        IJsonRpcResponseSerializer<string>,
-        IJsonRpcResponseSerializer<JsonElement>,
-        IJsonRpcResponseSerializer<JsonRpcResponse>
+    : IJsonRpcInSerializer<byte[]>,
+        IJsonRpcInSerializer<string>,
+        IJsonRpcInSerializer<JsonElement>,
+        IJsonRpcInSerializer<JsonRpcRequest>,
+        IJsonRpcInSerializer<JsonRpcResponse>,
+        IJsonRpcOutSerializer<byte[]>,
+        IJsonRpcOutSerializer<string>,
+        IJsonRpcOutSerializer<JsonElement>,
+        IJsonRpcOutSerializer<JsonRpcResponse>
 {
     private readonly JsonSerializerOptions? _opt = opt;
     private readonly ILogger _logger = logger;
@@ -37,7 +37,7 @@ internal class JsonRpcSerializer(ILogger<JsonRpcSerializer> logger, JsonSerializ
 
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(string chunk) => Parse(ReadAsJson(chunk));
 
-    string? IJsonRpcResponseSerializer<string>.Serialize(JsonRpcResponse? response) =>
+    string? IJsonRpcOutSerializer<string>.Serialize(JsonRpcResponse? response) =>
         response != null ? JsonSerializer.Serialize(response, _opt) : null;
 
     //
@@ -80,7 +80,7 @@ internal class JsonRpcSerializer(ILogger<JsonRpcSerializer> logger, JsonSerializ
         return (req, res);
     }
 
-    JsonElement IJsonRpcResponseSerializer<JsonElement>.Serialize(JsonRpcResponse? response) =>
+    JsonElement IJsonRpcOutSerializer<JsonElement>.Serialize(JsonRpcResponse? response) =>
         JsonSerializer.SerializeToElement(response, _opt);
 
     //
@@ -91,7 +91,7 @@ internal class JsonRpcSerializer(ILogger<JsonRpcSerializer> logger, JsonSerializ
 
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(JsonRpcResponse chunk) => (null, chunk);
 
-    JsonRpcResponse? IJsonRpcResponseSerializer<JsonRpcResponse>.Serialize(JsonRpcResponse? response) => response;
+    JsonRpcResponse? IJsonRpcOutSerializer<JsonRpcResponse>.Serialize(JsonRpcResponse? response) => response;
 
     //
     // Helpers

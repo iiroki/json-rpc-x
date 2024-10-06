@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using JsonRpcX.Client;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Transport.Constants;
 
 namespace JsonRpcX.Transport.WebSockets;
 

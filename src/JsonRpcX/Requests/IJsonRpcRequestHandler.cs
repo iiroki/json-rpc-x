@@ -1,6 +1,6 @@
 using JsonRpcX.Domain.Models;
 
-namespace JsonRpcX.Core.Requests;
+namespace JsonRpcX.Requests;
 
 /// <summary>
 /// Handler for JSON RPC requests.

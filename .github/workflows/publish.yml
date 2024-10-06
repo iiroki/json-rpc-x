@@ -43,15 +43,16 @@ jobs:
         with:
           dotnet-version: 8.x
 
-      - name: 'Pack: JsonRpcX'
-        working-directory: 'src/JsonRpcX'
+      - name: 'Print version'
         run: |
           echo "NuGet version: $NUGET_VERSION"
-          dotnet pack -c Release -p:PackageVersion=$NUGET_VERSION
 
-      - name: 'Push: JsonRpcX'
-        working-directory: 'src/JsonRpcX'
+      - name: 'Pack'
         run: |
-          dotnet nuget push "bin/Release/JsonRpcX.$NUGET_VERSION.nupkg" \
+          dotnet pack -p:Version=$NUGET_VERSION
+
+      - name: 'Push NuGet'
+        run: |
+          dotnet nuget push "src/**/bin/Release/JsonRpcX*.$NUGET_VERSION.nupkg" \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json

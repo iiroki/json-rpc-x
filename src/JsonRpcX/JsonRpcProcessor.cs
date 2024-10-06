@@ -1,29 +1,29 @@
 using JsonRpcX.Client;
-using JsonRpcX.Core.Context;
-using JsonRpcX.Core.Requests;
+using JsonRpcX.Context;
+using JsonRpcX.Domain;
 using JsonRpcX.Domain.Constants;
-using JsonRpcX.Domain.Core;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
+using JsonRpcX.Requests;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace JsonRpcX.Core;
+namespace JsonRpcX;
 
 internal class JsonRpcProcessor<TIn, TOut>(
     IServiceScopeFactory scopeFactory,
-    IJsonRpcParser<TIn> parser,
+    IJsonRpcInSerializer<TIn> parser,
     IJsonRpcRequestAwaiter requestAwaiter,
-    IJsonRpcResponseSerializer<TOut> serializer,
+    IJsonRpcOutSerializer<TOut> serializer,
     ILogger<JsonRpcProcessor<TIn, TOut>> logger
 ) : IJsonRpcProcessor<TIn, TOut>
 {
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-    private readonly IJsonRpcParser<TIn> _parser = parser;
+    private readonly IJsonRpcInSerializer<TIn> _parser = parser;
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
-    private readonly IJsonRpcResponseSerializer<TOut> _serializer = serializer;
+    private readonly IJsonRpcOutSerializer<TOut> _serializer = serializer;
     private readonly ILogger _logger = logger;
 
     public async Task<TOut?> ProcessAsync(TIn message, JsonRpcContext ctx, CancellationToken ct = default)

@@ -1,10 +1,11 @@
 using System.Text.Json;
-using JsonRpcX.Core.Methods;
+using JsonRpcX.Methods;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JsonRpcX.Core.Schema;
 
+// TODO: Rename and re-implement this!
 internal class JsonRpcSchemaEndpointFactory
 {
     public RequestDelegate Create() =>

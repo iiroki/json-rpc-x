@@ -1,4 +1,4 @@
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 /// <summary>
 /// Factory for creating JSON RPC method invokers.

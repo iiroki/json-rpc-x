@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 internal class JsonRpcMethodContainer(IEnumerable<JsonRpcMethodMetadataBuilder> builders) : IJsonRpcMethodContainer
 {

@@ -1,9 +1,8 @@
 using System.Net.WebSockets;
 using System.Text.Json;
 using JsonRpcX.Client;
-using JsonRpcX.Domain.Core;
+using JsonRpcX.Domain;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Transport.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

@@ -3,9 +3,9 @@ using JsonRpcX.Domain.Models;
 namespace JsonRpcX.Transport.Serialization;
 
 /// <summary>
-/// JSON RPC response serializer for a data type.
+/// JSON RPC serializer for outgoing data types.
 /// </summary>
-public interface IJsonRpcResponseSerializer<T>
+public interface IJsonRpcOutSerializer<T>
 {
     /// <summary>
     /// Serializes the JSON RPC response.<br />

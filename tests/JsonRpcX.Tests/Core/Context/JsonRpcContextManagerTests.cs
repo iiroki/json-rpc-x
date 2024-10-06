@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using JsonRpcX.Core.Context;
+using JsonRpcX.Context;
 using JsonRpcX.Domain.Models;
 
 namespace JsonRpcX.Tests.Core.Context;

@@ -47,6 +47,18 @@ Install _JSON RPC X_ with .NET CLI:
 dotnet add package JsonRpcX
 ```
 
+### Projects
+
+_JSON RPC X_ consists of multiple projects.
+
+- `JsonRpcX`: The full _JSON RPC X_ library
+- `JsonRpcX.Domain`: Common JSON RPC domain models
+- `JsonRpcX.Client`: JSON RPC client components
+- `JsonRpcX.Transport`: JSON RPC transport components
+- `JsonRpcX.Helpers`: Common helpers for the other projects.
+
+These projects can also be installed independently, if needed.
+
 ## Usage
 
 _See the full documentation here: **[DOCS](https://github.com/iiroki/json-rpc-x/blob/main/docs/index.md)**_

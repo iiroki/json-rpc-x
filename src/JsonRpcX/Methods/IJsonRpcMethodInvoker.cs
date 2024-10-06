@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using JsonRpcX.Controllers;
 
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 /// <summary>
 /// Interface for invoking a JSON RPC method against a JSON RPC controller.

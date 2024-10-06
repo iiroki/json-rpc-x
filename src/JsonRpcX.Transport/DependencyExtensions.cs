@@ -14,6 +14,9 @@ public static class DependencyExtensions
     // Serialization
     //
 
+    /// <summary>
+    /// Adds default JSON RPC serializers.
+    /// </summary>
     public static IServiceCollection AddJsonRpcSerializerDefaults(this IServiceCollection services) =>
         services.AddWithInterfaces<JsonRpcSerializer>(ServiceLifetime.Singleton);
 
@@ -36,6 +39,12 @@ public static class DependencyExtensions
     //
     // WebSockets
     //
+
+    /// <summary>
+    /// Adds JSON RPC WebSocket services.
+    /// </summary>
+    public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
+        services.AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>();
 
     /// <summary>
     /// Maps the JSON RPC API to the WebSocket in the given route.
@@ -61,10 +70,4 @@ public static class DependencyExtensions
 
         return app;
     }
-
-    // <summary>
-    /// Adds JSON RPC WebSocket services.
-    /// </summary>
-    public static IServiceCollection AddJsonRpcWebSocket(this IServiceCollection services) =>
-        services.AddSingleton<IJsonRpcWebSocketProcessor, JsonRpcWebSocketProcessor>();
 }
