@@ -1,4 +1,5 @@
 using System.Text.Json;
+using JsonRpcX.Authorization;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
@@ -11,12 +12,14 @@ namespace JsonRpcX.Requests;
 
 internal class JsonRpcRequestHandler(
     IJsonRpcMethodFactory factory,
+    IJsonRpcAuthorizationHandler authorization,
     IEnumerable<IJsonRpcMiddleware> middleware,
     ILogger<JsonRpcRequestHandler> logger,
     JsonSerializerOptions? jsonOpt = null
 ) : IJsonRpcRequestHandler
 {
     private readonly IJsonRpcMethodFactory _factory = factory;
+    private readonly IJsonRpcAuthorizationHandler _authorization = authorization;
     private readonly List<IJsonRpcMiddleware> _middleware = middleware.ToList();
     private readonly ILogger _logger = logger;
     private readonly JsonSerializerOptions? _jsonOpt = jsonOpt;
@@ -37,6 +40,10 @@ internal class JsonRpcRequestHandler(
             }
 
             var invoker = _factory.Create(request.Method);
+            if (invoker.Method.Authorization != null)
+            {
+                await _authorization.HandleAsync(ctx, invoker.Method.Authorization, ct);
+            }
 
             var hasInvalidParams =
                 request.Params.HasValue

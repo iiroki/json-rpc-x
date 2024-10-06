@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace JsonRpcX.Api.Controllers;
 
-[Authorize(Roles = "example")]
+[Authorize(Roles = "role1, role2")]
 public class JsonRpcAuthorizedController(JsonRpcContext ctx, ILogger<JsonRpcAuthorizedController> logger)
     : IJsonRpcController
 {

@@ -1,9 +1,11 @@
 using System.Text.Json;
 using JsonRpcX;
+using JsonRpcX.Api.Authorization;
 using JsonRpcX.Api.Middleware;
 using JsonRpcX.Api.Services;
 using JsonRpcX.Options;
 using JsonRpcX.Transport;
+using Microsoft.AspNetCore.Authentication;
 
 var jsonOptions = new JsonSerializerOptions
 {
@@ -19,8 +21,14 @@ var jsonRpcOptions = new JsonRpcMethodOptions { NamingPolicy = JsonNamingPolicy.
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(jsonOptions);
-builder.Services.AddHostedService<JsonRpcStatusWorker>();
+builder
+    .Services.AddSingleton(jsonOptions)
+    .AddHostedService<JsonRpcStatusWorker>()
+    .AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, ExampleAuthenticationHandler>(
+        nameof(ExampleAuthenticationHandler),
+        _ => { }
+    );
 
 // JSON RPC X methods:
 builder

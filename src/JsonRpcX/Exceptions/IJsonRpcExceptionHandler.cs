@@ -13,5 +13,5 @@ public interface IJsonRpcExceptionHandler
     /// If the exception is not handled and a JSON RPC error is not created,
     /// the error handling will use the default error handling as the fallback.
     /// </summary>
-    Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default);
+    Task<JsonRpcError?> HandleAsync(JsonRpcContext ctx, Exception ex, CancellationToken ct = default);
 }

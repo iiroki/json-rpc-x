@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JsonRpcX.Methods;
 
@@ -8,7 +9,5 @@ internal class JsonRpcMethodInfo
 
     public required MethodInfo Metadata { get; init; }
 
-    public bool? IsAuthorized { get; init; }
-
-    public IEnumerable<string>? Roles { get; init; }
+    public IAuthorizeData? Authorization { get; init; }
 }

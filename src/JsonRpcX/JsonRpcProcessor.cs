@@ -78,7 +78,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             var exceptionHandler = scope.ServiceProvider.GetService<IJsonRpcExceptionHandler>();
             if (exceptionHandler != null)
             {
-                error = await exceptionHandler.HandleAsync(ex, ct);
+                error = await exceptionHandler.HandleAsync(ctx, ex, ct);
             }
 
             // 2. If the error is still not defined, create a default error response.

@@ -26,7 +26,7 @@ public class JsonRpcMethodContainerTests
         var expected = builder.Methods.Select(b => b.Name).Order().ToList();
 
         // Act
-        var container = new JsonRpcMethodContainer(builder);
+        var container = new JsonRpcMethodContainer([builder]);
 
         // Assert
         Assert.Equal(expected, container.Methods.Keys.Order());

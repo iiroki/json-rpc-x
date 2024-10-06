@@ -1,5 +1,6 @@
 using System.Reflection;
 using JsonRpcX.Attributes;
+using JsonRpcX.Authorization;
 using JsonRpcX.Client;
 using JsonRpcX.Context;
 using JsonRpcX.Controllers;
@@ -35,6 +36,7 @@ public static class DependencyExtensions
             // Global services:
             .AddJsonRpcClient()
             .AddJsonRpcSerializerDefaults()
+            .SetJsonRpcAuthorizationHandler<JsonRpcAuthorizationHandler>()
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
@@ -60,13 +62,12 @@ public static class DependencyExtensions
 
             if (attr != null)
             {
-                var (isAuthorized, roles) = GetJsonRpcAuthorizationInfo(m);
+                var auth = GetJsonRpcAuthorizationData(m);
                 var info = new JsonRpcMethodInfo
                 {
                     Name = GetJsonRpcMethodName(m, attr, opt),
                     Metadata = m,
-                    IsAuthorized = isAuthorized,
-                    Roles = roles,
+                    Authorization = auth,
                 };
 
                 methods.Add(info);
@@ -123,7 +124,7 @@ public static class DependencyExtensions
         where T : IJsonRpcMiddleware => services.AddJsonRpcMiddleware(typeof(T));
 
     /// <summary>
-    /// Set the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
+    /// Set the <c>IJsonRpcExceptionHandler</c> implementation used for error handling.<br />
     /// <br/>
     /// NOTE:<br/>
     /// Using this method REPLACES the exception handler, since there can only be one!
@@ -134,6 +135,19 @@ public static class DependencyExtensions
     /// <inheritdoc cref="SetJsonRpcExceptionHandler(IServiceCollection)" />
     public static IServiceCollection SetJsonRpcExceptionHandler(this IServiceCollection services, Type type) =>
         services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), type));
+
+    /// <summary>
+    /// Set the <c>IJsonRpcAuthorizationHandler</c> implementation for authorization.<br />
+    /// <br/>
+    /// NOTE:<br/>
+    /// Using this method REPLACES the authorization handler, since there can only be one!
+    /// </summary>
+    public static IServiceCollection SetJsonRpcAuthorizationHandler<T>(this IServiceCollection services)
+        where T : IJsonRpcAuthorizationHandler => services.SetJsonRpcAuthorizationHandler(typeof(T));
+
+    /// <inheritdoc cref="SetJsonRpcAuthorizationHandler(IServiceCollection)" />
+    public static IServiceCollection SetJsonRpcAuthorizationHandler(this IServiceCollection services, Type type) =>
+        services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcAuthorizationHandler), type));
 
     /// <summary>
     /// Maps the JSON RPC API schema endpoint to the given route.
@@ -184,15 +198,7 @@ public static class DependencyExtensions
         return original;
     }
 
-    private static (bool?, List<string>?) GetJsonRpcAuthorizationInfo(MethodInfo method)
-    {
-        // 1. Get authorization attribute from the method
-        var attr = method.GetCustomAttribute<AuthorizeAttribute>();
-
-        // 2. Get authorization attribute from the controller
-        attr ??= method.DeclaringType?.GetCustomAttribute<AuthorizeAttribute>();
-
-        // 3. Get authorization information
-        return attr != null ? (true, attr.Roles?.Split(',').Select(r => r.Trim()).ToList()) : (null, null);
-    }
+    private static AuthorizeAttribute? GetJsonRpcAuthorizationData(MethodInfo method) =>
+        method.GetCustomAttribute<AuthorizeAttribute>()
+        ?? method.DeclaringType?.GetCustomAttribute<AuthorizeAttribute>();
 }

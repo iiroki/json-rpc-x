@@ -256,7 +256,7 @@ public class JsonRpcProcessorTests
         private readonly ICollection<Exception> _invocations = invocations;
         private readonly Func<Exception, JsonRpcError?> _errorFn = errorFn;
 
-        public Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default)
+        public Task<JsonRpcError?> HandleAsync(JsonRpcContext ctx, Exception ex, CancellationToken ct = default)
         {
             _invocations.Add(ex);
             return Task.FromResult(_errorFn(ex));

@@ -2,8 +2,8 @@ using System.Collections.Immutable;
 
 namespace JsonRpcX.Methods;
 
-internal class JsonRpcMethodContainer(JsonRpcMethodBuilder container) : IJsonRpcMethodContainer
+internal class JsonRpcMethodContainer(IEnumerable<JsonRpcMethodBuilder> containers) : IJsonRpcMethodContainer
 {
     public ImmutableDictionary<string, JsonRpcMethodInfo> Methods { get; } =
-        container.Methods.ToImmutableDictionary(m => m.Name, m => m);
+        containers.SelectMany(c => c.Methods).ToImmutableDictionary(m => m.Name, m => m);
 }
