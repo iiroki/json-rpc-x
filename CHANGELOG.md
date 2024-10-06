@@ -1,10 +1,8 @@
 # Changelog
 
-## [0.2.0] - 2024-MM-DD
+## [0.2.0] - 2024-10-06
 
-UNRELEASED
-
-### Added
+### Modified
 
 - Publish NuGet packages from all assemblies.
 
