@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <RootNamespace>JsonRpcX</RootNamespace>
     <PackageDescription>JSON RPC X - JSON-RPC 2.0 .NET Server</PackageDescription>
   </PropertyGroup>
