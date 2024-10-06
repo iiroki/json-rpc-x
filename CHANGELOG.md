@@ -8,6 +8,10 @@ UNRELEASED
 
 - JSON RPC method authorization.
 
+### Modified
+
+- JSON RPC rrror handler is now a singleton service.
+
 ## [0.2.0] - 2024-10-06
 
 ### Modified
