@@ -2,7 +2,7 @@ using JsonRpcX.Attributes;
 using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Models;
 
-namespace JsonRpcX.Api.Methods;
+namespace JsonRpcX.Api.Controllers;
 
 public class JsonRpcUserController(JsonRpcContext ctx, ILogger<JsonRpcUserController> logger) : IJsonRpcController
 {

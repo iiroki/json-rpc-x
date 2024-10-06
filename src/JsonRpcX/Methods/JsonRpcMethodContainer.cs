@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
-using System.Reflection;
 
 namespace JsonRpcX.Methods;
 
-internal class JsonRpcMethodContainer(IEnumerable<JsonRpcMethodMetadataBuilder> builders) : IJsonRpcMethodContainer
+internal class JsonRpcMethodContainer(JsonRpcMethodBuilder container) : IJsonRpcMethodContainer
 {
-    public ImmutableDictionary<string, MethodInfo> Methods { get; } =
-        builders.SelectMany(o => o.Methods).ToImmutableDictionary();
+    public ImmutableDictionary<string, JsonRpcMethodInfo> Methods { get; } =
+        container.Methods.ToImmutableDictionary(m => m.Name, m => m);
 }

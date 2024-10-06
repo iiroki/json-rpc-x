@@ -3,7 +3,7 @@ using JsonRpcX.Client;
 using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Models;
 
-namespace JsonRpcX.Api.Methods;
+namespace JsonRpcX.Api.Controllers;
 
 public class JsonRpcNotifyController(
     JsonRpcContext ctx,

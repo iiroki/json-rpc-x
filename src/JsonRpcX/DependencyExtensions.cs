@@ -12,6 +12,7 @@ using JsonRpcX.Middleware;
 using JsonRpcX.Options;
 using JsonRpcX.Requests;
 using JsonRpcX.Transport;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -51,7 +52,7 @@ public static class DependencyExtensions
             throw new ArgumentException($"\"{nameof(type)}\" is not valid \"{nameof(IJsonRpcController)}\" type");
         }
 
-        Dictionary<string, MethodInfo> methodMetadata = [];
+        List<JsonRpcMethodInfo> methods = [];
         foreach (var m in type.GetMethods())
         {
             var attr = (JsonRpcMethodAttribute?)
@@ -59,15 +60,23 @@ public static class DependencyExtensions
 
             if (attr != null)
             {
-                var name = GetJsonRpcMethodName(m, attr, opt);
-                services.AddJsonRpcMethod(name, type);
-                methodMetadata.Add(name, m);
-            }
+                var (isAuthorized, roles) = GetJsonRpcAuthorizationInfo(m);
+                var info = new JsonRpcMethodInfo
+                {
+                    Name = GetJsonRpcMethodName(m, attr, opt),
+                    Metadata = m,
+                    IsAuthorized = isAuthorized,
+                    Roles = roles,
+                };
 
-            if (methodMetadata.Count > 0)
-            {
-                services.AddSingleton(new JsonRpcMethodMetadataBuilder { Methods = methodMetadata });
+                methods.Add(info);
+                services.AddJsonRpcMethod(info.Name, type);
             }
+        }
+
+        if (methods.Count > 0)
+        {
+            services.AddSingleton(new JsonRpcMethodBuilder { Methods = methods });
         }
 
         return services;
@@ -173,5 +182,17 @@ public static class DependencyExtensions
 
         // 4. Fallback to the original method name
         return original;
+    }
+
+    private static (bool?, List<string>?) GetJsonRpcAuthorizationInfo(MethodInfo method)
+    {
+        // 1. Get authorization attribute from the method
+        var attr = method.GetCustomAttribute<AuthorizeAttribute>();
+
+        // 2. Get authorization attribute from the controller
+        attr ??= method.DeclaringType?.GetCustomAttribute<AuthorizeAttribute>();
+
+        // 3. Get authorization information
+        return attr != null ? (true, attr.Roles?.Split(',').Select(r => r.Trim()).ToList()) : (null, null);
     }
 }

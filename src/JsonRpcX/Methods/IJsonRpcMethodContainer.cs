@@ -5,5 +5,5 @@ namespace JsonRpcX.Methods;
 
 internal interface IJsonRpcMethodContainer
 {
-    ImmutableDictionary<string, MethodInfo> Methods { get; }
+    ImmutableDictionary<string, JsonRpcMethodInfo> Methods { get; }
 }
