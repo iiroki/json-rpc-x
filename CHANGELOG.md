@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0] - 2024-MM-DD
+
+UNRELEASED
+
+### Added
+
+- JSON RPC method authorization.
+
 ## [0.2.0] - 2024-10-06
 
 ### Modified
