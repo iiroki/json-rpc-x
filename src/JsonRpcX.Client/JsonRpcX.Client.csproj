@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>JsonRpcX.Client</RootNamespace>
-    <PackageDescription>JSON-RPC 2.0 .NET - Client</PackageDescription>
+    <PackageDescription>JSON RPC X - Client</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace JsonRpcX.Core.Methods;
+namespace JsonRpcX.Methods;
 
 /// <summary>
 /// Internal options for initializing JSON RPC functionality.

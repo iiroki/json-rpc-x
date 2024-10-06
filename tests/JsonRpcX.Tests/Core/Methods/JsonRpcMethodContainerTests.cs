@@ -1,5 +1,5 @@
 using System.Reflection;
-using JsonRpcX.Core.Methods;
+using JsonRpcX.Methods;
 
 namespace JsonRpcX.Tests.Core.Methods;
 

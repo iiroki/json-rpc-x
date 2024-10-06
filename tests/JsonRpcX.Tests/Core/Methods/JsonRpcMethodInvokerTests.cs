@@ -1,9 +1,9 @@
 using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Controllers;
-using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Helpers.Constants;
+using JsonRpcX.Methods;
 
 namespace JsonRpcX.Tests.Core.Methods;
 

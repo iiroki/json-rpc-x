@@ -1,7 +1,6 @@
 using System.Net;
-using JsonRpcX.Domain.Core;
+using JsonRpcX.Domain;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Transport.Constants;
 using JsonRpcX.Transport.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +28,7 @@ internal class JsonRpcHttpHandler
 
             // Initialize services
             var processor = httpCtx.RequestServices.GetRequiredService<IJsonRpcProcessor<byte[], JsonRpcResponse>>();
-            var serializer = httpCtx.RequestServices.GetRequiredService<IJsonRpcResponseSerializer<byte[]>>();
+            var serializer = httpCtx.RequestServices.GetRequiredService<IJsonRpcOutSerializer<byte[]>>();
             var ctx = new JsonRpcContext { Transport = JsonRpcTransportType.Http, User = httpCtx.User };
 
             // Process the request

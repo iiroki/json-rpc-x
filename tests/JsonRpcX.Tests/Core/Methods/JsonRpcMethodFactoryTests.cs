@@ -3,8 +3,8 @@ using System.Reflection;
 using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Controllers;
-using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Exceptions;
+using JsonRpcX.Methods;
 using JsonRpcX.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,13 +1,13 @@
 using System.Text.Json;
-using JsonRpcX.Core.Methods;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Extensions;
+using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
 using Microsoft.Extensions.Logging;
 
-namespace JsonRpcX.Core.Requests;
+namespace JsonRpcX.Requests;
 
 internal class JsonRpcRequestHandler(
     IJsonRpcMethodFactory factory,

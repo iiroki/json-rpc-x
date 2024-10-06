@@ -16,6 +16,6 @@ public interface IJsonRpcClientContainer
     /// </summary>
     IEnumerable<IJsonRpcClient> Except(string? id);
 
-    /// <inheritdoc cref="Except"/>
+    /// <inheritdoc cref="Except(string)"/>
     IEnumerable<IJsonRpcClient> Except(JsonRpcContext ctx);
 }
