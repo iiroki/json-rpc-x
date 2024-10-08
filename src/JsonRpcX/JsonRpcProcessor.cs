@@ -66,8 +66,8 @@ internal class JsonRpcProcessor<TIn, TOut>(
         }
         catch (Exception ex)
         {
-            // 0. Do not send responses for notification
-            if (ctx.Request != null && ctx.Request.IsNotification)
+            // 0. Do not send responses for notification or cancelled requests
+            if (ct.IsCancellationRequested || (ctx.Request != null && ctx.Request.IsNotification))
             {
                 return default;
             }

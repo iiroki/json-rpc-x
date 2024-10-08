@@ -26,6 +26,7 @@ internal class JsonRpcWebSocketProcessor(
     public async Task AttachAsync(WebSocket ws, HttpContext ctx)
     {
         var ct = ctx.RequestAborted;
+        ct.Register(() => _logger.LogInformation("WebSocket request cancelled - Status: {S}", ws.CloseStatus));
 
         var id = Guid.NewGuid().ToString();
         _clientManager.Add(new JsonRpcWebSocketClient(id, _requestAwaiter, ws, ctx.User, _jsonOpt));
@@ -62,7 +63,6 @@ internal class JsonRpcWebSocketProcessor(
         {
             if (ws.CloseStatus.HasValue)
             {
-                _logger.LogWarning("WebSocket was closed before sending response - Status: {S}", ws.CloseStatus);
                 return;
             }
 

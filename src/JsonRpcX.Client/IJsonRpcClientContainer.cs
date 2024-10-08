@@ -2,10 +2,13 @@ using JsonRpcX.Domain.Models;
 
 namespace JsonRpcX.Client;
 
+/// <summary>
+/// Container for JSON RPC clients that are connected to the server.
+/// </summary>
 public interface IJsonRpcClientContainer
 {
     /// <summary>
-    /// All JSON RPC clients
+    /// All JSON RPC clients.
     /// </summary>
     IEnumerable<IJsonRpcClient> Clients { get; }
 

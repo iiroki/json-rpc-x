@@ -3,8 +3,9 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-const id = crypto.randomUUID()
+const clientId = crypto.randomUUID()
 const ws = new WebSocket('ws://localhost:5245/json-rpc/ws')
+console.log('WebSocket - Client ID:', clientId)
 
 ws.addEventListener('open', () => {
   console.log('WebSocket - Open')
@@ -13,29 +14,8 @@ ws.addEventListener('open', () => {
 ws.addEventListener('close', () => console.log('WebSocket - Close'))
 
 ws.addEventListener('message', msg => {
-  console.log('WebSocket - Received:', msg.data)
   const data = JSON.parse(msg.data)
-
-  if (data.method === 'server2client' && data.id) {
-    const response = {
-      jsonrpc: '2.0',
-      id: data.id,
-      result: { responseFromClient: true }
-    }
-
-    ws.send(JSON.stringify(response))
-    console.log('WebSocket - Response:', response)
-  }
-
-  if (data.method === 'init') {
-    const request = {
-      jsonrpc: '2.0',
-      method: 'getUsers',
-      id: crypto.randomUUID()
-    }
-  
-    ws.send(JSON.stringify(request))
-  }
+  console.log('WebSocket - Received:', data, '->', data.params)
 })
 
 setInterval(() => {
@@ -43,24 +23,27 @@ setInterval(() => {
     const request = {
       jsonrpc: '2.0',
       method: 'notifyOthers',
-      params: ['client2client', `Hello from: ${id}`]
+      params: [`Hello, this method is from ${clientId}!`]
     }
 
     ws.send(JSON.stringify(request))
+    console.log('WebSocket - Sent:', request)
   }
-}, 10000)
+}, 30000)
 
 setInterval(() => {
   if (ws.readyState == ws.OPEN) {
     const request = {
       jsonrpc: '2.0',
-      method: 'middleware',
-      id: crypto.randomUUID()
+      id: crypto.randomUUID(),
+      method: 'hello',
+      params: [clientId]
     }
-  
+
     ws.send(JSON.stringify(request))
+    console.log('WebSocket - Sent:', request)
   }
-}, 30000)
+}, 10000)
 
 setInterval(() => {
   if (ws.readyState == ws.OPEN) {
@@ -70,6 +53,7 @@ setInterval(() => {
     }
   
     ws.send(JSON.stringify(request))
+    console.log('WebSocket - Sent:', request)
   }
 }, 60000)
 
