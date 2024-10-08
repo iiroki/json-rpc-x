@@ -11,13 +11,13 @@ internal class JsonRpcWebSocketClient(
     IJsonRpcRequestAwaiter requestAwaiter,
     WebSocket ws,
     ClaimsPrincipal? user,
-    JsonSerializerOptions jsonOpt
+    JsonSerializerOptions? jsonOpt = null
 ) : IJsonRpcClient
 {
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
     private readonly WebSocket _ws = ws;
     private readonly ClaimsPrincipal _user = user ?? new ClaimsPrincipal();
-    private readonly JsonSerializerOptions _jsonOpt = jsonOpt;
+    private readonly JsonSerializerOptions? _jsonOpt = jsonOpt;
 
     public string Id { get; } = id;
 

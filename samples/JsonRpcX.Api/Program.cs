@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder
     .Services.AddSingleton(jsonOptions)
+    .AddScoped<IGreeterService, GreeterService>() // <- Notice that the service is scoped!
     .AddHostedService<JsonRpcStatusWorker>()
     .AddAuthentication()
     .AddScheme<AuthenticationSchemeOptions, ExampleAuthenticationHandler>(
