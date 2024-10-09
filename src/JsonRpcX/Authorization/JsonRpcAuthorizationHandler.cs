@@ -1,31 +1,66 @@
+using System.Collections.Immutable;
 using JsonRpcX.Domain.Models;
-using JsonRpcX.Extensions;
+using JsonRpcX.Exceptions;
+using JsonRpcX.Methods;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace JsonRpcX.Authorization;
 
 internal class JsonRpcAuthorizationHandler : IJsonRpcAuthorizationHandler
 {
-    public Task HandleAsync(JsonRpcContext ctx, IAuthorizeData data, CancellationToken ct = default)
-    {
-        if (ctx.User.Identity == null || !ctx.User.Identity.IsAuthenticated)
-        {
-            throw new NotImplementedException("TODO: Authorization identity error");
-        }
+    private readonly IAuthorizationService _authorization;
+    private readonly ImmutableDictionary<string, List<IAuthorizationRequirement>> _requirements;
 
-        if (data.HasRoles())
+    public JsonRpcAuthorizationHandler(IAuthorizationService authorization, IJsonRpcMethodContainer methodContainer)
+    {
+        _authorization = authorization;
+
+        // Store requirements for JSON RPC methods
+        Dictionary<string, List<IAuthorizationRequirement>> requirements = [];
+        foreach (var info in methodContainer.Methods.Values)
         {
-            foreach (var r in data.GetRoles())
+            List<IAuthorizationRequirement> methodRequirements = [];
+
+            if (!string.IsNullOrWhiteSpace(info.Authorization?.Roles))
             {
-                if (ctx.User.IsInRole(r))
-                {
-                    return Task.CompletedTask;
-                }
+                var roles = info.Authorization.Roles.Split(',').Select(r => r.Trim());
+                methodRequirements.Add(new RolesAuthorizationRequirement(roles));
             }
 
-            throw new NotImplementedException("TODO: Authorization role error");
+            if (methodRequirements.Count == 0 && info.Authorization != null)
+            {
+                methodRequirements.Add(new DenyAnonymousAuthorizationRequirement());
+            }
+
+            if (methodRequirements.Count > 0)
+            {
+                requirements.Add(info.Name, methodRequirements);
+            }
         }
 
-        return Task.CompletedTask;
+        _requirements = requirements.ToImmutableDictionary();
+    }
+
+    public async Task HandleAsync(JsonRpcContext ctx, CancellationToken _ = default)
+    {
+        if (ctx.Request == null)
+        {
+            throw new InvalidOperationException(
+                $"Authorization handler should not be invoked when '{nameof(ctx.Request)}' == null"
+            );
+        }
+
+        var method = ctx.Request.Method;
+        if (!_requirements.TryGetValue(method, out var requirements))
+        {
+            return; // No authorization requirements
+        }
+
+        var res = await _authorization.AuthorizeAsync(ctx.User, null, requirements);
+        if (res.Failure != null)
+        {
+            throw new JsonRpcAuthorizationExpection(res.Failure);
+        }
     }
 }

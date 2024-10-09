@@ -13,7 +13,7 @@ public class JsonRpcAuthorizedController(JsonRpcContext ctx, ILogger<JsonRpcAuth
     private readonly ILogger _logger = logger;
 
     [JsonRpcMethod]
-    public void Save(IEnumerable<object> items, CancellationToken ct = default)
+    public void Authorized(IEnumerable<object> items, CancellationToken ct = default)
     {
         var user = _ctx.User;
         _logger.LogInformation("Items: {I}", items);

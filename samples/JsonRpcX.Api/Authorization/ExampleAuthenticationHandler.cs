@@ -10,18 +10,12 @@ namespace JsonRpcX.Api.Authorization;
 /// <br />
 /// Example: name / role1, role2
 /// </summary>
-public class ExampleAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class ExampleAuthenticationHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder
+) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public ExampleAuthenticationHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder
-    )
-        : base(options, logger, encoder)
-    {
-        // NOP
-    }
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         const string scheme = nameof(ExampleAuthenticationHandler);

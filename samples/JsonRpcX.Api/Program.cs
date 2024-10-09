@@ -21,10 +21,15 @@ var jsonRpcOptions = new JsonRpcMethodOptions { NamingPolicy = JsonNamingPolicy.
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Services:
 builder
     .Services.AddSingleton(jsonOptions)
     .AddScoped<IGreeterService, GreeterService>() // <- Notice that the service is scoped!
-    .AddHostedService<JsonRpcStatusWorker>()
+    .AddHostedService<JsonRpcStatusWorker>();
+
+// Authorization:
+builder
+    .Services.AddAuthorization()
     .AddAuthentication()
     .AddScheme<AuthenticationSchemeOptions, ExampleAuthenticationHandler>(
         nameof(ExampleAuthenticationHandler),
@@ -44,6 +49,7 @@ builder
 //
 
 var app = builder.Build();
+app.UseAuthorization();
 app.UseWebSockets();
 
 app.MapJsonRpcSchema("/json-rpc");

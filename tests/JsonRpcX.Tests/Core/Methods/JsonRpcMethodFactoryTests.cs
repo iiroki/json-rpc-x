@@ -123,5 +123,7 @@ public class JsonRpcMethodFactoryTests
                 p => p.Item1,
                 p => new JsonRpcMethodInfo { Name = p.Item1, Metadata = p.Item2 }
             );
+
+        public JsonRpcMethodInfo Get(string method) => throw new NotImplementedException();
     }
 }
