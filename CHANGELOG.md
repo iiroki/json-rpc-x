@@ -8,6 +8,7 @@
 
 ### Modified
 
+- Simplified JSON RPC Response model.
 - Simplified the main project structure.
 
 ## [0.2.0] - 2024-10-06
