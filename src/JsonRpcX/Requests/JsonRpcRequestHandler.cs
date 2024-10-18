@@ -40,7 +40,7 @@ internal class JsonRpcRequestHandler(
             }
 
             var invoker = _factory.Create(request.Method);
-            await _authorization.HandleAsync(ctx, ct);
+            await _authorization.HandleAsync(ctx, ct); // Should throw if authorization fails
 
             var hasInvalidParams =
                 request.Params.HasValue

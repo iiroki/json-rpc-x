@@ -61,6 +61,8 @@ internal class JsonRpcAuthorizationHandler : IJsonRpcAuthorizationHandler
         }
 
         var results = await Task.WhenAll(tasks);
+
+        // Return the first failure
         var failure = results.Select(r => r.Failure).FirstOrDefault(f => f != null);
         if (failure != null)
         {

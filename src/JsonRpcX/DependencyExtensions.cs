@@ -3,7 +3,6 @@ using JsonRpcX.Authorization;
 using JsonRpcX.Client;
 using JsonRpcX.Context;
 using JsonRpcX.Controllers;
-using JsonRpcX.Core.Schema;
 using JsonRpcX.Domain;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
@@ -147,15 +146,6 @@ public static class DependencyExtensions
     /// <inheritdoc cref="SetJsonRpcAuthorizationHandler(IServiceCollection)" />
     public static IServiceCollection SetJsonRpcAuthorizationHandler(this IServiceCollection services, Type type) =>
         services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcAuthorizationHandler), type));
-
-    /// <summary>
-    /// Maps the JSON RPC API schema endpoint to the given route.
-    /// </summary>
-    public static WebApplication MapJsonRpcSchema(this WebApplication app, string route)
-    {
-        app.MapGet(route, new JsonRpcSchemaEndpointFactory().Create());
-        return app;
-    }
 
     private static bool IsValidJsonRpcControllerType(Type type) =>
         typeof(IJsonRpcController).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;
