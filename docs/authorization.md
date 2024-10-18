@@ -32,7 +32,7 @@ public class JsonRpcExampleController : IJsonRpcController
 _JSON RPC X_ does not handle the JSON RPC method authorization exceptions in any way since
 there's no standard way defined for that in the JSON-RPC 2.0 specification.
 If JSON RPC method authorization is used, a custom exception handler should also be implemented that returns
-proper error codes depending on the context.
+proper error codes when an authorization error happens.
 
 **NOTES:**
 - JSON RPC pipeline uses `IJsonRpcAuthorizationHandler` to perform the authorization checks.
