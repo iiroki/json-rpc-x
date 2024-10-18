@@ -3,7 +3,6 @@ using System.Text.Json;
 using JsonRpcX.Attributes;
 using JsonRpcX.Client;
 using JsonRpcX.Controllers;
-using JsonRpcX.Core;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Models;
 using JsonRpcX.Exceptions;
