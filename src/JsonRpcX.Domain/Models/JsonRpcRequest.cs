@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JsonRpcX.Domain.Constants;
 
 namespace JsonRpcX.Domain.Models;
 
@@ -8,7 +9,19 @@ namespace JsonRpcX.Domain.Models;
 /// </summary>
 public class JsonRpcRequest : JsonRpcBase
 {
+    public JsonRpcRequest()
+    {
+        JsonRpc = JsonRpcConstants.Version;
+    }
+
+    [JsonConstructor]
+    public JsonRpcRequest(string jsonRpc)
+    {
+        JsonRpc = jsonRpc;
+    }
+
     [JsonPropertyName("method")]
+    [JsonPropertyOrder(3)]
     public required string Method { get; init; }
 
     /// <summary>
@@ -16,6 +29,7 @@ public class JsonRpcRequest : JsonRpcBase
     /// </summary>
     [JsonPropertyName("params")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyOrder(4)]
     public JsonElement? Params { get; init; }
 
     [JsonIgnore]

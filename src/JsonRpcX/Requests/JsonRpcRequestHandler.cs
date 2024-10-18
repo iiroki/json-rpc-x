@@ -34,7 +34,7 @@ internal class JsonRpcRequestHandler(
         {
             if (request.JsonRpc != JsonRpcConstants.Version)
             {
-                throw new JsonRpcException(
+                throw new JsonRpcInvalidRequestException(
                     $"JSON-RPC version must be \"{JsonRpcConstants.Version}\" (received \"{request.JsonRpc}\")"
                 );
             }
@@ -58,11 +58,11 @@ internal class JsonRpcRequestHandler(
             }
 
             var result = await invoker.InvokeAsync(request.Params, ct);
-            return new JsonRpcResponseSuccess
+            return new JsonRpcResponse
             {
                 Id = request.Id,
                 Result = JsonSerializer.SerializeToElement(result, _jsonOpt),
-            }.ToResponse();
+            };
         }
         catch (JsonException jsonEx)
         {

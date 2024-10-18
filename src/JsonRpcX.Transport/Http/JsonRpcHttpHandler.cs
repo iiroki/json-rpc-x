@@ -41,7 +41,7 @@ internal class JsonRpcHttpHandler
                 }
                 else
                 {
-                    httpCtx.Response.StatusCode = JsonRpcHttpHelper.GetStatus(response.Error.Error.Code);
+                    httpCtx.Response.StatusCode = JsonRpcHttpHelper.GetStatus(response.Error?.Code ?? 0);
                 }
 
                 var serialized = serializer.Serialize(response);

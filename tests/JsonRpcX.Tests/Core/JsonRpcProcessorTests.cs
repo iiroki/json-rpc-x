@@ -17,7 +17,8 @@ namespace JsonRpcX.Tests.Core;
 
 public class JsonRpcProcessorTests
 {
-    private readonly IServiceCollection _services = JsonRpcTestHelper.CreateTestServices([typeof(TestJsonRpcApi)]);
+    private readonly IServiceCollection _services =
+        JsonRpcTestHelper.CreateTestServices([typeof(TestJsonRpcApi)]).AddAuthorization();
 
     private IServiceProvider? _serviceProvider;
 
@@ -39,8 +40,8 @@ public class JsonRpcProcessorTests
         // Assert
         Assert.NotNull(res);
         Assert.True(res.IsSuccess);
-        Assert.Equal(req.Id, res.Success.Id);
-        Assert.Equal(JsonSerializer.SerializeToElement("Hello, World!").Stringify(), res.Success.Result.Stringify());
+        Assert.Equal(req.Id, res.Id);
+        Assert.Equal(JsonSerializer.SerializeToElement("Hello, World!").Stringify(), res.Result.Stringify());
     }
 
     [Fact]
@@ -76,7 +77,7 @@ public class JsonRpcProcessorTests
             ClientId = Guid.NewGuid().ToString(),
         };
 
-        var expected = new JsonRpcResponseSuccess
+        var expected = new JsonRpcResponse
         {
             Id = Guid.NewGuid().ToString(),
             Result = JsonSerializer.SerializeToElement(new { IsTestResponse = true, Value = 1.23 }),
@@ -84,14 +85,14 @@ public class JsonRpcProcessorTests
 
         // Act
         var task = requestAwaiter.WaitForResponseAsync(ctx.ClientId, expected.Id, TimeSpan.FromSeconds(10));
-        var output = await processor.ProcessAsync(JsonSerializer.SerializeToUtf8Bytes(expected.ToResponse()), ctx);
+        var output = await processor.ProcessAsync(JsonSerializer.SerializeToUtf8Bytes(expected), ctx);
         var actual = await task;
 
         // Assert
         Assert.Null(output);
         Assert.True(actual.IsSuccess);
         Assert.Equal(expected.Id, actual.Id);
-        Assert.Equal(expected.Result.Stringify(), actual.Success.Result.Stringify());
+        Assert.Equal(expected.Result.Stringify(), actual.Result.Stringify());
     }
 
     #endregion
@@ -116,7 +117,7 @@ public class JsonRpcProcessorTests
         Assert.NotNull(res);
         Assert.False(res.IsSuccess);
         Assert.Null(res.Id);
-        Assert.Equal((int)JsonRpcErrorCode.ParseError, res.Error.Error.Code);
+        Assert.Equal((int)JsonRpcErrorCode.ParseError, res.Error?.Code);
     }
 
     [Fact]
@@ -136,7 +137,7 @@ public class JsonRpcProcessorTests
         Assert.NotNull(res);
         Assert.False(res.IsSuccess);
         Assert.Null(res.Id);
-        Assert.Equal((int)JsonRpcErrorCode.InvalidRequest, res.Error.Error.Code);
+        Assert.Equal((int)JsonRpcErrorCode.InvalidRequest, res.Error?.Code);
     }
 
     [Theory]
@@ -163,7 +164,7 @@ public class JsonRpcProcessorTests
             Assert.NotNull(res);
             Assert.False(res.IsSuccess);
             Assert.Equal(req.Id, res.Id);
-            Assert.Equal((int)JsonRpcErrorCode.MethodNotFound, res.Error.Error.Code);
+            Assert.Equal((int)JsonRpcErrorCode.MethodNotFound, res.Error?.Code);
         }
     }
 
@@ -192,7 +193,7 @@ public class JsonRpcProcessorTests
         // Assert
         Assert.NotNull(res);
         Assert.False(res.IsSuccess);
-        Assert.Equal(error, res.Error.Error);
+        Assert.Equal(error, res.Error);
         Assert.Single(invocations);
     }
 
@@ -212,7 +213,7 @@ public class JsonRpcProcessorTests
         // Assert
         Assert.NotNull(res);
         Assert.False(res.IsSuccess);
-        Assert.Equal((int)JsonRpcErrorCode.InternalError, res.Error.Error.Code);
+        Assert.Equal((int)JsonRpcErrorCode.InternalError, res.Error?.Code);
     }
 
     #endregion

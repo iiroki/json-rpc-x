@@ -95,7 +95,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
                 }
             }
 
-            response = new JsonRpcResponseError { Id = ctx.Request?.Id, Error = error }.ToResponse();
+            response = new JsonRpcResponse { Id = ctx.Request?.Id, Error = error };
             return _serializer.Serialize(response);
         }
         finally
