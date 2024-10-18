@@ -375,7 +375,7 @@ public sealed class JsonRpcMethodInvokerTests
         var api = new TestJsonRpcApi();
         var method = api.GetType().GetMethod(name);
         return method != null
-            ? new JsonRpcMethodInvoker(api, method)
+            ? new JsonRpcMethodInvoker(api, new JsonRpcMethodInfo { Name = name, Metadata = method })
             : throw new ArgumentException($"Method to test not found: {name}");
     }
 

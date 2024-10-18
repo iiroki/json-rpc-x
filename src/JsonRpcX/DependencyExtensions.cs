@@ -1,15 +1,13 @@
-using System.Reflection;
 using JsonRpcX.Attributes;
+using JsonRpcX.Authorization;
 using JsonRpcX.Client;
 using JsonRpcX.Context;
 using JsonRpcX.Controllers;
-using JsonRpcX.Core.Schema;
 using JsonRpcX.Domain;
 using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
-using JsonRpcX.Options;
 using JsonRpcX.Requests;
 using JsonRpcX.Transport;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +32,7 @@ public static class DependencyExtensions
             // Global services:
             .AddJsonRpcClient()
             .AddJsonRpcSerializerDefaults()
+            .SetJsonRpcAuthorizationHandler<JsonRpcAuthorizationHandler>()
             .AddSingleton(typeof(IJsonRpcProcessor<,>), typeof(JsonRpcProcessor<,>))
             .AddSingleton<IJsonRpcMethodContainer, JsonRpcMethodContainer>();
 
@@ -51,7 +50,7 @@ public static class DependencyExtensions
             throw new ArgumentException($"\"{nameof(type)}\" is not valid \"{nameof(IJsonRpcController)}\" type");
         }
 
-        Dictionary<string, MethodInfo> methodMetadata = [];
+        List<JsonRpcMethodInfo> methods = [];
         foreach (var m in type.GetMethods())
         {
             var attr = (JsonRpcMethodAttribute?)
@@ -59,15 +58,24 @@ public static class DependencyExtensions
 
             if (attr != null)
             {
-                var name = GetJsonRpcMethodName(m, attr, opt);
-                services.AddJsonRpcMethod(name, type);
-                methodMetadata.Add(name, m);
-            }
+                var auth = opt?.AuthorizationResolver?.Invoke(m) ?? JsonRpcAuthorizationResolver.GetAuthorization(m);
+                var info = new JsonRpcMethodInfo
+                {
+                    Name =
+                        opt?.NameResolver?.Invoke(m, attr)
+                        ?? JsonRpcMethodNameResolver.GetName(m, attr, opt?.NamingPolicy),
+                    Metadata = m,
+                    Authorization = auth,
+                };
 
-            if (methodMetadata.Count > 0)
-            {
-                services.AddSingleton(new JsonRpcMethodMetadataBuilder { Methods = methodMetadata });
+                methods.Add(info);
+                services.AddJsonRpcMethod(info.Name, type);
             }
+        }
+
+        if (methods.Count > 0)
+        {
+            services.AddSingleton(new JsonRpcMethodBuilder { Methods = methods });
         }
 
         return services;
@@ -114,7 +122,7 @@ public static class DependencyExtensions
         where T : IJsonRpcMiddleware => services.AddJsonRpcMiddleware(typeof(T));
 
     /// <summary>
-    /// Set the <c>IJsonRpcExceptionHandler</c> implementation to the services.<br />
+    /// Set the <c>IJsonRpcExceptionHandler</c> implementation used for error handling.<br />
     /// <br/>
     /// NOTE:<br/>
     /// Using this method REPLACES the exception handler, since there can only be one!
@@ -127,51 +135,18 @@ public static class DependencyExtensions
         services.Replace(ServiceDescriptor.Scoped(typeof(IJsonRpcExceptionHandler), type));
 
     /// <summary>
-    /// Maps the JSON RPC API schema endpoint to the given route.
+    /// Set the <c>IJsonRpcAuthorizationHandler</c> implementation for authorization.<br />
+    /// <br/>
+    /// NOTE:<br/>
+    /// Using this method REPLACES the authorization handler, since there can only be one!
     /// </summary>
-    public static WebApplication MapJsonRpcSchema(this WebApplication app, string route)
-    {
-        app.MapGet(route, new JsonRpcSchemaEndpointFactory().Create());
-        return app;
-    }
+    public static IServiceCollection SetJsonRpcAuthorizationHandler<T>(this IServiceCollection services)
+        where T : IJsonRpcAuthorizationHandler => services.SetJsonRpcAuthorizationHandler(typeof(T));
+
+    /// <inheritdoc cref="SetJsonRpcAuthorizationHandler(IServiceCollection)" />
+    public static IServiceCollection SetJsonRpcAuthorizationHandler(this IServiceCollection services, Type type) =>
+        services.Replace(ServiceDescriptor.Singleton(typeof(IJsonRpcAuthorizationHandler), type));
 
     private static bool IsValidJsonRpcControllerType(Type type) =>
         typeof(IJsonRpcController).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;
-
-    private static string GetJsonRpcMethodName(
-        MethodInfo method,
-        JsonRpcMethodAttribute attr,
-        JsonRpcMethodOptions? opt = null
-    )
-    {
-        var original = method.Name;
-
-        // Drop the async suffix from the method name, if one exists.
-        const string asyncSuffix = "Async";
-        if (original.EndsWith(asyncSuffix, StringComparison.OrdinalIgnoreCase))
-        {
-            original = original.Substring(0, original.Length - asyncSuffix.Length);
-        }
-
-        // 1. Name from the attribute
-        if (!string.IsNullOrEmpty(attr.Name))
-        {
-            return attr.Name;
-        }
-
-        // 2. Name from the transformer
-        if (opt?.NameTransformer != null)
-        {
-            return opt.NameTransformer(original);
-        }
-
-        // 3. Name with the naming policy
-        if (opt?.NamingPolicy != null)
-        {
-            return opt.NamingPolicy.ConvertName(original);
-        }
-
-        // 4. Fallback to the original method name
-        return original;
-    }
 }

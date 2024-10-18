@@ -1,10 +1,13 @@
 using System.Collections.Immutable;
-using System.Reflection;
+using JsonRpcX.Domain.Exceptions;
 
 namespace JsonRpcX.Methods;
 
-internal class JsonRpcMethodContainer(IEnumerable<JsonRpcMethodMetadataBuilder> builders) : IJsonRpcMethodContainer
+internal class JsonRpcMethodContainer(IEnumerable<JsonRpcMethodBuilder> containers) : IJsonRpcMethodContainer
 {
-    public ImmutableDictionary<string, MethodInfo> Methods { get; } =
-        builders.SelectMany(o => o.Methods).ToImmutableDictionary();
+    public ImmutableDictionary<string, JsonRpcMethodInfo> Methods { get; } =
+        containers.SelectMany(c => c.Methods).ToImmutableDictionary(m => m.Name, m => m);
+
+    public JsonRpcMethodInfo Get(string method) =>
+        Methods.TryGetValue(method, out var m) ? m : throw new JsonRpcMethodNotFoundException(method);
 }

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0] - 2024-10-18
+
+### Added
+
+- JSON RPC method authorization.
+
+### Modified
+
+- Simplified JSON RPC Response model.
+- Simplified the main project structure.
+
 ## [0.2.0] - 2024-10-06
 
 ### Modified

@@ -66,8 +66,8 @@ internal class JsonRpcProcessor<TIn, TOut>(
         }
         catch (Exception ex)
         {
-            // 0. Do not send responses for notification
-            if (ctx.Request != null && ctx.Request.IsNotification)
+            // 0. Do not send responses for notification or cancelled requests
+            if (ct.IsCancellationRequested || (ctx.Request != null && ctx.Request.IsNotification))
             {
                 return default;
             }
@@ -78,7 +78,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
             var exceptionHandler = scope.ServiceProvider.GetService<IJsonRpcExceptionHandler>();
             if (exceptionHandler != null)
             {
-                error = await exceptionHandler.HandleAsync(ex, ct);
+                error = await exceptionHandler.HandleAsync(ctx, ex, ct);
             }
 
             // 2. If the error is still not defined, create a default error response.
@@ -95,7 +95,7 @@ internal class JsonRpcProcessor<TIn, TOut>(
                 }
             }
 
-            response = new JsonRpcResponseError { Id = ctx.Request?.Id, Error = error }.ToResponse();
+            response = new JsonRpcResponse { Id = ctx.Request?.Id, Error = error };
             return _serializer.Serialize(response);
         }
         finally

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using JsonRpcX.Authorization;
 using JsonRpcX.Domain.Constants;
 using JsonRpcX.Domain.Exceptions;
 using JsonRpcX.Domain.Models;
@@ -11,12 +12,14 @@ namespace JsonRpcX.Requests;
 
 internal class JsonRpcRequestHandler(
     IJsonRpcMethodFactory factory,
+    IJsonRpcAuthorizationHandler authorization,
     IEnumerable<IJsonRpcMiddleware> middleware,
     ILogger<JsonRpcRequestHandler> logger,
     JsonSerializerOptions? jsonOpt = null
 ) : IJsonRpcRequestHandler
 {
     private readonly IJsonRpcMethodFactory _factory = factory;
+    private readonly IJsonRpcAuthorizationHandler _authorization = authorization;
     private readonly List<IJsonRpcMiddleware> _middleware = middleware.ToList();
     private readonly ILogger _logger = logger;
     private readonly JsonSerializerOptions? _jsonOpt = jsonOpt;
@@ -31,12 +34,13 @@ internal class JsonRpcRequestHandler(
         {
             if (request.JsonRpc != JsonRpcConstants.Version)
             {
-                throw new JsonRpcException(
+                throw new JsonRpcInvalidRequestException(
                     $"JSON-RPC version must be \"{JsonRpcConstants.Version}\" (received \"{request.JsonRpc}\")"
                 );
             }
 
             var invoker = _factory.Create(request.Method);
+            await _authorization.HandleAsync(ctx, ct); // Should throw if authorization fails
 
             var hasInvalidParams =
                 request.Params.HasValue
@@ -54,11 +58,11 @@ internal class JsonRpcRequestHandler(
             }
 
             var result = await invoker.InvokeAsync(request.Params, ct);
-            return new JsonRpcResponseSuccess
+            return new JsonRpcResponse
             {
                 Id = request.Id,
                 Result = JsonSerializer.SerializeToElement(result, _jsonOpt),
-            }.ToResponse();
+            };
         }
         catch (JsonException jsonEx)
         {

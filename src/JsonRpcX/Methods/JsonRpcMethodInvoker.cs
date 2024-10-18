@@ -10,13 +10,13 @@ namespace JsonRpcX.Methods;
 
 internal class JsonRpcMethodInvoker(
     IJsonRpcController controller,
-    MethodInfo method,
+    JsonRpcMethodInfo method,
     JsonSerializerOptions? jsonOptions = null
 ) : IJsonRpcMethodInvoker
 {
     public IJsonRpcController Controller { get; } = controller;
 
-    public MethodInfo Method { get; } = method;
+    public JsonRpcMethodInfo Method { get; } = method;
 
     private readonly JsonSerializerOptions? _jsonOptions = jsonOptions;
 
@@ -44,7 +44,7 @@ internal class JsonRpcMethodInvoker(
     {
         try
         {
-            return Method.Invoke(Controller, @params);
+            return Method.Metadata.Invoke(Controller, @params);
         }
         catch (TargetInvocationException ex)
         {
@@ -54,7 +54,7 @@ internal class JsonRpcMethodInvoker(
 
     private object?[]? GetParameters(JsonElement? json, CancellationToken ct)
     {
-        var methodParams = Method.GetParameters();
+        var methodParams = Method.Metadata.GetParameters();
 
         // Exlude the cancellation token so the actual parameters are easier to handle
         var hasCt = methodParams.LastOrDefault()?.ParameterType == typeof(CancellationToken);

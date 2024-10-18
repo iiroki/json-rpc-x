@@ -4,6 +4,7 @@ using JsonRpcX.Client;
 using JsonRpcX.Domain;
 using JsonRpcX.Domain.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace JsonRpcX.Transport.WebSockets;
@@ -12,40 +13,52 @@ internal class JsonRpcWebSocketProcessor(
     IJsonRpcProcessor<byte[], byte[]> messageProcessor,
     IJsonRpcRequestAwaiter requestAwaiter,
     IJsonRpcClientManager clientManager,
-    JsonSerializerOptions jsonOpt,
-    ILogger<JsonRpcWebSocketProcessor> logger
+    IHostApplicationLifetime lifeTime,
+    JsonSerializerOptions? jsonOpt = null
 ) : IJsonRpcWebSocketProcessor
 {
     private readonly IJsonRpcProcessor<byte[], byte[]> _messageProcessor = messageProcessor;
     private readonly IJsonRpcRequestAwaiter _requestAwaiter = requestAwaiter;
     private readonly IJsonRpcClientManager _clientManager = clientManager;
-
-    private readonly JsonSerializerOptions _jsonOpt = jsonOpt;
-    private readonly ILogger _logger = logger;
+    private readonly IHostApplicationLifetime _lifetime = lifeTime;
+    private readonly JsonSerializerOptions? _jsonOpt = jsonOpt;
 
     public async Task AttachAsync(WebSocket ws, HttpContext ctx)
     {
-        var ct = ctx.RequestAborted;
+        using var ctSource = CancellationTokenSource.CreateLinkedTokenSource(
+            _lifetime.ApplicationStopping,
+            ctx.RequestAborted
+        );
+
+        var ct = ctSource.Token;
 
         var id = Guid.NewGuid().ToString();
         _clientManager.Add(new JsonRpcWebSocketClient(id, _requestAwaiter, ws, ctx.User, _jsonOpt));
 
-        var buffer = new byte[1024 * 4];
-        WebSocketReceiveResult? result = null;
-        while (result == null || !result.CloseStatus.HasValue)
+        try
         {
-            result = await ws.ReceiveAsync(buffer, ct);
-            if (!result.EndOfMessage)
+            var buffer = new byte[1024 * 4];
+            WebSocketReceiveResult? result = null;
+            while (result == null || !result.CloseStatus.HasValue)
             {
-                throw new WebSocketException("TODO: Unhandled \"end of message\" = false");
+                result = await ws.ReceiveAsync(buffer, ct);
+                if (!result.EndOfMessage)
+                {
+                    throw new WebSocketException("TODO: Unhandled \"end of message\" = false");
+                }
+
+                // Process the messages in a non-blocking manner
+                _ = HandleAsync(id, ws, buffer[..result.Count], ctx, ct);
             }
 
-            // Process the messages in a non-blocking manner
-            _ = HandleAsync(id, ws, buffer[..result.Count], ctx, ct);
+            await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            // NOP
         }
 
         _clientManager.Remove(id);
-        await ws.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, ct);
     }
 
     private async Task HandleAsync(string clientId, WebSocket ws, byte[] buffer, HttpContext http, CancellationToken ct)
@@ -62,7 +75,6 @@ internal class JsonRpcWebSocketProcessor(
         {
             if (ws.CloseStatus.HasValue)
             {
-                _logger.LogWarning("WebSocket was closed before sending response - Status: {S}", ws.CloseStatus);
                 return;
             }
 

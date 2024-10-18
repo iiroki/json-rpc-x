@@ -14,7 +14,7 @@ public class JsonRpcRequestAwaiterTests
         // Arrange
         var clientId = Guid.NewGuid().ToString();
         var requestId = Guid.NewGuid().ToString();
-        var expected = new JsonRpcResponseSuccess { Id = requestId }.ToResponse();
+        var expected = new JsonRpcResponse { Id = requestId };
 
         // Act
         var task = _awaiter.WaitForResponseAsync(clientId, requestId);
@@ -46,7 +46,7 @@ public class JsonRpcRequestAwaiterTests
     public void SetResponse_InvalidResponseId(string? responseId)
     {
         // Arrange
-        var response = new JsonRpcResponseSuccess { Id = responseId }.ToResponse();
+        var response = new JsonRpcResponse { Id = responseId };
 
         // Act
         _awaiter.SetResponse("", response);
@@ -57,7 +57,7 @@ public class JsonRpcRequestAwaiterTests
     {
         // Arrange
         var requestId = Guid.NewGuid().ToString();
-        var response = new JsonRpcResponseSuccess { Id = requestId }.ToResponse();
+        var response = new JsonRpcResponse { Id = requestId };
 
         // Act
         var task = _awaiter.WaitForResponseAsync(Guid.NewGuid().ToString(), requestId, TimeSpan.FromSeconds(1));

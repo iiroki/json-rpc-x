@@ -40,7 +40,7 @@ public class JsonRpcWebSocketTransportTests : JsonRpcTransportTestBase
         // Assert
         Assert.NotNull(res);
         Assert.True(res.IsSuccess);
-        Assert.Equal(req.Id, res.Success.Id);
+        Assert.Equal(req.Id, res.Id);
     }
 
     [Fact]

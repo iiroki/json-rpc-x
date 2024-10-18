@@ -118,7 +118,12 @@ public class JsonRpcMethodFactoryTests
     private class TestJsonRpcMethodContainer(IEnumerable<(string, MethodInfo)>? methods = null)
         : IJsonRpcMethodContainer
     {
-        public ImmutableDictionary<string, MethodInfo> Methods =>
-            (methods ?? []).ToImmutableDictionary(p => p.Item1, p => p.Item2);
+        public ImmutableDictionary<string, JsonRpcMethodInfo> Methods =>
+            (methods ?? []).ToImmutableDictionary(
+                p => p.Item1,
+                p => new JsonRpcMethodInfo { Name = p.Item1, Metadata = p.Item2 }
+            );
+
+        public JsonRpcMethodInfo Get(string method) => throw new NotImplementedException();
     }
 }

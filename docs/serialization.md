@@ -24,20 +24,20 @@ builder.Services.AddSingleton(
 ## Implement custom serialization
 
 When requesting `IJsonRpcProcessor<TIn, TOut>` from the DI container,
-the processor also requests `IJsonRpcParser<TIn>` and `IJsonRpcResponseSerializer<TOut>`.
+the processor also requests `IJsonRpcInSerializer<TIn>` and `IJsonRpcOutSerializer<TOut>`.
 
 By default, _JSON RPC X_ recognizes the following types:
 - `byte[]`
 - `string`
 - `JsonElement`
-- `JsonRpcRequest` (parser only) + `JsonRpcResponse`.
+- `JsonRpcRequest` (in) + `JsonRpcResponse`.
 
 If you request `IJsonRpcProcessor<TIn, TOut>` for types unknown to _JSON RPC X_,
 you have to implement and add serializers separately:
 
 ```cs
 // JsonRpcCustomParser.cs
-public class JsonRpcCustomParser: IJsonRpcParser<object>
+public class JsonRpcCustomParser: IJsonRpcInSerializer<object>
 {
     public (JsonRpcRequest?, JsonRpcResponse?) Parse(object chunk)
     {
@@ -47,6 +47,6 @@ public class JsonRpcCustomParser: IJsonRpcParser<object>
 
 // Program.cs
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<IJsonRpcParser<object>, JsonRpcCustomParser>();
+builder.Services.AddSingleton<IJsonRpcInSerializer<object>, JsonRpcCustomParser>();
 
 ```

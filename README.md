@@ -30,14 +30,12 @@ provide a flexible and easy-to-use developer experience.
   Default transport support for HTTP & WebSocket,
   but the server can be extended with own custom transports!
 
+- **Authorization:**  
+  Support authorizing JSON RPC methods using .NET's built-in authorization system with `[Authorize]` attribute.
+
 - **Truly bidirectional:**  
   Provides an easy way to access clients from transport connections
   with two-way communication capabilities.
-
-### TODO
-
-- Authorization
-- Performance testing
 
 ## Installation
 

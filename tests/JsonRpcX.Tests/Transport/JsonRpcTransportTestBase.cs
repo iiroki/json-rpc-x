@@ -44,6 +44,7 @@ public abstract class JsonRpcTransportTestBase : IDisposable
 
         builder
             .Services.AddSingleton(JsonOpt)
+            .AddAuthorization()
             .AddJsonRpc()
             .AddJsonRpcWebSocket()
             .AddJsonRpcController<TestJsonRpcApi>();

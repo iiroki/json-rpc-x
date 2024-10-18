@@ -1,9 +1,11 @@
 using System.Text.Json;
 using JsonRpcX;
+using JsonRpcX.Api.Authorization;
 using JsonRpcX.Api.Middleware;
 using JsonRpcX.Api.Services;
-using JsonRpcX.Options;
+using JsonRpcX.Methods;
 using JsonRpcX.Transport;
+using Microsoft.AspNetCore.Authentication;
 
 var jsonOptions = new JsonSerializerOptions
 {
@@ -19,8 +21,23 @@ var jsonRpcOptions = new JsonRpcMethodOptions { NamingPolicy = JsonNamingPolicy.
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(jsonOptions);
-builder.Services.AddHostedService<JsonRpcStatusWorker>();
+// Services:
+builder
+    .Services.AddSingleton(jsonOptions)
+    .AddScoped<IGreeterService, GreeterService>() // <- Notice that the service is scoped!
+    .AddHostedService<JsonRpcStatusWorker>();
+
+// Authorization:
+builder
+    .Services.AddAuthorization(opt =>
+    {
+        opt.AddPolicy(AuthorizationConstants.UsernamePolicy, p => p.RequireUserName("example"));
+    })
+    .AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, ExampleAuthenticationHandler>(
+        nameof(ExampleAuthenticationHandler),
+        _ => { }
+    );
 
 // JSON RPC X methods:
 builder
@@ -35,9 +52,9 @@ builder
 //
 
 var app = builder.Build();
+app.UseAuthorization();
 app.UseWebSockets();
 
-app.MapJsonRpcSchema("/json-rpc");
 app.MapJsonRpcHttp("/json-rpc");
 app.MapJsonRpcWebSocket("/json-rpc/ws");
 

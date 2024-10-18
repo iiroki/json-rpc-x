@@ -17,7 +17,7 @@ internal interface IJsonRpcMethodInvoker
     /// <summary>
     /// JSON RPC method invocation metadata.
     /// </summary>
-    public MethodInfo Method { get; }
+    public JsonRpcMethodInfo Method { get; }
 
     /// <summary>
     /// Invokes the JSON RPC method against the controller.

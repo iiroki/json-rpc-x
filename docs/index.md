@@ -11,11 +11,21 @@ Documentation about more advanced topics can be found under ["Advanced"](#advanc
 
 See these pages for more detailed documentation about more advanced topics:
 
+- [**Authorization**](./authorization.md)
 - [**Middleware**](./middleware.md)
 - [**Errors**](./errors.md)
 - [**Serialization**](./serialization.md)
 - [**Bidirectional**](./bidirectional.md)
 - [**Custom transports**](./custom-transports.md)
+
+## Samples
+
+- Sample .NET JSON RPC API Server: [`JsonRpcX.Api`](../samples/JsonRpcX.Api/)
+    - Controllers
+    - HTTP + WebSocket transports
+    - Authorization
+    - Middleware
+    - Custom error handler
 
 ## Implement JSON RPC controllers
 

@@ -7,7 +7,7 @@ public class JsonRpcExampleExceptionHandler(ILogger<JsonRpcExampleExceptionHandl
 {
     private readonly ILogger _logger = logger;
 
-    public Task<JsonRpcError?> HandleAsync(Exception ex, CancellationToken ct = default)
+    public Task<JsonRpcError?> HandleAsync(JsonRpcContext ctx, Exception ex, CancellationToken ct = default)
     {
         _logger.LogInformation("Custom JSON RPC error handler triggered");
         return Task.FromResult<JsonRpcError?>(null);
