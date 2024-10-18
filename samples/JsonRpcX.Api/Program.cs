@@ -3,7 +3,7 @@ using JsonRpcX;
 using JsonRpcX.Api.Authorization;
 using JsonRpcX.Api.Middleware;
 using JsonRpcX.Api.Services;
-using JsonRpcX.Options;
+using JsonRpcX.Methods;
 using JsonRpcX.Transport;
 using Microsoft.AspNetCore.Authentication;
 
@@ -55,7 +55,6 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseWebSockets();
 
-app.MapJsonRpcSchema("/json-rpc");
 app.MapJsonRpcHttp("/json-rpc");
 app.MapJsonRpcWebSocket("/json-rpc/ws");
 

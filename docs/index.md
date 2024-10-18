@@ -18,6 +18,15 @@ See these pages for more detailed documentation about more advanced topics:
 - [**Bidirectional**](./bidirectional.md)
 - [**Custom transports**](./custom-transports.md)
 
+## Samples
+
+- Sample .NET JSON RPC API Server: [`JsonRpcX.Api`](../samples/JsonRpcX.Api/)
+    - Controllers
+    - HTTP + WebSocket transports
+    - Authorization
+    - Middleware
+    - Custom error handler
+
 ## Implement JSON RPC controllers
 
 _JSON RPC X_ implements JSON RPC methods with "controllers".
