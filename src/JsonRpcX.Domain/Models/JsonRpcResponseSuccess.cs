@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace JsonRpcX.Domain.Models;
 
+
 // /// <summary>
 // /// JSON-RPC 2.0 Response (success).
 // /// </summary>

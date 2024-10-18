@@ -17,8 +17,9 @@ namespace JsonRpcX.Tests.Core;
 
 public class JsonRpcProcessorTests
 {
-    private readonly IServiceCollection _services =
-        JsonRpcTestHelper.CreateTestServices([typeof(TestJsonRpcApi)]).AddAuthorization();
+    private readonly IServiceCollection _services = JsonRpcTestHelper
+        .CreateTestServices([typeof(TestJsonRpcApi)])
+        .AddAuthorization();
 
     private IServiceProvider? _serviceProvider;
 
