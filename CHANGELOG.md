@@ -1,8 +1,6 @@
 # Changelog
 
-## [0.3.0] - 2024-MM-DD
-
-UNRELEASED
+## [0.3.0] - 2024-10-18
 
 ### Added
 
@@ -10,7 +8,7 @@ UNRELEASED
 
 ### Modified
 
-- JSON RPC rrror handler is now a singleton service.
+- Simplified the main project structure.
 
 ## [0.2.0] - 2024-10-06
 

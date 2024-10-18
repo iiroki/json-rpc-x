@@ -11,6 +11,7 @@ Documentation about more advanced topics can be found under ["Advanced"](#advanc
 
 See these pages for more detailed documentation about more advanced topics:
 
+- [**Authorization**](./authorization.md)
 - [**Middleware**](./middleware.md)
 - [**Errors**](./errors.md)
 - [**Serialization**](./serialization.md)
