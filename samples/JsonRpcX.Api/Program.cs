@@ -29,7 +29,10 @@ builder
 
 // Authorization:
 builder
-    .Services.AddAuthorization()
+    .Services.AddAuthorization(opt =>
+    {
+        opt.AddPolicy(AuthorizationConstants.UsernamePolicy, p => p.RequireUserName("example"));
+    })
     .AddAuthentication()
     .AddScheme<AuthenticationSchemeOptions, ExampleAuthenticationHandler>(
         nameof(ExampleAuthenticationHandler),

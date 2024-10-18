@@ -1,4 +1,3 @@
-using System.Reflection;
 using JsonRpcX.Attributes;
 using JsonRpcX.Authorization;
 using JsonRpcX.Client;
@@ -10,10 +9,8 @@ using JsonRpcX.Exceptions;
 using JsonRpcX.Extensions;
 using JsonRpcX.Methods;
 using JsonRpcX.Middleware;
-using JsonRpcX.Options;
 using JsonRpcX.Requests;
 using JsonRpcX.Transport;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -62,10 +59,12 @@ public static class DependencyExtensions
 
             if (attr != null)
             {
-                var auth = GetJsonRpcAuthorizationData(m);
+                var auth = opt?.AuthorizationResolver?.Invoke(m) ?? JsonRpcAuthorizationResolver.GetAuthorization(m);
                 var info = new JsonRpcMethodInfo
                 {
-                    Name = GetJsonRpcMethodName(m, attr, opt),
+                    Name =
+                        opt?.NameResolver?.Invoke(m, attr)
+                        ?? JsonRpcMethodNameResolver.GetName(m, attr, opt?.NamingPolicy),
                     Metadata = m,
                     Authorization = auth,
                 };
@@ -160,45 +159,4 @@ public static class DependencyExtensions
 
     private static bool IsValidJsonRpcControllerType(Type type) =>
         typeof(IJsonRpcController).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract;
-
-    private static string GetJsonRpcMethodName(
-        MethodInfo method,
-        JsonRpcMethodAttribute attr,
-        JsonRpcMethodOptions? opt = null
-    )
-    {
-        var original = method.Name;
-
-        // Drop the async suffix from the method name, if one exists.
-        const string asyncSuffix = "Async";
-        if (original.EndsWith(asyncSuffix, StringComparison.OrdinalIgnoreCase))
-        {
-            original = original.Substring(0, original.Length - asyncSuffix.Length);
-        }
-
-        // 1. Name from the attribute
-        if (!string.IsNullOrEmpty(attr.Name))
-        {
-            return attr.Name;
-        }
-
-        // 2. Name from the transformer
-        if (opt?.NameTransformer != null)
-        {
-            return opt.NameTransformer(original);
-        }
-
-        // 3. Name with the naming policy
-        if (opt?.NamingPolicy != null)
-        {
-            return opt.NamingPolicy.ConvertName(original);
-        }
-
-        // 4. Fallback to the original method name
-        return original;
-    }
-
-    private static AuthorizeAttribute? GetJsonRpcAuthorizationData(MethodInfo method) =>
-        method.GetCustomAttribute<AuthorizeAttribute>()
-        ?? method.DeclaringType?.GetCustomAttribute<AuthorizeAttribute>();
 }

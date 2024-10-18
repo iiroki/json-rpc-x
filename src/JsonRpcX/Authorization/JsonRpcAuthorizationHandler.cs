@@ -9,37 +9,28 @@ namespace JsonRpcX.Authorization;
 
 internal class JsonRpcAuthorizationHandler : IJsonRpcAuthorizationHandler
 {
-    private readonly IAuthorizationService _authorization;
-    private readonly ImmutableDictionary<string, List<IAuthorizationRequirement>> _requirements;
+    private readonly IAuthorizationService _service;
+    private readonly ImmutableDictionary<string, JsonRpcMethodAuthorization> _methods;
 
-    public JsonRpcAuthorizationHandler(IAuthorizationService authorization, IJsonRpcMethodContainer methodContainer)
+    public JsonRpcAuthorizationHandler(IAuthorizationService service, IJsonRpcMethodContainer methodContainer)
     {
-        _authorization = authorization;
+        _service = service;
 
-        // Store requirements for JSON RPC methods
-        Dictionary<string, List<IAuthorizationRequirement>> requirements = [];
-        foreach (var info in methodContainer.Methods.Values)
+        // Store authorization data for JSON RPC methods
+        Dictionary<string, JsonRpcMethodAuthorization> builder = [];
+        foreach (var method in methodContainer.Methods.Values)
         {
-            List<IAuthorizationRequirement> methodRequirements = [];
-
-            if (!string.IsNullOrWhiteSpace(info.Authorization?.Roles))
+            if (method.Authorization != null)
             {
-                var roles = info.Authorization.Roles.Split(',').Select(r => r.Trim());
-                methodRequirements.Add(new RolesAuthorizationRequirement(roles));
-            }
-
-            if (methodRequirements.Count == 0 && info.Authorization != null)
-            {
-                methodRequirements.Add(new DenyAnonymousAuthorizationRequirement());
-            }
-
-            if (methodRequirements.Count > 0)
-            {
-                requirements.Add(info.Name, methodRequirements);
+                var methodAuth = ToMethodAuthorization(method.Authorization);
+                if (methodAuth.HasAny)
+                {
+                    builder.Add(method.Name, methodAuth);
+                }
             }
         }
 
-        _requirements = requirements.ToImmutableDictionary();
+        _methods = builder.ToImmutableDictionary();
     }
 
     public async Task HandleAsync(JsonRpcContext ctx, CancellationToken _ = default)
@@ -52,15 +43,58 @@ internal class JsonRpcAuthorizationHandler : IJsonRpcAuthorizationHandler
         }
 
         var method = ctx.Request.Method;
-        if (!_requirements.TryGetValue(method, out var requirements))
+        if (!_methods.TryGetValue(method, out var authorization))
         {
             return; // No authorization requirements
         }
 
-        var res = await _authorization.AuthorizeAsync(ctx.User, null, requirements);
-        if (res.Failure != null)
+        List<Task<AuthorizationResult>> tasks = [];
+
+        if (authorization.Roles.Count > 0)
         {
-            throw new JsonRpcAuthorizationExpection(res.Failure);
+            tasks.Add(_service.AuthorizeAsync(ctx.User, null, authorization.Roles));
         }
+
+        if (authorization.Policies.Count > 0)
+        {
+            tasks.AddRange(authorization.Policies.Select(p => _service.AuthorizeAsync(ctx.User, null, p)));
+        }
+
+        var results = await Task.WhenAll(tasks);
+        var failure = results.Select(r => r.Failure).FirstOrDefault(f => f != null);
+        if (failure != null)
+        {
+            throw new JsonRpcAuthorizationExpection(failure);
+        }
+    }
+
+    private static JsonRpcMethodAuthorization ToMethodAuthorization(IEnumerable<IAuthorizeData> authorization)
+    {
+        var data = new JsonRpcMethodAuthorization { Roles = [], Policies = [] };
+
+        foreach (var auth in authorization)
+        {
+            if (!string.IsNullOrWhiteSpace(auth.Roles))
+            {
+                var roles = auth.Roles.Split(',').Select(s => s.Trim()).ToList();
+                data.Roles.Add(new RolesAuthorizationRequirement(roles));
+            }
+
+            if (!string.IsNullOrWhiteSpace(auth.Policy))
+            {
+                data.Policies.Add(auth.Policy);
+            }
+        }
+
+        return data;
+    }
+
+    private readonly struct JsonRpcMethodAuthorization
+    {
+        public List<RolesAuthorizationRequirement> Roles { get; init; }
+
+        public List<string> Policies { get; init; }
+
+        public bool HasAny => Roles.Count > 0 || Policies.Count > 0;
     }
 }

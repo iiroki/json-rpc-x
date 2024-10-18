@@ -1,3 +1,4 @@
+using JsonRpcX.Api.Authorization;
 using JsonRpcX.Attributes;
 using JsonRpcX.Controllers;
 using JsonRpcX.Domain.Models;
@@ -13,9 +14,21 @@ public class JsonRpcAuthorizedController(JsonRpcContext ctx, ILogger<JsonRpcAuth
     private readonly ILogger _logger = logger;
 
     [JsonRpcMethod]
-    public void Authorized(IEnumerable<object> items, CancellationToken ct = default)
+    public void Authorized()
     {
         var user = _ctx.User;
-        _logger.LogInformation("Items: {I}", items);
+        _logger.LogInformation("Authorized: {U}", user.Identity?.Name);
     }
+
+    [JsonRpcMethod]
+    [Authorize(Policy = AuthorizationConstants.UsernamePolicy)]
+    public void Policy()
+    {
+        var user = _ctx.User;
+        _logger.LogInformation("Policy: {U}", user.Identity?.Name);
+    }
+
+    [JsonRpcMethod]
+    [AllowAnonymous]
+    public void Anonymous() => _logger.LogInformation("Anonymous");
 }
